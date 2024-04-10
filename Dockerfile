@@ -1,9 +1,11 @@
-FROM python:3.11.9-alpine3.19
+FROM python:3.11
 
 COPY ./requirements.txt /app/requirements.txt
 
 # switch working directory
 WORKDIR /app
+
+RUN apt-get update && apt-get -y install libpq-dev gcc
 
 # install the dependencies and packages in the requirements file
 RUN pip install -r requirements.txt
