@@ -1,9 +1,12 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import os
 from database import db
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
+from sqlalchemy.orm import sessionmaker
+from models import Credentials
+from utils.utils import create_salt, hash_password
 
 
 hostname = "db"  # or '127.0.0.1'
@@ -19,6 +22,7 @@ SQLALCHEMY_DATABASE_URI = (
 )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
+Session = sessionmaker(bind=engine)
 
 
 def create_app():
@@ -26,12 +30,43 @@ def create_app():
 
     db.init_app(app)
 
-    migrate = Migrate(app, db)
+    Migrate(app, db)
 
     server_port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=server_port)
 
-    return app
+
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.json
+    login = data.get("login", "")
+    pw = data.get("pw", "")
+
+    if not login:
+        return "Missing login field", 400
+    if not pw:
+        return "Missing password field", 400
+
+    salt = create_salt()
+    hashed_pass = hash_password(pw, salt)
+
+    session = Session()
+    try:
+        session.add(Credentials(login=login, hashed_pass=hashed_pass, salt=salt))
+        session.commit()
+
+        return hashed_pass
+    except Exception as e:
+        session.rollback()
+        err = str(e)
+
+        if "unique constraint" in err:
+            return "Login already exists", 400
+        else:
+            return "Unknown error", 400
+
+    finally:
+        session.close()
 
 
 @app.route("/")
@@ -45,11 +80,9 @@ def data():
         with engine.connect() as conn:
             stmt = text("select * from users;")
             x = conn.execute(stmt).fetchall()
-            return str(x)
+        return str(x)
     except Exception as e:
         return str(e)
-
-    # return "some data2"
 
 
 if __name__ == "__main__":
