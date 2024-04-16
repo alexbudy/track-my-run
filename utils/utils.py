@@ -1,6 +1,7 @@
 import string
 import secrets
 import hashlib
+import uuid
 
 
 def create_salt(length=16):
@@ -11,3 +12,7 @@ def create_salt(length=16):
 def hash_password(pw, salt):
     salted_pass = salt + pw
     return hashlib.sha256(salted_pass.encode()).hexdigest()
+
+
+def create_uuid():
+    return str(uuid.uuid4())

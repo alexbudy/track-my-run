@@ -7,7 +7,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
 from models import Credentials
 from utils.utils import create_salt, hash_password
-
+import redis
 
 hostname = "db"  # or '127.0.0.1'
 port = 5432
@@ -23,6 +23,8 @@ SQLALCHEMY_DATABASE_URI = (
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 Session = sessionmaker(bind=engine)
+
+redis_cache = redis.Redis(host="cache", port=6379)
 
 
 def create_app():
@@ -105,6 +107,11 @@ def data():
         return str(x)
     except Exception as e:
         return str(e)
+
+
+@app.route("/redis-health-check")
+def redis_health_check():
+    return str(redis_cache.ping())
 
 
 if __name__ == "__main__":
