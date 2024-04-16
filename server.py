@@ -36,6 +36,28 @@ def create_app():
     app.run(debug=True, host="0.0.0.0", port=server_port)
 
 
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    login = data.get("login", "")
+    pw = data.get("pw", "")
+
+    if not login:
+        return "Missing login field", 400
+    if not pw:
+        return "Missing password field", 400
+
+    with Session() as session:
+        creds = session.query(Credentials).filter(Credentials.login == login).all()
+        if len(creds) == 0:
+            return "Login not found", 400
+        hashed_pass = hash_password(pw, creds[0].salt)
+        if hashed_pass != creds[0].hashed_pass:
+            return "Invalid password, please try again", 400
+
+        return "Logged in!"
+
+
 @app.route("/register", methods=["POST"])
 def register():
     data = request.json
@@ -78,7 +100,7 @@ def home():
 def data():
     try:
         with engine.connect() as conn:
-            stmt = text("select * from users;")
+            stmt = text("select * from credentials;")
             x = conn.execute(stmt).fetchall()
         return str(x)
     except Exception as e:

@@ -23,13 +23,3 @@ class Credentials(Base):
 
     def __repr__(self):
         return f"<Credentials {self.id}, {self.login}>"
-
-
-class Users(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(), nullable=True)
-
-    def __repr__(self):
-        return f"<Users {self.id}, {self.name}>"
