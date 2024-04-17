@@ -5,13 +5,53 @@
 <h2>Login</h2>
 
 <div style="text-align: center;">
-    <form action="/login" method="post">
+    <form>
         <label for="login">Login:</label><br>
         <input type="text" id="login" name="login"><br>
         <label for="pw">Password:</label><br>
         <input type="password" id="pw" name="pw"><br><br>
-        <input type="submit" value="Login">
+        <input type="submit" onclick="submitLoginForm()" value="Login">
     </form> 
+
+    <script>
+        function submitLoginForm() {
+            var username = document.getElementById('login').value;
+            var password = document.getElementById('pw').value;
+    
+            // Prepare data to send in POST request
+            var formData = {
+                login: username,
+                pw: password
+            };
+    
+            // Send POST request to server (assuming using fetch API)
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                // Assuming the response contains an access token
+                var accessToken = data.access_token;
+                console.log(accessToken)
+    
+                // Store the access token in localStorage (or sessionStorage)
+                localStorage.setItem('accessToken', accessToken);
+                document.cookie = `accessToken=${accessToken};`
+                // Redirect to another page or perform other actions
+                window.location.href = '/landing_page'; // Redirect to dashboard page
+            })
+            .catch(error => {
+                console.error('Login failed:', error);
+                // Handle login failure (e.g., show error message)
+                alert('Login failed. Please try again.');
+            });
+        }
+    </script>
 
 </div>
 

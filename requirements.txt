@@ -1,7 +1,9 @@
 alembic==1.13.1
 blinker==1.7.0
+cffi==1.16.0
 click==8.1.7
 colorama==0.4.6
+cryptography==42.0.5
 Flask==3.0.2
 Flask-Cors==4.0.0
 Flask-Migrate==4.0.7
@@ -15,6 +17,8 @@ numpy==1.26.4
 packaging==24.0
 pillow==10.3.0
 psycopg2==2.9.9
+pycparser==2.22
+PyJWT==2.8.0
 pyparsing==3.1.2
 redis==5.0.3
 six==1.16.0

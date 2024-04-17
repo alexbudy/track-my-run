@@ -1,4 +1,4 @@
-from flask import Flask, make_response, redirect, render_template, request
+from flask import Flask, jsonify, make_response, redirect, render_template, request
 import os
 from database import db
 from flask_migrate import Migrate
@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
 from models import Credentials, Users
-from utils.utils import create_salt, hash_password, create_uuid
+from utils.utils import create_jwt_token, create_salt, hash_password, user_id_from_token
 import redis
 
 hostname = "db"  # or '127.0.0.1'
@@ -41,9 +41,8 @@ def create_app():
 @app.route("/login", methods=["POST"])
 def login():
     app.logger.info("Login method")
-    app.logger.info(request)
 
-    data = request.form
+    data = request.json
     login = data.get("login", "")
     pw = data.get("pw", "")
 
@@ -60,9 +59,13 @@ def login():
         if hashed_pass != creds[0].hashed_pass:
             return "Invalid password, please try again", 400
 
-        resp = make_response("Logged in")
-        resp.headers["auth"] = create_uuid()
-        return resp
+    app.logger.info(f"User {creds[0].user_id} logged in")
+
+    tok = create_jwt_token(creds[0].user_id)
+
+    redis_cache.set(f"auth_token:{creds[0].user_id}", tok, ex=3600)
+
+    return jsonify({"access_token": tok}), 200
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -102,6 +105,7 @@ def register():
                     login=login, hashed_pass=hashed_pass, salt=salt, user_id=user.id
                 )
             )
+            session.commit()
             return redirect("/")
         except Exception as e:
             session.rollback()
@@ -118,6 +122,17 @@ def login_page():
     return render_template("login.html")
 
 
+@app.route("/landing_page")
+def landing_page():
+    # protected page
+    token = request.cookies.get("accessToken", "")
+
+    if not token:
+        return "Please login to view", 400
+
+    return render_template("landing_page.html")
+
+
 # @app.route("/register")
 # def register_page():
 #     app.logger.info(request.method)
@@ -131,13 +146,16 @@ def home():
 
 @app.route("/api/data")
 def data():
-    try:
-        with engine.connect() as conn:
-            stmt = text("select * from credentials;")
-            x = conn.execute(stmt).fetchall()
-        return str(x)
-    except Exception as e:
-        return str(e)
+    # proteced endpoint, needs to be logged in
+    token = request.headers.get("Authorization")
+    app.logger.info(request.headers)
+    if not token:
+        return {"error": "Authorization token missing"}, 401
+    user_id = user_id_from_token(token)
+    if not user_id:
+        return "Invalid token, please login again", 401
+
+    return "Super secret info"
 
 
 @app.route("/redis-health-check")
