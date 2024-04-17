@@ -1,11 +1,11 @@
-from flask import Flask, make_response, render_template, request
+from flask import Flask, make_response, redirect, render_template, request
 import os
 from database import db
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
-from models import Credentials
+from models import Credentials, Users
 from utils.utils import create_salt, hash_password, create_uuid
 import redis
 
@@ -44,7 +44,6 @@ def login():
     app.logger.info(request)
 
     data = request.form
-    app.logger.info(data)
     login = data.get("login", "")
     pw = data.get("pw", "")
 
@@ -66,42 +65,63 @@ def login():
         return resp
 
 
-@app.route("/register", methods=["POST"])
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    data = request.json
+    if request.method == "GET":
+        return render_template("register.html")
+
+    data = request.form
     login = data.get("login", "")
     pw = data.get("pw", "")
+    pw2 = data.get("pw2", "")
+    firstname = data.get("name", "")
+    lastname = data.get("last", "")
+    email = data.get("email", "")
 
     if not login:
         return "Missing login field", 400
     if not pw:
         return "Missing password field", 400
+    if pw != pw2:
+        return "Mismatched passwords", 400
+    if not firstname or not email:
+        return "Missing first name/email fields", 400
 
     salt = create_salt()
     hashed_pass = hash_password(pw, salt)
 
     session = Session()
-    try:
-        session.add(Credentials(login=login, hashed_pass=hashed_pass, salt=salt))
-        session.commit()
+    with Session() as session:
+        try:
+            user = Users(firstname=firstname, lastname=lastname, email=email)
+            session.add(user)
+            session.flush()
 
-        return hashed_pass
-    except Exception as e:
-        session.rollback()
-        err = str(e)
+            session.add(
+                Credentials(
+                    login=login, hashed_pass=hashed_pass, salt=salt, user_id=user.id
+                )
+            )
+            return redirect("/")
+        except Exception as e:
+            session.rollback()
+            err = str(e)
 
-        if "unique constraint" in err:
-            return "Login already exists", 400
-        else:
-            return "Unknown error", 400
-
-    finally:
-        session.close()
+            if "unique constraint" in err:
+                return "Login already exists", 400
+            else:
+                return "Unknown error", 400
 
 
 @app.route("/login")
 def login_page():
     return render_template("login.html")
+
+
+# @app.route("/register")
+# def register_page():
+#     app.logger.info(request.method)
+#     return render_template("register.html")
 
 
 @app.route("/")
