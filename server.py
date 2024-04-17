@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, make_response, render_template, request
 import os
 from database import db
 from flask_migrate import Migrate
@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
 from models import Credentials
-from utils.utils import create_salt, hash_password
+from utils.utils import create_salt, hash_password, create_uuid
 import redis
 
 hostname = "db"  # or '127.0.0.1'
@@ -40,7 +40,11 @@ def create_app():
 
 @app.route("/login", methods=["POST"])
 def login():
-    data = request.json
+    app.logger.info("Login method")
+    app.logger.info(request)
+
+    data = request.form
+    app.logger.info(data)
     login = data.get("login", "")
     pw = data.get("pw", "")
 
@@ -57,7 +61,9 @@ def login():
         if hashed_pass != creds[0].hashed_pass:
             return "Invalid password, please try again", 400
 
-        return "Logged in!"
+        resp = make_response("Logged in")
+        resp.headers["auth"] = create_uuid()
+        return resp
 
 
 @app.route("/register", methods=["POST"])
@@ -91,6 +97,11 @@ def register():
 
     finally:
         session.close()
+
+
+@app.route("/login")
+def login_page():
+    return render_template("login.html")
 
 
 @app.route("/")
