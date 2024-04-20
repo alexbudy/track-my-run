@@ -3,11 +3,14 @@ import secrets
 import hashlib
 import uuid
 import jwt
+import datetime
+
+ALPHABET = string.ascii_letters + string.digits
+ALPHABET_WITH_PUNC = ALPHABET + string.punctuation
 
 
 def create_salt(length=16):
-    alphabet = string.ascii_letters + string.digits + string.punctuation
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+    return "".join(secrets.choice(ALPHABET_WITH_PUNC) for _ in range(length))
 
 
 def hash_password(pw, salt):
@@ -17,6 +20,14 @@ def hash_password(pw, salt):
 
 def create_uuid():
     return str(uuid.uuid4())
+
+
+def create_session_tok():
+    return "sess_" + "".join(secrets.choice(ALPHABET) for _ in range(15))
+
+
+def current_utc_ts():
+    return round(datetime.datetime.now(datetime.UTC).timestamp())
 
 
 def create_jwt_token(user_id):

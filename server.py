@@ -1,12 +1,20 @@
-from flask import Flask, jsonify, make_response, redirect, render_template, request
+from flask import Flask, jsonify, session, redirect, render_template, request
 import os
 from database import db
 from flask_migrate import Migrate
+
+# from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
 from models import Credentials, Users
-from utils.utils import create_jwt_token, create_salt, hash_password, user_id_from_token
+from utils.utils import (
+    create_salt,
+    create_session_tok,
+    hash_password,
+    user_id_from_token,
+    current_utc_ts,
+)
 import redis
 
 hostname = "db"  # or '127.0.0.1'
@@ -15,7 +23,10 @@ database = "db"
 username = "postgres"
 password = "postgres"
 
+LOGIN_EXPIRY_S = 3600
+
 app = Flask(__name__)
+# Session(app)
 
 SQLALCHEMY_DATABASE_URI = (
     f"postgresql://{username}:{password}@{hostname}:{port}/{database}"
@@ -29,6 +40,7 @@ redis_cache = redis.Redis(host="cache", port=6379)
 
 def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
+    app.secret_key = "bad key"
 
     db.init_app(app)
 
@@ -38,6 +50,11 @@ def create_app():
     app.run(debug=True, host="0.0.0.0", port=server_port)
 
 
+@app.route("/login")
+def login_page():
+    return render_template("login.html")
+
+
 @app.route("/login", methods=["POST"])
 def login():
     app.logger.info("Login method")
@@ -45,25 +62,27 @@ def login():
     data = request.json
     login = data.get("login", "")
     pw = data.get("pw", "")
-
     if not login:
         return "Missing login field", 400
     if not pw:
         return "Missing password field", 400
 
-    with Session() as session:
-        creds = session.query(Credentials).filter(Credentials.login == login).all()
+    with Session() as sess:
+        creds = sess.query(Credentials).filter(Credentials.login == login).all()
         if len(creds) == 0:
             return "Login not found", 400
         hashed_pass = hash_password(pw, creds[0].salt)
         if hashed_pass != creds[0].hashed_pass:
             return "Invalid password, please try again", 400
 
-    app.logger.info(f"User {creds[0].user_id} logged in")
+    user_id = creds[0].user_id
 
-    tok = create_jwt_token(creds[0].user_id)
+    app.logger.info(f"User {user_id} logged in")
+    tok = create_session_tok()
 
-    redis_cache.set(f"auth_token:{creds[0].user_id}", tok, ex=3600)
+    redis_cache.hset(f"user_id:{user_id}", "tok", tok)
+    redis_cache.hset(f"user_id:{user_id}", "exp", current_utc_ts() + LOGIN_EXPIRY_S)
+    redis_cache.set(tok, user_id, ex=LOGIN_EXPIRY_S)
 
     return jsonify({"access_token": tok}), 200
 
@@ -117,16 +136,11 @@ def register():
                 return "Unknown error", 400
 
 
-@app.route("/login")
-def login_page():
-    return render_template("login.html")
-
-
 @app.route("/landing_page")
 def landing_page():
     # protected page
     token = request.cookies.get("accessToken", "")
-
+    app.logger.info(session)
     if not token:
         return "Please login to view", 400
 
@@ -141,6 +155,7 @@ def landing_page():
 
 @app.route("/")
 def home():
+    app.logger.info(session)
     return render_template("index.html")
 
 

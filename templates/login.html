@@ -40,7 +40,6 @@
                 console.log(accessToken)
     
                 // Store the access token in localStorage (or sessionStorage)
-                localStorage.setItem('accessToken', accessToken);
                 document.cookie = `accessToken=${accessToken};`
                 // Redirect to another page or perform other actions
                 window.location.href = '/landing_page'; // Redirect to dashboard page
