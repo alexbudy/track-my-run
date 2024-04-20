@@ -27,8 +27,3 @@ def create_session_tok():
 
 def current_utc_ts():
     return round(datetime.datetime.now(datetime.UTC).timestamp())
-
-
-def time_delta(ts, s_in_unit=60):
-    # s_in_unit = how many seconds in a unit
-    return round((ts - current_utc_ts()) / s_in_unit, 2)

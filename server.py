@@ -1,6 +1,6 @@
 from functools import wraps
 import logging
-from flask import Flask, jsonify, session, redirect, render_template, request
+from flask import Flask, jsonify, session, redirect, render_template, request, url_for
 import os
 from database import db
 from flask_migrate import Migrate
@@ -13,8 +13,6 @@ from utils.utils import (
     create_salt,
     create_session_tok,
     hash_password,
-    current_utc_ts,
-    time_delta,
 )
 import redis
 
@@ -51,6 +49,19 @@ def create_app():
     app.run(debug=True, host="0.0.0.0", port=server_port)
 
 
+def redirect_if_logged_in(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        token = request.cookies.get("accessToken", "")
+
+        if token and redis_cache.exists(token):
+            return redirect(url_for("landing_page"))
+
+        return func(*args, **kwargs)
+
+    return decorated_function
+
+
 def auth_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
@@ -64,10 +75,10 @@ def auth_required(func):
 
         if app.logger.level <= logging.INFO:
             user_id = int(redis_cache.get(token))
-            ttl = redis_cache.ttl(token)
+            ttl_s = redis_cache.ttl(token)
 
             app.logger.info(
-                f"User {user_id} accessing protected page, {time_delta(ttl)} minutes left in session"
+                f"User {user_id} accessing protected page, {round(ttl_s / 60, 2)} minutes left in session"
             )
 
         return func(*args, **kwargs)
@@ -76,6 +87,7 @@ def auth_required(func):
 
 
 @app.route("/login")
+@redirect_if_logged_in
 def login_page():
     return render_template("login.html")
 
@@ -166,12 +178,6 @@ def landing_page():
     return render_template("landing_page.html")
 
 
-# @app.route("/register")
-# def register_page():
-#     app.logger.info(request.method)
-#     return render_template("register.html")
-
-
 @app.route("/")
 def home():
     app.logger.info(session)
@@ -179,16 +185,8 @@ def home():
 
 
 @app.route("/api/data")
+@auth_required
 def data():
-    # proteced endpoint, needs to be logged in
-    token = request.headers.get("Authorization")
-    app.logger.info(request.headers)
-    if not token:
-        return {"error": "Authorization token missing"}, 401
-    user_id = user_id_from_token(token)
-    if not user_id:
-        return "Invalid token, please login again", 401
-
     return "Super secret info"
 
 
