@@ -2,7 +2,6 @@ import string
 import secrets
 import hashlib
 import uuid
-import jwt
 import datetime
 
 ALPHABET = string.ascii_letters + string.digits
@@ -30,17 +29,6 @@ def current_utc_ts():
     return round(datetime.datetime.now(datetime.UTC).timestamp())
 
 
-def create_jwt_token(user_id):
-    payload = {"user_id": user_id}
-    secret = "SUPERSECRET"  # TODO - change
-    tok = jwt.encode(payload=payload, key=secret, algorithm="HS256")
-    return tok
-
-
-def user_id_from_token(tok):
-    # TODO better decoding?
-    try:
-        dec = jwt.decode(tok, key="SUPERSECRET", algorithms="HS256")
-        return dec["user_id"]
-    except Exception as e:
-        return None
+def time_delta(ts, s_in_unit=60):
+    # s_in_unit = how many seconds in a unit
+    return round((ts - current_utc_ts()) / s_in_unit, 2)

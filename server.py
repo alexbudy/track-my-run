@@ -1,3 +1,5 @@
+from functools import wraps
+import logging
 from flask import Flask, jsonify, session, redirect, render_template, request
 import os
 from database import db
@@ -5,15 +7,14 @@ from flask_migrate import Migrate
 
 # from flask_session import Session
 from sqlalchemy import create_engine
-from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
 from models import Credentials, Users
 from utils.utils import (
     create_salt,
     create_session_tok,
     hash_password,
-    user_id_from_token,
     current_utc_ts,
+    time_delta,
 )
 import redis
 
@@ -50,6 +51,30 @@ def create_app():
     app.run(debug=True, host="0.0.0.0", port=server_port)
 
 
+def auth_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        token = request.cookies.get("accessToken", "")
+
+        if not token:
+            return "Please login to view", 400
+
+        if not redis_cache.exists(token):
+            return "Session expired, please login", 440
+
+        if app.logger.level <= logging.INFO:
+            user_id = int(redis_cache.get(token))
+            ttl = redis_cache.ttl(token)
+
+            app.logger.info(
+                f"User {user_id} accessing protected page, {time_delta(ttl)} minutes left in session"
+            )
+
+        return func(*args, **kwargs)
+
+    return decorated_function
+
+
 @app.route("/login")
 def login_page():
     return render_template("login.html")
@@ -80,9 +105,8 @@ def login():
     app.logger.info(f"User {user_id} logged in")
     tok = create_session_tok()
 
-    redis_cache.hset(f"user_id:{user_id}", "tok", tok)
-    redis_cache.hset(f"user_id:{user_id}", "exp", current_utc_ts() + LOGIN_EXPIRY_S)
     redis_cache.set(tok, user_id, ex=LOGIN_EXPIRY_S)
+    redis_cache.set(f"user_id:{user_id}", tok, ex=LOGIN_EXPIRY_S)
 
     return jsonify({"access_token": tok}), 200
 
@@ -112,22 +136,21 @@ def register():
     salt = create_salt()
     hashed_pass = hash_password(pw, salt)
 
-    session = Session()
-    with Session() as session:
+    with Session() as sess:
         try:
             user = Users(firstname=firstname, lastname=lastname, email=email)
-            session.add(user)
-            session.flush()
+            sess.add(user)
+            sess.flush()
 
-            session.add(
+            sess.add(
                 Credentials(
                     login=login, hashed_pass=hashed_pass, salt=salt, user_id=user.id
                 )
             )
-            session.commit()
+            sess.commit()
             return redirect("/")
         except Exception as e:
-            session.rollback()
+            sess.rollback()
             err = str(e)
 
             if "unique constraint" in err:
@@ -137,13 +160,9 @@ def register():
 
 
 @app.route("/landing_page")
+@auth_required
 def landing_page():
     # protected page
-    token = request.cookies.get("accessToken", "")
-    app.logger.info(session)
-    if not token:
-        return "Please login to view", 400
-
     return render_template("landing_page.html")
 
 
