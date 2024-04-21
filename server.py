@@ -49,6 +49,14 @@ def create_app():
     app.run(debug=True, host="0.0.0.0", port=server_port)
 
 
+def get_token_and_user_id_from_cookies():
+    token = request.cookies.get("accessToken", "")
+    if not token or not redis_cache.exists(token):
+        return None, None
+
+    return token, int(redis_cache.get(token))
+
+
 def redirect_if_logged_in(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
@@ -90,6 +98,19 @@ def auth_required(func):
 @redirect_if_logged_in
 def login_page():
     return render_template("login.html")
+
+
+@app.route("/logout", methods=["POST"])
+@auth_required
+def logout():
+    tok, user_id = get_token_and_user_id_from_cookies()
+    app.logger.info(f"Logout called for user {user_id}")
+
+    redis_cache.delete(tok)
+    redis_cache.delete(f"user_id:{user_id}")
+    app.logger.info(f"Tokens deleted")
+
+    return jsonify({"logged_out": True}), 200
 
 
 @app.route("/login", methods=["POST"])

@@ -7,9 +7,25 @@
 </head>
 <body>
     <script>
-        // alert()
+        function logout() {
+            fetch('/logout', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                window.location.href = '/login'; // Redirect to dashboard page
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+                alert('Logout failed. Please try again.');
+            });
+
+        }
 
     </script>
     This page should only be seen once logged in
+    <br>
+    <a href="/logout" onclick="logout()">Logout</a>
 </body>
 </html>
