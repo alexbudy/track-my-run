@@ -1,4 +1,7 @@
 from flask import current_app, jsonify, redirect, render_template, request, Blueprint
+from marshmallow import Schema, fields
+from webargs.flaskparser import use_args
+
 from app.auth import (
     auth_required,
     get_token_and_user_id_from_cookies,
@@ -16,29 +19,40 @@ auth_blueprint = Blueprint("auth_blueprint", __name__)
 LOGIN_EXPIRY_S = 3600
 
 
-@auth_blueprint.route("/login", methods=["GET", "POST"])
+class LoginUser(Schema):
+    login = fields.String(required=True, max=25)
+    password = fields.String(required=True, max=25)
+
+
+@auth_blueprint.route("/login", methods=["GET"])
 @redirect_if_logged_in
-def login():
-    if request.method == "GET":
-        return render_template("login.html")
+def render_login():
+    return render_template("login.html")
 
+
+@auth_blueprint.route("/login", methods=["POST"])
+@redirect_if_logged_in
+@use_args(LoginUser())
+def login(payload: dict):
     current_app.logger.info("Login method")
+    current_app.logger.info(payload)
 
-    data = request.json
-    login = data.get("login", "")
-    pw = data.get("pw", "")
-    if not login:
-        return "Missing login field", 400
-    if not pw:
-        return "Missing password field", 400
+    login = payload.get("login")
+    pw = payload.get("password")
 
     with Session() as sess:
         creds = sess.query(Credentials).filter(Credentials.login == login).all()
         if len(creds) == 0:
-            return "Login not found", 400
+            return (
+                jsonify({"error": "Login not found, please register or try again"}),
+                400,
+            )
         hashed_pass = hash_password(pw, creds[0].salt)
         if hashed_pass != creds[0].hashed_pass:
-            return "Invalid password, please try again", 400
+            return (
+                jsonify({"error": "Invalid password, please try again"}),
+                400,
+            )
 
     user_id = creds[0].user_id
 

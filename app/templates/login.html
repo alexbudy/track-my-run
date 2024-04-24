@@ -5,23 +5,21 @@
 <h2>Login</h2>
 
 <div style="text-align: center;">
-    <form>
-        <label for="login">Login:</label><br>
-        <input type="text" id="login" name="login"><br>
-        <label for="pw">Password:</label><br>
-        <input type="password" id="pw" name="pw"><br><br>
-        <input type="submit" onclick="submitLoginForm()" value="Login">
-    </form> 
+    <label for="login">Login:</label><br>
+    <input type="text" id="login" name="login"><br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password"><br><br>
+    <button type="submit" onclick="submitLoginForm()">Login</button>
 
     <script>
         function submitLoginForm() {
             var username = document.getElementById('login').value;
-            var password = document.getElementById('pw').value;
+            var password = document.getElementById('password').value;
     
             // Prepare data to send in POST request
             var formData = {
                 login: username,
-                pw: password
+                password: password
             };
     
             // Send POST request to server (assuming using fetch API)
@@ -34,20 +32,24 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data)
-                // Assuming the response contains an access token
-                var accessToken = data.access_token;
-                console.log(accessToken)
-    
-                // Store the access token in localStorage (or sessionStorage)
-                document.cookie = `accessToken=${accessToken};`
-                // Redirect to another page or perform other actions
-                window.location.href = '/landing_page'; // Redirect to dashboard page
+                if (data.error) {
+                    alert(data.error)
+                    document.getElementById('login').value = ''
+                    document.getElementById('password').value = ''
+                } else {
+                    // Assuming the response contains an access token
+                    var accessToken = data.access_token;
+        
+                    // Store the access token in cookie
+                    document.cookie = `accessToken=${accessToken};`
+                    // Redirect to another page or perform other actions
+                    window.location.href = '/landing_page'; // Redirect to dashboard page
+                }
             })
             .catch(error => {
+                console.log(error)
                 console.error('Login failed:', error);
-                // Handle login failure (e.g., show error message)
-                alert('Login failed. Please try again.');
+                alert(error);
             });
         }
     </script>

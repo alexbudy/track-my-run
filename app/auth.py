@@ -4,7 +4,7 @@ from flask import redirect, request, url_for, current_app
 from app.cache import redis_cache
 
 
-def get_token_and_user_id_from_cookies():
+def get_token_and_user_id_from_cookies() -> tuple[str, int]:
     token = request.cookies.get("accessToken", "")
     if not token or not redis_cache.exists(token):
         return None, None
