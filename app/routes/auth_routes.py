@@ -1,6 +1,7 @@
-from flask import current_app, jsonify, redirect, render_template, request, Blueprint
+from typing import Dict, List
+from flask import current_app, jsonify, render_template, request, Blueprint
 from marshmallow import Schema, fields
-from webargs.flaskparser import use_args
+from marshmallow.validate import Length
 
 from app.auth import (
     auth_required,
@@ -12,16 +13,50 @@ from app.models.models import Credentials, Users
 from app.cache import redis_cache
 from app.utils.utils import create_salt, create_session_tok, hash_password
 
-
 auth_blueprint = Blueprint("auth_blueprint", __name__)
 
 
-LOGIN_EXPIRY_S = 3600
+LOGIN_EXPIRY_S = 3600  # session expiry
+
+MIN_LOGIN_LEN = 3
+MAX_LOGIN_LEN = 20
+MIN_PASS_LEN = 7
+MAX_PASS_LEN = 20
 
 
-class LoginUser(Schema):
-    login = fields.String(required=True, max=25)
-    password = fields.String(required=True, max=25)
+class LoginUserSchema(Schema):
+    login = fields.String(
+        required=True,
+        validate=Length(min=MIN_LOGIN_LEN, max=MAX_LOGIN_LEN),
+    )
+    password = fields.String(
+        required=True,
+        validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
+    )
+
+
+class RegisterUserSchema(Schema):
+    login = fields.String(
+        required=True,
+        validate=Length(min=MIN_LOGIN_LEN, max=MAX_LOGIN_LEN),
+    )
+    password = fields.String(
+        required=True,
+        validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
+    )
+    password_repeat = fields.String(
+        required=True,
+        validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
+    )
+    firstname = fields.String(
+        required=True,
+        validate=Length(min=3, max=20),
+    )
+    lastname = fields.String(
+        required=True,
+        validate=Length(max=30),
+    )
+    email = fields.String(required=True)
 
 
 @auth_blueprint.route("/login", methods=["GET"])
@@ -30,29 +65,40 @@ def render_login():
     return render_template("login.html")
 
 
+login_user_schema = LoginUserSchema()
+register_user_schema = RegisterUserSchema()
+
+
+def abort(err: Dict[str, List[str]] | str, err_code=400):
+    if type(err) == dict:
+        err_msg = [key.capitalize() + " " + val[0].lower() for key, val in err.items()]
+    else:
+        err_msg = [err]
+    current_app.logger.info(err_msg)
+    return jsonify({"error": err_msg}), err_code
+
+
 @auth_blueprint.route("/login", methods=["POST"])
 @redirect_if_logged_in
-@use_args(LoginUser())
-def login(payload: dict):
+def login():
     current_app.logger.info("Login method")
-    current_app.logger.info(payload)
+    current_app.logger.info(request.json)
+    errs = login_user_schema.validate(request.json)
 
-    login = payload.get("login")
-    pw = payload.get("password")
+    if errs:
+        return abort(errs)
+
+    login = request.json.get("login")
+    password = request.json.get("password")
 
     with Session() as sess:
         creds = sess.query(Credentials).filter(Credentials.login == login).all()
+
         if len(creds) == 0:
-            return (
-                jsonify({"error": "Login not found, please register or try again"}),
-                400,
-            )
-        hashed_pass = hash_password(pw, creds[0].salt)
+            return abort("Login not found, please register or try again")
+        hashed_pass = hash_password(password, creds[0].salt)
         if hashed_pass != creds[0].hashed_pass:
-            return (
-                jsonify({"error": "Invalid password, please try again"}),
-                400,
-            )
+            return abort("Invalid password, please try again")
 
     user_id = creds[0].user_id
 
@@ -82,25 +128,25 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
 
-    data = request.form
-    login = data.get("login", "")
-    pw = data.get("pw", "")
-    pw2 = data.get("pw2", "")
-    firstname = data.get("name", "")
-    lastname = data.get("last", "")
-    email = data.get("email", "")
+    data = request.json
 
-    if not login:
-        return "Missing login field", 400
-    if not pw:
-        return "Missing password field", 400
-    if pw != pw2:
-        return "Mismatched passwords", 400
-    if not firstname or not email:
-        return "Missing first name/email fields", 400
+    errs = register_user_schema.validate(data)
+
+    if errs:
+        current_app.logger.info(errs)
+        return abort(errs)
+
+    if data.get("password") != data.get("password_repeat"):
+        return abort("Passwords do not match, please try again")
+
+    login = data.get("login")
+    password = data.get("password")
+    firstname = data.get("firstname")
+    lastname = data.get("lastname")
+    email = data.get("email")
 
     salt = create_salt()
-    hashed_pass = hash_password(pw, salt)
+    hashed_pass = hash_password(password, salt)
 
     with Session() as sess:
         try:
@@ -114,12 +160,13 @@ def register():
                 )
             )
             sess.commit()
-            return redirect("/")
+            return jsonify({"success": True}), 200
         except Exception as e:
             sess.rollback()
             err = str(e)
+            current_app.logger.error(err)
 
-            if "unique constraint" in err:
-                return "Login already exists", 400
+            if "unique constraint" in err:  # TODO better err checking
+                return abort("Login already exists")
             else:
-                return "Unknown error", 400
+                return abort("Unknown error")

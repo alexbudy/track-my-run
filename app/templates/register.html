@@ -2,30 +2,73 @@
 <html>
 <body>
 
-<h2>Register</h2>
+    <div style="text-align: center;">
+        <a href="/login">Login</a> |
+        <a href="/register">Register</a>
+    </div>
+    
 
+    
 <div style="text-align: center;">
-    <form action="/register" method="post">
+    <h2>Register</h2>
+    <div id="errorMessages"></div>
+    <form id="registrationForm">
         <label for="login">Login:</label><br>
         <input type="text" id="login" name="login"><br>
-        <label for="pw">Password:</label><br>
-        <input type="password" id="pw" name="pw"><br>
-        <label for="pw2">Password (repeat):</label><br>
-        <input type="password" id="pw2" name="pw2"><br><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br>
+        <label for="password_repeat">Password (repeat):</label><br>
+        <input type="password" id="password_repeat" name="password_repeat"><br><br>
         <br>
         Tell us a little more about yourself!
         <br><br>
-        <label for="name">First Name:</label><br>
-        <input type="text" id="name" name="name"><br><br>
-        <label for="last">Last name (optional):</label><br>
-        <input type="text" id="last" name="last"><br><br>
+        <label for="firstname">First Name:</label><br>
+        <input type="text" id="firstname" name="firstname"><br><br>
+        <label for="lastname">Last name (optional):</label><br>
+        <input type="text" id="lastname" name="lastname"><br><br>
         <label for="email">Email:</label><br>
         <input type="text" id="email" name="email"><br><br>
         <input type="submit" value="Register">
     </form> 
-
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#registrationForm').submit(function (event) {
+            event.preventDefault();
+
+            var formData = {
+                login: $('#login').val(),
+                password: $('#password').val(),
+                password_repeat: $('#password_repeat').val(),
+                firstname : $('#firstname').val(),
+                lastname : $('#lastname').val(),
+                email: $('#email').val()
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/register',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                success: function (resp) {
+                    alert("You have registered succesfully :). Please login to continue")
+
+                    window.location.href = '/login';
+                },
+                error: function (xhr) {
+                    $('#errorMessages').empty()
+                    console.log(xhr.responseJSON)
+                    xhr.responseJSON.error.forEach(function (err) {
+                        $('#errorMessages').append(err + '</br>')
+                    })
+                    $('#errorMessages').append('</br>')
+                }
+            })
+        })
+    })
+</script>
 </body>
 </html>
 
