@@ -16,7 +16,6 @@ def landing_page():
 
 @nav_blueprint.route("/")
 def home():
-    current_app.logger.info("NAME " + __name__)
     return render_template("index.html")
 
 
