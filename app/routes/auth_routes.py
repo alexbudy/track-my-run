@@ -56,7 +56,7 @@ class RegisterUserSchema(Schema):
         required=True,
         validate=Length(max=30),
     )
-    email = fields.String(required=True)
+    email = fields.Email(required=True)
 
 
 @auth_blueprint.route("/login", methods=["GET"])
@@ -70,6 +70,7 @@ register_user_schema = RegisterUserSchema()
 
 
 def abort(err: Dict[str, List[str]] | str, err_code=400):
+    """Handle errors from marshmallow as well as regular strings"""
     if type(err) == dict:
         err_msg = [key.capitalize() + " " + val[0].lower() for key, val in err.items()]
     else:
@@ -82,7 +83,6 @@ def abort(err: Dict[str, List[str]] | str, err_code=400):
 @redirect_if_logged_in
 def login():
     current_app.logger.info("Login method")
-    current_app.logger.info(request.json)
     errs = login_user_schema.validate(request.json)
 
     if errs:
@@ -150,6 +150,10 @@ def register():
 
     with Session() as sess:
         try:
+            creds = sess.query(Credentials).filter(Credentials.login == login).all()
+            if creds:
+                raise Exception("unique constraint failed for login")
+
             user = Users(firstname=firstname, lastname=lastname, email=email)
             sess.add(user)
             sess.flush()
@@ -167,6 +171,15 @@ def register():
             current_app.logger.error(err)
 
             if "unique constraint" in err:  # TODO better err checking
-                return abort("Login already exists")
+                if "users_email_key" in err:
+                    return abort("Provided email has already been registered")
+                elif "login" in err:
+                    return abort("Login already exists, please pick a different one")
+                else:
+                    current_app.logger.error(
+                        "Unknown unique constraint error when registering: " + err
+                    )
+                    return abort("Unknown error")
             else:
+                current_app.logger.error("Unknown error when registering: " + err)
                 return abort("Unknown error")

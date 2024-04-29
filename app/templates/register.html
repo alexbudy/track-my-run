@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
 <body>
 
     <div style="text-align: center;">
@@ -47,7 +51,7 @@
                 email: $('#email').val()
             };
 
-            $.ajax({
+            $.ajax({ // TODO use fetch
                 type: 'POST',
                 url: '/register',
                 data: JSON.stringify(formData),
@@ -58,12 +62,22 @@
                     window.location.href = '/login';
                 },
                 error: function (xhr) {
+                    let hadErrors = $('#errorMessages').text().length > 0;
+
                     $('#errorMessages').empty()
-                    console.log(xhr.responseJSON)
+
+                    $('#errorMessages').removeClass('show')
+
                     xhr.responseJSON.error.forEach(function (err) {
                         $('#errorMessages').append(err + '</br>')
                     })
-                    $('#errorMessages').append('</br>')
+
+                    let showTimeout = 0
+                    if (hadErrors) {
+                        // already had error messages shown
+                        showTimeout = 500
+                    }
+                    setTimeout(() => {$('#errorMessages').addClass('show');}, showTimeout)
                 }
             })
         })

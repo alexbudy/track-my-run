@@ -12,7 +12,7 @@ def create_app():
     app.register_blueprint(nav_blueprint)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-    app.secret_key = "bad key"
+    app.secret_key = "bad key"  # TODO replace
 
     db.init_app(app)
 
