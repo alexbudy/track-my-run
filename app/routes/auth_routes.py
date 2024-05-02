@@ -8,7 +8,6 @@ from app.auth import (
     get_token_and_user_id_from_cookies,
     redirect_if_logged_in,
 )
-from app.session import Session
 from app.models.models import Credentials, Users
 from app.cache import redis_cache
 from app.utils.utils import create_salt, create_session_tok, hash_password
@@ -76,7 +75,7 @@ def abort(err: Dict[str, List[str]] | str, err_code=400):
     else:
         err_msg = [err]
     current_app.logger.info(err_msg)
-    return jsonify({"error": err_msg}), err_code
+    return jsonify({"error": err_msg}), err_code  # TODO key should be 'error'?
 
 
 @auth_blueprint.route("/login", methods=["POST"])
@@ -91,7 +90,7 @@ def login():
     login = request.json.get("login")
     password = request.json.get("password")
 
-    with Session() as sess:
+    with current_app.Session() as sess:
         creds = sess.query(Credentials).filter(Credentials.login == login).all()
 
         if len(creds) == 0:
@@ -148,7 +147,7 @@ def register():
     salt = create_salt()
     hashed_pass = hash_password(password, salt)
 
-    with Session() as sess:
+    with current_app.Session() as sess:
         try:
             creds = sess.query(Credentials).filter(Credentials.login == login).all()
             if creds:
