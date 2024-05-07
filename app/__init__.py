@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from app.routes.auth_routes import auth_blueprint
 from app.routes.nav_routes import nav_blueprint
 from app.database import db
-from config import TestConfig, DevelopmentConfig
+from config import TestConfig, DevelopmentConfig, ProdConfig
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
@@ -17,6 +17,8 @@ app.register_blueprint(nav_blueprint)
 def create_app(config_key="dev"):
     if config_key == "test":
         config = TestConfig
+    elif config_key == "prod":
+        config = ProdConfig
     else:
         config = DevelopmentConfig
 

@@ -1,6 +1,10 @@
 from logging.config import fileConfig
+import os
+import re
+from dotenv import load_dotenv
 
-from sqlalchemy import engine_from_config
+load_dotenv()  # load env variables before importing from app
+from sqlalchemy import create_engine, engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
@@ -14,6 +18,24 @@ target_metadata = Base.metadata
 config = context.config
 
 # config.set_main_option("sqlalchemy.url", os.getenv("DB_URI"))
+
+
+def get_url():
+    url_tokens = {
+        "DB_USERNAME": os.getenv("DB_USERNAME"),
+        "DB_PASSWORD": os.getenv("DB_PASSWORD"),
+        "DEV_PORT": str(os.getenv("DEV_PORT")),
+        "TEST_PORT": str(os.getenv("TEST_PORT")),
+        "DB_NAME": os.getenv("DB_NAME"),
+        "TEST_HOSTNAME": os.getenv("TEST_HOSTNAME"),
+    }
+
+    url = config.get_main_option("sqlalchemy.url")
+
+    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], url)
+
+    return url
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -44,9 +66,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
+        url=get_url(),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -63,11 +84,8 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+
+    connectable = create_engine(get_url())
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

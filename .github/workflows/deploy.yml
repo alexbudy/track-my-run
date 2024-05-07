@@ -1,0 +1,49 @@
+name: Deploy to AWS
+
+on: workflow_dispatch
+
+env:
+  AWS_REGION: us-west-1
+  ECR_REPOSITORY: tmr-flask-app
+  BUILD_IMAGE: tmr-flask-app
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main' # enable deploy only from main branch
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::445673876924:role/GHAToPushToECR
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      # - name: Deploy to AWS ECS
+      #   uses: aws-actions/amazon-ecs-deploy-task@v1
+      #   with:
+      #     cluster: your-ecs-cluster
+      #     service: your-ecs-service
+      #     images: your-ecr-registry/your-image-name:latest
+      #     image-tag: latest
+      #     wait-for-service-stability: true

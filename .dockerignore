@@ -1,5 +1,10 @@
-**/venv/
-venv
-/venv
 venv/
-venv/**
+.vscode/
+requests/
+.pytest_cache/
+.github/**
+.gitignore
+docker-compose.yml
+__pycache__
+*.pyc
+.git

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - feature*
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      TEST_PORT: ${{ secrets.TEST_PORT }}
+      TEST_HOSTNAME: ${{ secrets.TEST_HOSTNAME }}
+
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5433:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: db
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run alembic migrations
+        run: |
+          alembic --name test upgrade head
+
+      - name: Run Unit Tests
+        run: |
+          python -m pytest
