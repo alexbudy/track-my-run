@@ -1,14 +1,15 @@
 import pytest
 from app import create_app, db
+from app.models.models import Base
+from sqlalchemy import text
+from sqlalchemy.orm.session import Session
 
 
 @pytest.fixture(scope="session")
 def app():
     app = create_app("test")
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.drop_all()
+
+    yield app
 
 
 @pytest.fixture(scope="function")
@@ -17,9 +18,21 @@ def client(app):
         yield client
 
 
-# @pytest.fixture(scope="function")
-# def db_session(app):
-#     with app.app_context():
-#         db.session.begin_nested()
-#         yield db.session
-#         db.session.rollback()
+def _reset_schema(session: Session):
+    # clear all tables after each test
+    for table in Base.metadata.sorted_tables:
+        db.session.execute(text(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;"))
+        db.session.commit()
+
+
+@pytest.fixture(scope="function")
+def db_session(app):
+    with app.app_context():
+        _reset_schema(db.session)
+
+        db.session.begin_nested()
+        yield db.session
+        db.session.rollback()
+
+        # clear all tables after each test
+        _reset_schema(db.session)
