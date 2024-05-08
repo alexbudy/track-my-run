@@ -19,18 +19,23 @@ config = context.config
 
 # config.set_main_option("sqlalchemy.url", os.getenv("DB_URI"))
 
-url_tokens = {
-    "DB_USERNAME": os.getenv("DB_USERNAME"),
-    "DB_PASSWORD": os.getenv("DB_PASSWORD"),
-    "DEV_PORT": str(os.getenv("DEV_PORT")),
-    "TEST_PORT": str(os.getenv("TEST_PORT")),
-    "DB_NAME": os.getenv("DB_NAME"),
-    "TEST_HOSTNAME": os.getenv("TEST_HOSTNAME"),
-}
 
-url = config.get_main_option("sqlalchemy.url")
+def get_url():
+    url_tokens = {
+        "DB_USERNAME": os.getenv("DB_USERNAME"),
+        "DB_PASSWORD": os.getenv("DB_PASSWORD"),
+        "DEV_PORT": str(os.getenv("DEV_PORT")),
+        "TEST_PORT": str(os.getenv("TEST_PORT")),
+        "DB_NAME": os.getenv("DB_NAME"),
+        "TEST_HOSTNAME": os.getenv("TEST_HOSTNAME"),
+    }
 
-url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], url)
+    url = config.get_main_option("sqlalchemy.url")
+
+    url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], url)
+
+    return url
+
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -62,7 +67,7 @@ def run_migrations_offline() -> None:
 
     """
     context.configure(
-        url=url,
+        url=get_url(),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -79,7 +84,8 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    connectable = create_engine(url)
+
+    connectable = create_engine(get_url())
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

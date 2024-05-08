@@ -23,6 +23,8 @@ def client(app):
 
 
 def _reset_schema(session: Session):
+    print("RESETTING SCHEMA")
+    print(db.engine.url)
     # clear all tables after each test
     for table in Base.metadata.sorted_tables:
         db.session.execute(text(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;"))
