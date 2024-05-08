@@ -21,7 +21,7 @@ jobs:
       postgres:
         image: postgres:alpine3.19
         ports:
-          - ${TEST_PORT}:5432
+          - 5433:5432
         env:
           POSTGRES_USER: ${DB_USERNAME}
           POSTGRES_PASSWORD: ${DB_PASSWORD}
