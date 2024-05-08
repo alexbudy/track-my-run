@@ -1,4 +1,4 @@
 from redis import Redis
+import os
 
-
-redis_cache: Redis = Redis(host="cache", port=6379)
+redis_cache: Redis = Redis(host=os.getenv("REDIS_CACHE"), port=os.getenv("REDIS_PORT"))
