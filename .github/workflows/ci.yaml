@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      TEST_PORT: ${{ secrets.TEST_PORT }}
+      TEST_HOSTNAME: localhost
+
+    services:
+      postgres:
+        image: postgres:alpine3.19
+        ports:
+          - ${TEST_PORT}:5432
+        env:
+          POSTGRES_USER: ${DB_USERNAME}
+          POSTGRES_PASSWORD: ${DB_PASSWORD}
+          POSTGRES_DB: ${DB_NAME}
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Unit Tests
+        run: |
+          python -m pytest
