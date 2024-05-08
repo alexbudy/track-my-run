@@ -15,17 +15,23 @@ jobs:
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DB_NAME: ${{ secrets.DB_NAME }}
       TEST_PORT: ${{ secrets.TEST_PORT }}
-      TEST_HOSTNAME: localhost
+      TEST_HOSTNAME: postgres
 
     services:
       postgres:
-        image: postgres:alpine3.19
+        image: postgres
         ports:
           - 5433:5432
         env:
           POSTGRES_USER: ${DB_USERNAME}
           POSTGRES_PASSWORD: ${DB_PASSWORD}
           POSTGRES_DB: ${DB_NAME}
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     
     steps:
       - name: Checkout Repository

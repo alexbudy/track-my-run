@@ -22,7 +22,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
-      - '${DEV_PORT}:5432'
+      - "${DEV_PORT}:5432"
     volumes:
       - db:/var/lib/postgresql/data
   db_test:
@@ -33,7 +33,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     ports:
-      - '${TEST_PORT}:5432'
+      - "${TEST_PORT}:5432"
   cache:
     image: redis
     container_name: my-cache
