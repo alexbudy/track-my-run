@@ -1,7 +1,10 @@
 name: Deploy to AWS
 
-on:
-  workflow-dispatch:
+on: workflow-dispatch
+
+env:
+  AWS_REGION: us-west-1
+  ECR_REPOSITORY: tmr-flask-app
 
 jobs:
   build-and-deploy:
