@@ -31,6 +31,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push docker image to Amazon ECR
+        id: build-image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ env.ECR_REPOSITORY }}
@@ -48,11 +49,11 @@ jobs:
           container-name: my-container
           image: ${{ steps.build-image.outputs.image }}
 
-      # - name: Deploy to AWS ECS
-      #   uses: aws-actions/amazon-ecs-deploy-task@v1
-      #   with:
-      #     cluster: tmr-cluster
-      #     service: your-ecs-service
-      #     images: $REGISTRY/$REPOSITORY
-      #     image-tag: $IMAGE_TAG
-      #     wait-for-service-stability: true
+      - name: Deploy to AWS ECS
+        uses: aws-actions/amazon-ecs-deploy-task@v1
+        with:
+          cluster: tmr-cluster
+          service: tmr-service
+          images: $REGISTRY/$REPOSITORY
+          image-tag: $IMAGE_TAG
+          wait-for-service-stability: true
