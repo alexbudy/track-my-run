@@ -50,7 +50,7 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy to AWS ECS
-        uses: aws-actions/amazon-ecs-deploy-task@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           cluster: tmr-cluster
           service: tmr-service
