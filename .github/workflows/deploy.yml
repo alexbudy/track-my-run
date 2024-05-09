@@ -52,6 +52,7 @@ jobs:
       - name: Deploy to AWS ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
           cluster: tmr-cluster
           service: tmr-service
           images: $REGISTRY/$REPOSITORY
