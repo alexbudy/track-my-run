@@ -1,0 +1,34 @@
+name: Deploy to AWS
+
+on:
+  workflow-dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main' # enable deploy only from main branch
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build -t tmr-flask-app .
+
+      - name: Log in to AWS ECR
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: 445673876924.dkr.ecr.us-east-1.amazonaws.com/tmr-flask-app
+
+      - name: Push Docker image to AWS ECR
+        run: docker push 445673876924.dkr.ecr.us-east-1.amazonaws.com/tmr-flask-app/tmr-flask-app:latest
+
+      # - name: Deploy to AWS ECS
+      #   uses: aws-actions/amazon-ecs-deploy-task@v1
+      #   with:
+      #     cluster: your-ecs-cluster
+      #     service: your-ecs-service
+      #     images: your-ecr-registry/your-image-name:latest
+      #     image-tag: latest
+      #     wait-for-service-stability: true
