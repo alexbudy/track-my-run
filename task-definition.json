@@ -52,6 +52,10 @@
                 {
                     "name": "FLASK_CONFIG",
                     "value": "prod"
+                },
+                {
+                    "name": "LOCAL_PORT",
+                    "value": "80"
                 }
             ],
             "environmentFiles": [],
