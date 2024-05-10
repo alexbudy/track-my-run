@@ -3,9 +3,6 @@ import os
 username = os.getenv("DB_USERNAME")
 password = os.getenv("DB_PASSWORD")
 
-prod_username = os.getenv("DB_USERNAME_PROD")
-prod_password = os.getenv("DB_PASSWORD_PROD")
-
 hostname = {
     "dev": os.getenv("DEV_HOSTNAME"),
     "test": os.getenv("TEST_HOSTNAME"),
@@ -27,7 +24,7 @@ class Config:
 
 
 class ProdConfig(Config):
-    SQLALCHEMY_DATABASE_URI = f"postgresql://{prod_username}:{prod_password}@{hostname['prod']}:{port['prod']}/{database}"
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{hostname['prod']}:{port['prod']}/{database}"
     DEBUG = False
 
 

@@ -16,7 +16,44 @@
                 }
             ],
             "essential": true,
-            "environment": [],
+            "environment": [
+                {
+                    "name": "FLASK_SECRET_KEY",
+                    "value": "MDZaDodTYycwaVZraZQhJIxs0LO6"
+                },
+                {
+                    "name": "DB_USERNAME",
+                    "value": "postgres"
+                },
+                {
+                    "name": "DB_PASSWORD",
+                    "value": "Vw)*4+]#csT39n3b|F$cOPRj%Py|"
+                },
+                {
+                    "name": "PROD_HOSTNAME",
+                    "value": "database-1.c3yq806eow2w.us-west-1.rds.amazonaws.com"
+                },
+                {
+                    "name": "PROD_PORT",
+                    "value": "5432"
+                },
+                {
+                    "name": "DB_NAME",
+                    "value": "prod_db"
+                },
+                {
+                    "name": "REDIS_CACHE",
+                    "value": "cache"
+                },
+                {
+                    "name": "REDIS_PORT",
+                    "value": "6379"
+                },
+                {
+                    "name": "FLASK_CONFIG",
+                    "value": "prod"
+                }
+            ],
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],

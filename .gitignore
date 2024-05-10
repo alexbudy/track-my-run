@@ -2,4 +2,4 @@ venv/
 __pycache__/
 requests/
 .vscode/
-.env
+*.env
