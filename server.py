@@ -11,6 +11,6 @@ app = create_app(flask_config)  # set to 'prod' for production
 if __name__ == "__main__":
     app.run(
         debug=flask_config != "prod",
-        host=os.getenv("LOCAL_HOST"),
-        port=os.getenv("LOCAL_PORT"),
+        host=os.getenv("SERVER_HOST"),
+        port=os.getenv("SERVER_PORT"),
     )

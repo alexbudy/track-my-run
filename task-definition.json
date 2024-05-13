@@ -54,7 +54,7 @@
                     "value": "prod"
                 },
                 {
-                    "name": "LOCAL_PORT",
+                    "name": "SERVER_PORT",
                     "value": "80"
                 }
             ],
