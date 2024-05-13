@@ -1,4 +1,5 @@
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, current_app, jsonify, render_template
+from sqlalchemy import text
 from app.cache import redis_cache
 
 from app.auth import auth_required
@@ -31,5 +32,19 @@ def redis_health_check():
         ping = redis_cache.ping()
         return "Redis ping returned with value: " + str(ping), 200
     except Exception as e:
-        current_app.logger.info("Redis ping failed with " + str(e))
+        current_app.logger.error("Redis ping failed with " + str(e))
         return "Redis failed to ping", 200
+
+
+@nav_blueprint.route("/rds-health-check")
+def rds_health_check():
+    try:
+        with current_app.Session() as sess:
+            res = sess.execute(text("SELECT 1"))
+            if res.scalar() == 1:
+                return "DB connection is healthy", 200
+            else:
+                return "DB connection failed but query executed", 500
+    except Exception as e:
+        current_app.logger.error("DB health check failed with " + str(e))
+        return "DB connection failed with " + str(e), 500
