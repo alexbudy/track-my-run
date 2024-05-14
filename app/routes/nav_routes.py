@@ -53,3 +53,13 @@ def rds_health_check():
     except Exception as e:
         current_app.logger.error("DB health check failed with " + str(e))
         return "DB connection failed with " + str(e), 200
+
+
+@nav_blueprint.route("/log-check")
+def log_check():
+    current_app.logger.debug("this is a DEBUG message")
+    current_app.logger.info("this is an INFO message")
+    current_app.logger.warning("this is a WARNING message")
+    current_app.logger.error("this is an ERROR message")
+    current_app.logger.critical("this is a CRITICAL message")
+    return "Logs written to logger", 200
