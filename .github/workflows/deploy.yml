@@ -17,44 +17,16 @@ jobs:
     if: github.ref == 'refs/heads/main' # enable deploy only from main branch
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      # - name: Checkout repo
+      #   uses: actions/checkout@v3
+      
+      - name: exec remote command
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          role-to-assume: arn:aws:iam::445673876924:role/GHAToPushToECR
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build, tag, and push docker image to Amazon ECR
-        id: build-image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -f release.Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          echo "image=$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ./task-definition.json
-          container-name: tmr
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy to AWS ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          cluster: tmr-cluster
-          service: tmr-service
-          images: $REGISTRY/$REPOSITORY
-          image-tag: $IMAGE_TAG
-          wait-for-service-stability: true
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ubuntu/tmr
+            git pull
+            sudo systemctl restart tmr-flask-app
