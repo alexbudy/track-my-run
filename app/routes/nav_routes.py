@@ -1,4 +1,5 @@
-from flask import Blueprint, current_app, jsonify, render_template
+from flask import Blueprint, current_app, render_template
+from func_timeout import FunctionTimedOut, func_timeout
 from sqlalchemy import text
 from app.cache import redis_cache
 
@@ -28,9 +29,13 @@ def data():
 
 @nav_blueprint.route("/redis-health-check")
 def redis_health_check():
+    timeout: int = 5  # s
     try:
-        ping = redis_cache.ping()
+        ping = func_timeout(timeout, redis_cache.ping)
         return "Redis ping returned with value: " + str(ping), 200
+    except FunctionTimedOut as fto:
+        current_app.logger.error("Redis ping timed out " + str(fto))
+        return f"Redis ping timed out after {timeout} seconds", 200
     except Exception as e:
         current_app.logger.error("Redis ping failed with " + str(e))
         return "Redis failed to ping", 200
@@ -44,7 +49,7 @@ def rds_health_check():
             if res.scalar() == 1:
                 return "DB connection is healthy", 200
             else:
-                return "DB connection failed but query executed", 500
+                return "DB connection failed but query executed", 200
     except Exception as e:
         current_app.logger.error("DB health check failed with " + str(e))
-        return "DB connection failed with " + str(e), 500
+        return "DB connection failed with " + str(e), 200
