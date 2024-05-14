@@ -17,10 +17,8 @@ jobs:
     if: github.ref == 'refs/heads/main' # enable deploy only from main branch
 
     steps:
-      # - name: Checkout repo
-      #   uses: actions/checkout@v3
-      
-      - name: exec remote command
+
+      - name: Deploy application via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -29,4 +27,7 @@ jobs:
           script: |
             cd /home/ubuntu/tmr
             git pull
+            source venv/bin/activate
+            pip install -r requirements.txt
+            alembic --name prod upgrade head
             sudo systemctl restart tmr-flask-app
