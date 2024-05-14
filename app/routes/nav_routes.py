@@ -47,7 +47,7 @@ def rds_health_check():
         with current_app.Session() as sess:
             res = sess.execute(text("SELECT 1"))
             if res.scalar() == 1:
-                return "DB connection is healthy", 200
+                return "DB connection is healthy!", 200
             else:
                 return "DB connection failed but query executed", 200
     except Exception as e:
