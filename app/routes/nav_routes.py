@@ -32,7 +32,7 @@ def redis_health_check():
     timeout: int = 5  # s
     try:
         ping = func_timeout(timeout, redis_cache.ping)
-        return "Redis ping returned with value: " + str(ping), 200
+        return f"Redis ping returned with value: {str(ping)}!", 200
     except FunctionTimedOut as fto:
         current_app.logger.error("Redis ping timed out " + str(fto))
         return f"Redis ping timed out after {timeout} seconds", 200

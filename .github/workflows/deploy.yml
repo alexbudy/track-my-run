@@ -1,9 +1,9 @@
-name: Deploy to AWS
+name: Deploy to EC2 instance
 
 on: workflow_dispatch
 
 jobs:
-  build-and-deploy:
+  pull-and-deploy:
     runs-on: ubuntu-latest
 
     if: github.ref == 'refs/heads/main' # enable deploy only from main branch
