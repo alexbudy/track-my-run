@@ -1,5 +1,16 @@
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, DateTime, ForeignKey, MetaData, String, Integer, func
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Date,
+    Time,
+    ForeignKey,
+    MetaData,
+    String,
+    Integer,
+    Float,
+    func,
+)
 
 
 convention = {
@@ -13,7 +24,6 @@ convention = {
 Base = declarative_base(
     metadata=MetaData(naming_convention=convention)  # TODO add schema here if needed
 )
-# metadata = Base.metadata
 
 
 class Credentials(Base):
@@ -45,3 +55,25 @@ class Users(Base):
 
     def __repr__(self):
         return f"<Users {self.id}, {self.firstname} {self.lastname} {self.email}>"
+
+
+class Runs(Base):
+    __tablename__ = "runs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    date = Column(Date, nullable=False, default=func.current_date())
+    run_start_time = Column(Time, nullable=True)
+    distance_mi = Column(Float, nullable=False)
+    runtime_s = Column(Integer, nullable=False)
+    notes = Column(String(), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=func.now())
+    updated_at = Column(DateTime, nullable=False, default=func.now())
+    deleted_at = Column(DateTime, nullable=True, default=None)
+
+    def __repr__(self):
+        return (
+            f"<Runs(id={self.id}, user_id={self.user_id}, date={self.date}, "
+            f"run_start_time={self.run_start_time}, distance_mi={self.distance_mi}, "
+            f"runtime_s={self.runtime_s})>"
+        )

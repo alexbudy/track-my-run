@@ -10,6 +10,7 @@ from app.auth import (
 )
 from app.models.models import Credentials, Users
 from app.cache import redis_cache
+from app.routes import abort
 from app.utils.utils import create_salt, create_session_tok, hash_password
 
 auth_blueprint = Blueprint("auth_blueprint", __name__)
@@ -66,16 +67,6 @@ def render_login():
 
 login_user_schema = LoginUserSchema()
 register_user_schema = RegisterUserSchema()
-
-
-def abort(err: Dict[str, List[str]] | str, err_code=400):
-    """Handle errors from marshmallow as well as regular strings"""
-    if type(err) == dict:
-        err_msg = [key.capitalize() + " " + val[0].lower() for key, val in err.items()]
-    else:
-        err_msg = [err]
-    current_app.logger.info(err_msg)
-    return jsonify({"error": err_msg}), err_code  # TODO key should be 'error'?
 
 
 @auth_blueprint.route("/login", methods=["POST"])

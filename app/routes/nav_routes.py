@@ -35,10 +35,10 @@ def redis_health_check():
         return f"Redis ping returned with value: {str(ping)}!", 200
     except FunctionTimedOut as fto:
         current_app.logger.error("Redis ping timed out " + str(fto))
-        return f"Redis ping timed out after {timeout} seconds", 200
+        return f"Redis ping timed out after {timeout} seconds", 500
     except Exception as e:
         current_app.logger.error("Redis ping failed with " + str(e))
-        return "Redis failed to ping", 200
+        return "Redis failed to ping", 500
 
 
 @nav_blueprint.route("/rds-health-check")
@@ -49,10 +49,10 @@ def rds_health_check():
             if res.scalar() == 1:
                 return "DB connection is healthy!", 200
             else:
-                return "DB connection failed but query executed", 200
+                return "Query executed but incorrect result - should not happen", 500
     except Exception as e:
         current_app.logger.error("DB health check failed with " + str(e))
-        return "DB connection failed with " + str(e), 200
+        return "DB connection failed with " + str(e), 500
 
 
 @nav_blueprint.route("/log-check")
