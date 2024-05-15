@@ -11,7 +11,9 @@ flask_config = os.getenv("FLASK_CONFIG") or "dev"
 app = create_app(flask_config)  # set to 'prod' for production
 
 with app.app_context():
-    current_app.logger.setLevel(logging.INFO)
+    current_app.logger.setLevel(
+        logging._nameToLevel.get(os.getenv("LOG_LEVEL") or "DEBUG")
+    )
 
 
 if __name__ == "__main__":
