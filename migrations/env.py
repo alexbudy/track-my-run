@@ -4,8 +4,7 @@ import re
 from dotenv import load_dotenv
 
 load_dotenv()  # load env variables before importing from app
-from sqlalchemy import create_engine, engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import create_engine
 
 from alembic import context
 
