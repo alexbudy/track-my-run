@@ -1,0 +1,43 @@
+{% set logged_in = logged_in | default(False) %}
+
+<!doctype html>
+<html lang="">
+<head>
+    <title>Track My Run</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="https://the.missing.style/v0.2.0/missing.min.css">
+    <script defer src="/static/js/htmx-1.9.12.min.js"></script>
+</head>
+<body hx-boost="true">
+    <main>
+        <header>
+            <div style="display: inline;">
+                <h1>
+                    Track My Run 🏃🏃🏽‍♀️
+                </h1>
+                {% if not logged_in %}
+                    <a href=" {{ url_for('auth_blueprint.login') }}">Login</a>
+                    |
+                    <a href=" {{ url_for('auth_blueprint.register') }}">Register</a>
+                {%else %}
+                    <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-swap="outerHTML" hx-target="body">Logout</a>
+                {%endif %}
+            </div>
+            <h3>
+                A simple web application to manage all of your runs 
+            </h3>
+        </header>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

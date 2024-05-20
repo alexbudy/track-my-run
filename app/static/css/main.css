@@ -14,3 +14,7 @@
     opacity: 1;
     margin-bottom: 10px;
 }
+
+.error {
+    padding-bottom: 5px;
+}

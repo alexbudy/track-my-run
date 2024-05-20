@@ -3,28 +3,15 @@ from func_timeout import FunctionTimedOut, func_timeout
 from sqlalchemy import text
 from app.cache import redis_cache
 
-from app.auth import auth_required
+from app.auth import is_logged_in
 
 
 nav_blueprint = Blueprint("nav_blueprint", __name__)
 
 
-@nav_blueprint.route("/landing_page")
-@auth_required
-def landing_page():
-    # protected page
-    return render_template("landing_page.html")
-
-
 @nav_blueprint.route("/")
 def home():
-    return render_template("index.html")
-
-
-@nav_blueprint.route("/api/data")
-@auth_required
-def data():
-    return "Super secret info"
+    return render_template("index.html", logged_in=is_logged_in())
 
 
 @nav_blueprint.route("/redis-health-check")

@@ -1,5 +1,14 @@
 from typing import Dict, List
-from flask import current_app, jsonify, render_template, request, Blueprint
+from flask import (
+    Response,
+    current_app,
+    flash,
+    jsonify,
+    make_response,
+    render_template,
+    request,
+    Blueprint,
+)
 from marshmallow import Schema, fields
 from marshmallow.validate import Length
 
@@ -10,13 +19,11 @@ from app.auth import (
 )
 from app.models.models import Credentials, Users
 from app.cache import redis_cache
-from app.routes import abort
-from app.utils.utils import create_salt, create_session_tok, hash_password
+from app.routes import abort, create_and_store_access_token, flatten_validation_errors
+from app.utils.utils import create_salt, hash_password
 
 auth_blueprint = Blueprint("auth_blueprint", __name__)
 
-
-LOGIN_EXPIRY_S = 3600  # session expiry
 
 MIN_LOGIN_LEN = 3
 MAX_LOGIN_LEN = 20
@@ -73,32 +80,40 @@ register_user_schema = RegisterUserSchema()
 @redirect_if_logged_in
 def login():
     current_app.logger.info("Login method")
-    errs = login_user_schema.validate(request.json)
+    errs = login_user_schema.validate(request.form)
 
     if errs:
-        return abort(errs)
+        return render_template(
+            "login.html", logged_in=False, errors=flatten_validation_errors(errs)
+        )
 
-    login = request.json.get("login")
-    password = request.json.get("password")
+    login_fields: LoginUserSchema = login_user_schema.load(request.form)
 
     with current_app.Session() as sess:
-        creds = sess.query(Credentials).filter(Credentials.login == login).all()
+        creds = (
+            sess.query(Credentials)
+            .filter(Credentials.login == login_fields["login"])
+            .all()
+        )
 
         if len(creds) == 0:
-            return abort("Login not found, please register or try again")
-        hashed_pass = hash_password(password, creds[0].salt)
+            flash("Login not found, please register and try again")
+            return render_template(
+                "login.html",
+            )
+        hashed_pass = hash_password(login_fields["password"], creds[0].salt)
         if hashed_pass != creds[0].hashed_pass:
-            return abort("Invalid password, please try again")
+            flash("Invalid password, please try again")
+            return render_template("login.html")
 
     user_id = creds[0].user_id
 
-    current_app.logger.info(f"User {user_id} logged in")
-    tok = create_session_tok()
+    accessToken: str = create_and_store_access_token(user_id)
 
-    redis_cache.set(tok, user_id, ex=LOGIN_EXPIRY_S)
-    redis_cache.set(f"user_id:{user_id}", tok, ex=LOGIN_EXPIRY_S)
+    res: Response = make_response(render_template("index.html", logged_in=True))
+    res.set_cookie("accessToken", accessToken)
 
-    return jsonify({"access_token": tok}), 200
+    return res
 
 
 @auth_blueprint.route("/logout", methods=["POST"])
@@ -110,24 +125,28 @@ def logout():
     redis_cache.delete(tok)
     redis_cache.delete(f"user_id:{user_id}")
 
-    return jsonify({"logged_out": True}), 200
+    flash("You have succesfully logged out :)", "message")
+    return render_template("index.html", logged_in=False)
 
 
+# TODO - be logged out to register
 @auth_blueprint.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
         return render_template("register.html")
 
-    data = request.json
-
-    errs = register_user_schema.validate(data)
+    errs = register_user_schema.validate(request.form)
 
     if errs:
-        current_app.logger.info(errs)
-        return abort(errs)
+        return render_template("register.html", errors=flatten_validation_errors(errs))
+
+    data = register_user_schema.load(request.form)
 
     if data.get("password") != data.get("password_repeat"):
-        return abort("Passwords do not match, please try again")
+        return render_template(
+            "register.html",
+            errors={"password_repeat": "Passwords do not match, please try again"},
+        )
 
     login = data.get("login")
     password = data.get("password")
@@ -142,7 +161,8 @@ def register():
         try:
             creds = sess.query(Credentials).filter(Credentials.login == login).all()
             if creds:
-                raise Exception("unique constraint failed for login")
+                flash("Login already exists, please try again")
+                return render_template("register.html")
 
             user = Users(firstname=firstname, lastname=lastname, email=email)
             sess.add(user)
@@ -154,22 +174,20 @@ def register():
                 )
             )
             sess.commit()
-            return jsonify({"success": True}), 200
+            return render_template("index.html")
+
         except Exception as e:
             sess.rollback()
             err = str(e)
             current_app.logger.error(err)
 
-            if "unique constraint" in err:  # TODO better err checking
-                if "users_email_key" in err:
-                    return abort("Provided email has already been registered")
-                elif "login" in err:
-                    return abort("Login already exists, please pick a different one")
-                else:
-                    current_app.logger.error(
-                        "Unknown unique constraint error when registering: " + err
-                    )
-                    return abort("Unknown error")
+            if "unique constraint" in err and "users_email_key" in err:
+                current_app.logger.error(
+                    "Email constraint error when registering: " + err
+                )
+                flash("Provided email has already been registered, please try again")
+                return render_template("index.html")
             else:
                 current_app.logger.error("Unknown error when registering: " + err)
-                return abort("Unknown error")
+                flash("Unknown error, please try again")
+                return render_template("index.html")

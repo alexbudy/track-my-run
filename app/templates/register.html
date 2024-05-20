@@ -1,88 +1,35 @@
-<!DOCTYPE html>
-<html>
+{% extends 'base.html' %}
 
-<head>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-<body>
+{% block content %}
+    {% set errors = errors | default({}) %}
 
-    <div style="text-align: center;">
-        <a href="/login">Login</a> |
-        <a href="/register">Register</a>
+    <div>
+        <h2>Register</h2>
+        <form id="registration-form" hx-post="/register", hx-target="body">
+            <label for="login">Login:</label>
+            <input type="text" id="login" name="login">
+            <span class="error">{{ errors.get('login', '') }}</span>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password">
+            <span class="error">{{ errors.get('password', '') }}</span>
+
+            <label for="password_repeat">Password (repeat):</label>
+            <input type="password" id="password_repeat" name="password_repeat">
+            <span class="error">{{ errors.get('password_repeat', '') }}</span><br>
+            Tell us a little more about yourself!<br><br>
+            <label for="firstname">First Name:</label>
+            <input type="text" id="firstname" name="firstname">
+            <span class="error">{{ errors.get('firstname', '') }}</span>
+            <label for="lastname">Last name (optional):</label>
+            <input type="text" id="lastname" name="lastname">
+            <span class="error">{{ errors.get('lastname', '') }}</span>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email">
+            <span class="error">{{ errors.get('email', '') }}</span>
+            <br>
+            <input type="submit" value="Login" />
+        </form> 
     </div>
-    
 
-    
-<div style="text-align: center;">
-    <h2>Register</h2>
-    <div id="errorMessages"></div>
-    <form id="registrationForm">
-        <label for="login">Login:</label><br>
-        <input type="text" id="login" name="login"><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br>
-        <label for="password_repeat">Password (repeat):</label><br>
-        <input type="password" id="password_repeat" name="password_repeat"><br><br>
-        <br>
-        Tell us a little more about yourself!
-        <br><br>
-        <label for="firstname">First Name:</label><br>
-        <input type="text" id="firstname" name="firstname"><br><br>
-        <label for="lastname">Last name (optional):</label><br>
-        <input type="text" id="lastname" name="lastname"><br><br>
-        <label for="email">Email:</label><br>
-        <input type="text" id="email" name="email"><br><br>
-        <input type="submit" value="Register">
-    </form> 
-</div>
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#registrationForm').submit(function (event) {
-            event.preventDefault();
-
-            var formData = {
-                login: $('#login').val(),
-                password: $('#password').val(),
-                password_repeat: $('#password_repeat').val(),
-                firstname : $('#firstname').val(),
-                lastname : $('#lastname').val(),
-                email: $('#email').val()
-            };
-
-            $.ajax({ // TODO use fetch
-                type: 'POST',
-                url: '/register',
-                data: JSON.stringify(formData),
-                contentType: 'application/json',
-                success: function (resp) {
-                    alert("You have registered succesfully :). Please login to continue")
-
-                    window.location.href = '/login';
-                },
-                error: function (xhr) {
-                    let hadErrors = $('#errorMessages').text().length > 0;
-
-                    $('#errorMessages').empty()
-
-                    $('#errorMessages').removeClass('show')
-
-                    xhr.responseJSON.error.forEach(function (err) {
-                        $('#errorMessages').append(err + '</br>')
-                    })
-
-                    let showTimeout = 0
-                    if (hadErrors) {
-                        // already had error messages shown
-                        showTimeout = 500
-                    }
-                    setTimeout(() => {$('#errorMessages').addClass('show');}, showTimeout)
-                }
-            })
-        })
-    })
-</script>
-</body>
-</html>
-
+{% endblock %}

@@ -1,66 +1,21 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends 'base.html' %}
 
-<div style="text-align: center;">
-    <a href="/login">Login</a> |
-    <a href="/register">Register</a>
-</div>
+{% block content %}
+    {% set errors = errors | default({}) %}
 
-
-<div style="text-align: center;">
-    <h2>Login</h2>
-    <label for="login">Login:</label><br>
-    <input type="text" id="login" name="login"><br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password"><br><br>
-    <button type="submit" onclick="submitLogin()">Login</button>
-
-    <script>
-        function submitLogin() {
-            var username = document.getElementById('login').value;
-            var password = document.getElementById('password').value;
+    <div>
+        <h2>Login</h2>
+        <form hx-post="/login" id="login-form" hx-target="body">
+            <label for="login">Login:</label>
+            <input type="text" id="login" name="login">
+            <span class="error">{{ errors.get('login', '') }}</span>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password">
+            <span class="error">{{ errors.get('password', '') }}</span>
+            <br>
+            <input type="submit" value="Login" />
+        </form>
+    </div>
     
-            // Prepare data to send in POST request
-            var formData = {
-                login: username,
-                password: password
-            };
-    
-            fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    err = data.error
-                    alert(err)
-                    document.getElementById('password').value = ''
-                    if (err.includes('Login not found')) {
-                        document.getElementById('login').value = ''
-                    }
-                } else {
-                    var accessToken = data.access_token;
-        
-                    // Store the access token in cookie
-                    document.cookie = `accessToken=${accessToken};`
-
-                    window.location.href = '/landing_page';
-                }
-            })
-            .catch(error => {
-                console.error('Login failed:', error);
-                alert(error);
-            });
-        }
-    </script>
-
-</div>
-
-</body>
-</html>
-
+{% endblock %}

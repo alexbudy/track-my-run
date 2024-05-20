@@ -97,7 +97,7 @@ def get_runs_for_given_user(
     return runs, total_count
 
 
-@runs_blueprint.route("/api/runs", methods=["GET"])
+@runs_blueprint.route("/my_runs", methods=["GET"])
 @auth_required
 def get_runs():
     _, user_id = get_token_and_user_id_from_cookies()
