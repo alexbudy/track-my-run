@@ -18,3 +18,47 @@
 .error {
     padding-bottom: 5px;
 }
+
+.run-row {
+    height: 50px;
+}
+
+.notes-cell {
+    padding-bottom: 30px;
+    text-align: center;
+    border: 1px solid white;
+}
+
+.hidden {
+    display: none;
+}
+
+.links-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+#notes-text-area {
+    width: 330px;
+}
+
+#enter-notes-area {
+    margin-left: 30px;
+}
+
+.form-input-div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-input-fields {
+    margin-right: 30px;
+}
+
+#new-run-form {
+    width: 410px;
+}
+
+.run-date-cell {
+    width: 110px;
+}

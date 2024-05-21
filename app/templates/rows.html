@@ -1,0 +1,35 @@
+
+{% for run in runs %}
+    <tr class="run-row" onclick="toggleRowVisibility(this)">
+        <td></td>
+        <td class="run-date-cell">{{ run.date }}</td>
+        <td>{{ run.run_start_time if run.run_start_time else "" }}</td>
+        <td class="dist-mi">{{ run.distance_mi }}</td>
+        <td>{{ run.runtime_s // 60 }}:{{ "{:02d}".format(run.runtime_s % 60) }}</td>
+        <td> {{ "{:.2f}".format((run.runtime_s/60) / run.distance_mi) }} </td>
+        <td hx-delete="/delete_run/{{ run.id }}" 
+            hx-confirm="Are you sure you want to delete this run? This cannot be undone"
+            hx-swap="outerHTML swap:0.5s"
+            hx-target="closest tr"><img style="height: 30px;" src="static/icons/svg/delete.svg"></td>
+    </tr>
+    <tr class="run-notes-row hidden"> <td></td><td class="notes-cell" colspan="5">{{ run.notes }} </td></tr>
+{% endfor %}
+
+<script>
+    function toggleRowVisibility(clickedRow) {
+        var nextRow = clickedRow.nextElementSibling;
+        var runNotesRows = document.getElementsByClassName("run-notes-row");
+
+        for (var i = 0; i < runNotesRows.length; i++) {
+            runNotesRows[i].classList.add("hidden")
+        }
+
+        if (nextRow) {
+            if (nextRow.classList.contains("hidden")) {
+                nextRow.classList.remove("hidden");
+            } else {
+                nextRow.classList.add("hidden");
+            }
+        }
+    }
+</script>

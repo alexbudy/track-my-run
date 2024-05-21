@@ -1,8 +1,9 @@
 from enum import Enum
 from functools import wraps
 import logging
-from flask import redirect, request, url_for, current_app
+from flask import flash, redirect, render_template, request, url_for, current_app
 from app.cache import redis_cache
+from app.models.models import Users
 
 # TODO - could use cleanup
 
@@ -49,16 +50,34 @@ def redirect_if_logged_in(func):
     return decorated_function
 
 
+def admin_required(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        _, user_id = get_token_and_user_id_from_cookies()
+
+        with current_app.Session() as sess:
+            user = sess.query(Users).filter(Users.id == user_id).all()
+
+            if not user or not user[0].is_admin == 1:
+                return "Not admin", 400
+
+        return func(*args, **kwargs)
+
+    return decorated_function
+
+
 def auth_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
         logged_in_status_enum: LoggedInStatusEnum = logged_in_status()
 
         if logged_in_status_enum == LoggedInStatusEnum.LOGGED_OUT:
-            return "Please login to view", 400
+            flash("Please login to view")
+            return render_template("index.html")
 
         if logged_in_status_enum == LoggedInStatusEnum.EXPIRED:
-            return "Session expired or token invalid, please login", 440
+            flash("Session expired or token invalid, please login")
+            return render_template("index.html")
 
         if current_app.logger.level <= logging.INFO:
             token = request.cookies.get("accessToken")

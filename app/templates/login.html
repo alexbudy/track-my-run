@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% set errors = errors | default({}) %}
-
     <div>
         <h2>Login</h2>
         <form hx-post="/login" id="login-form" hx-target="body">

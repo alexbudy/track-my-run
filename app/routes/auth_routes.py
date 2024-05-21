@@ -5,9 +5,12 @@ from flask import (
     flash,
     jsonify,
     make_response,
+    redirect,
     render_template,
     request,
     Blueprint,
+    session,
+    url_for,
 )
 from marshmallow import Schema, fields
 from marshmallow.validate import Length
@@ -19,7 +22,7 @@ from app.auth import (
 )
 from app.models.models import Credentials, Users
 from app.cache import redis_cache
-from app.routes import abort, create_and_store_access_token, flatten_validation_errors
+from app.routes import create_and_store_access_token, flatten_validation_errors
 from app.utils.utils import create_salt, hash_password
 
 auth_blueprint = Blueprint("auth_blueprint", __name__)
@@ -106,11 +109,13 @@ def login():
             flash("Invalid password, please try again")
             return render_template("login.html")
 
-    user_id = creds[0].user_id
+        user_id = creds[0].user_id
+        firstname = sess.query(Users).filter(Users.id == user_id).all()[0].firstname
 
+    session["firstname"] = firstname
     accessToken: str = create_and_store_access_token(user_id)
 
-    res: Response = make_response(render_template("index.html", logged_in=True))
+    res: Response = make_response(redirect(url_for("runs_blueprint.get_runs")))
     res.set_cookie("accessToken", accessToken)
 
     return res

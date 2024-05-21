@@ -49,12 +49,13 @@ class Users(Base):
     firstname = Column(String(), nullable=False)
     lastname = Column(String(), nullable=True)
     email = Column(String(), unique=True, nullable=False)
+    is_admin = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
 
     def __repr__(self):
-        return f"<Users {self.id}, {self.firstname} {self.lastname} {self.email}>"
+        return f"<Users {self.id}, {self.firstname} {self.lastname} {self.email}, is_admin={self.is_admin}>"
 
 
 class Runs(Base):

@@ -1,9 +1,8 @@
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, current_app, redirect, render_template, url_for
 from func_timeout import FunctionTimedOut, func_timeout
 from sqlalchemy import text
+from app.auth import admin_required, is_logged_in
 from app.cache import redis_cache
-
-from app.auth import is_logged_in
 
 
 nav_blueprint = Blueprint("nav_blueprint", __name__)
@@ -11,15 +10,18 @@ nav_blueprint = Blueprint("nav_blueprint", __name__)
 
 @nav_blueprint.route("/")
 def home():
-    return render_template("index.html", logged_in=is_logged_in())
+    if is_logged_in():
+        return redirect(url_for("runs_blueprint.get_runs"))
+    return render_template("login.html")
 
 
 @nav_blueprint.route("/redis-health-check")
+@admin_required
 def redis_health_check():
     timeout: int = 5  # s
     try:
         ping = func_timeout(timeout, redis_cache.ping)
-        return f"Redis ping returned with value: {str(ping)}!", 200
+        return f"Redis ping returned with value: {str(ping)}", 200
     except FunctionTimedOut as fto:
         current_app.logger.error("Redis ping timed out " + str(fto))
         return f"Redis ping timed out after {timeout} seconds", 500
@@ -29,6 +31,7 @@ def redis_health_check():
 
 
 @nav_blueprint.route("/rds-health-check")
+@admin_required
 def rds_health_check():
     try:
         with current_app.Session() as sess:
@@ -43,6 +46,7 @@ def rds_health_check():
 
 
 @nav_blueprint.route("/log-check")
+@admin_required
 def log_check():
     current_app.logger.debug("this is a DEBUG message")
     current_app.logger.info("this is an INFO message")

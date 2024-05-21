@@ -1,6 +1,26 @@
+{% set logged_in = logged_in | default(False) %}
+
 {% extends 'base.html' %}
 
 {% block content %}
-
+    {% if logged_in %}
+        {% set errors = errors | default({}) %}
+        <table>
+            <thead>
+            <tr>
+                <th></th>
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>Dist (mi)</th>
+                <th>Runtime (m:ss)</th>
+                <th>Pace (min/mi)</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody class="list">
+                {% include 'rows.html' %}
+            </tbody>
+        </table>
+    {% endif %}
     
 {% endblock %}

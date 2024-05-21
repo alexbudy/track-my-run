@@ -1,4 +1,5 @@
 {% set logged_in = logged_in | default(False) %}
+{% set errors = errors | default({}) %}
 
 <!doctype html>
 <html lang="">
@@ -20,7 +21,17 @@
                     |
                     <a href=" {{ url_for('auth_blueprint.register') }}">Register</a>
                 {%else %}
-                    <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-swap="outerHTML" hx-target="body">Logout</a>
+                    Welcome, {{ firstname }}!
+                    <br>
+                    <div class="links-container">
+                        <div class="left-links">
+                            <a href="{{ url_for('runs_blueprint.get_runs') }}">Show my runs</a> | 
+                            <a href=" {{ url_for('runs_blueprint.create_run') }} ">Input new run</a>
+                        </div>
+                        <div class="'right-links">
+                            <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-swap="outerHTML" hx-target="body">Logout</a>
+                        </div>
+                    </div>
                 {%endif %}
             </div>
             <h3>
