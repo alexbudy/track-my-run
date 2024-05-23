@@ -21,9 +21,9 @@
                 </h4>
 
                 {% if not logged_in %}
-                    <a href="{{ url_for('auth_blueprint.login') }}">Login</a>
+                    <a hx-get="{{ url_for('auth_blueprint.login') }}" hx-target=""body>Login</a>
                     |
-                    <a href="{{ url_for('auth_blueprint.register') }}">Register</a>
+                    <a hx-get="{{ url_for('auth_blueprint.register') }}" hx-target="body">Register</a>
                 {%else %}
                     Welcome, {{ nick_or_login }}! Ready to track a run?
                     <br><br>
