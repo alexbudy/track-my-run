@@ -3,7 +3,7 @@ from unittest.mock import patch
 from flask.testing import FlaskClient
 
 from app.models.models import Credentials, Users
-from app.routes.auth_routes import LOGIN_EXPIRY_S
+from app.routes import LOGIN_EXPIRY_S
 from app.utils.utils import create_salt, hash_password
 from tests import client, app, db_session
 
@@ -16,23 +16,21 @@ def test_login_route(client: FlaskClient):
     assert '<a href="/login">Login</a>' in html
     assert '<a href="/register">Register</a>' in html
 
-    assert '<label for="login">Login:</label>' in html
-    assert '<label for="password">Password:</label>' in html
+    assert '<input type="text" id="login" name="login">' in html
+    assert '<input type="password" id="password" name="password">' in html
 
 
 def test_login_post_invalid_params(client: FlaskClient):
-    resp = client.post("/login", json={"login": "ab", "password": "ab"})
-    errors = resp.json["error"]
+    resp = client.post("/login", data={"login": "ab", "password": "ab"})
+    html = resp.data.decode()
 
-    assert resp.status_code == 400
-    assert errors == [
-        "Login length must be between 3 and 20.",
-        "Password length must be between 7 and 20.",
-    ]
+    assert resp.status_code == 200
+    assert '<span class="error">Length must be between 3 and 20.</span>' in html
+    assert '<span class="error">Length must be between 7 and 20.</span>' in html
 
 
-@patch("app.routes.auth_routes.redis_cache")
-@patch("app.routes.auth_routes.create_session_tok")
+@patch("app.routes.redis_cache")
+@patch("app.routes.create_session_tok")
 def test_login_post(create_session_tok, redis_cache, client: FlaskClient, db_session):
     dummy_tok: str = "some_session_token"
 
@@ -55,7 +53,7 @@ def test_login_post(create_session_tok, redis_cache, client: FlaskClient, db_ses
     )
     db_session.commit()
 
-    resp = client.post("/login", json={"login": "some_user", "password": "some_pass"})
+    resp = client.post("/login", data={"login": "some_user", "password": "some_pass"})
 
     # assert that redis stores the created token
     assert redis_cache.set.call_count == 2
@@ -65,5 +63,9 @@ def test_login_post(create_session_tok, redis_cache, client: FlaskClient, db_ses
     ]
     redis_cache.set.assert_has_calls(expected_calls)
 
-    assert resp.json == {"access_token": dummy_tok}
-    assert resp.status_code == 200
+    html = resp.data.decode()
+    assert (
+        'You should be redirected automatically to the target URL: <a href="/my_runs">/my_runs</a>'
+        in html
+    )
+    assert resp.status_code == 303

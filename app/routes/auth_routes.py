@@ -1,9 +1,7 @@
-from typing import Dict, List
 from flask import (
     Response,
     current_app,
     flash,
-    jsonify,
     make_response,
     redirect,
     render_template,
@@ -22,7 +20,7 @@ from app.auth import (
 )
 from app.models.models import Credentials, Users
 from app.cache import redis_cache
-from app.routes import create_and_store_access_token, flatten_validation_errors
+from app.routes import create_and_store_access_token_in_cache, flatten_validation_errors
 from app.utils.utils import create_salt, hash_password
 
 auth_blueprint = Blueprint("auth_blueprint", __name__)
@@ -113,9 +111,11 @@ def login():
         firstname = sess.query(Users).filter(Users.id == user_id).all()[0].firstname
 
     session["firstname"] = firstname
-    accessToken: str = create_and_store_access_token(user_id)
+    accessToken: str = create_and_store_access_token_in_cache(user_id)
 
-    res: Response = make_response(redirect(url_for("runs_blueprint.get_runs")))
+    res: Response = make_response(
+        redirect(url_for("runs_blueprint.get_runs"), code=303)
+    )
     res.set_cookie("accessToken", accessToken)
 
     return res

@@ -10,7 +10,7 @@ from app.cache import redis_cache
 LOGIN_EXPIRY_S = 3600  # session expiry
 
 
-def create_and_store_access_token(user_id: int) -> str:
+def create_and_store_access_token_in_cache(user_id: int) -> str:
     current_app.logger.info(f"User {user_id} logged in")
     tok: str = create_session_tok()
 

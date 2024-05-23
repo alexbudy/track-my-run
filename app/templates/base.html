@@ -17,9 +17,9 @@
                     Track My Run 🏃🏃🏽‍♀️
                 </h1>
                 {% if not logged_in %}
-                    <a href=" {{ url_for('auth_blueprint.login') }}">Login</a>
+                    <a href="{{ url_for('auth_blueprint.login') }}">Login</a>
                     |
-                    <a href=" {{ url_for('auth_blueprint.register') }}">Register</a>
+                    <a href="{{ url_for('auth_blueprint.register') }}">Register</a>
                 {%else %}
                     Welcome, {{ firstname }}!
                     <br>
@@ -29,7 +29,7 @@
                             <a href=" {{ url_for('runs_blueprint.create_run') }} ">Input new run</a>
                         </div>
                         <div class="'right-links">
-                            <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-swap="outerHTML" hx-target="body">Logout</a>
+                            <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>
                         </div>
                     </div>
                 {%endif %}

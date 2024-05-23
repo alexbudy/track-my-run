@@ -3,7 +3,7 @@
 {% block content %}
     <div>
         <h2>Login</h2>
-        <form hx-post="/login" id="login-form" hx-target="body">
+        <form hx-post="/login" hx-push-url="true" id="login-form" hx-target="body">
             <label for="login">Login:</label>
             <input type="text" id="login" name="login">
             <span class="error">{{ errors.get('login', '') }}</span>
