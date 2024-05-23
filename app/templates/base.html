@@ -21,16 +21,20 @@
                 </h4>
 
                 {% if not logged_in %}
-                    <a hx-get="{{ url_for('auth_blueprint.login') }}" hx-target=""body>Login</a>
-                    |
-                    <a hx-get="{{ url_for('auth_blueprint.register') }}" hx-target="body">Register</a>
+                    <div class="links-container">
+                        <div class="left-links">
+                            <a hx-get="{{ url_for('auth_blueprint.login') }}" hx-target="body" hx-push-url="true">Login</a>
+                            |
+                            <a hx-get="{{ url_for('auth_blueprint.register') }}" hx-target="body" hx-push-url="true">Register</a>
+                        </div>
+                    </div>
                 {%else %}
                     Welcome, {{ nick_or_login }}! Ready to track a run?
                     <br><br>
                     <div class="links-container">
                         <div class="left-links">
-                            <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body">Show my runs</a> | 
-                            <a hx-get="{{ url_for('runs_blueprint.create_run') }}" hx-target="body">Input new run</a>
+                            <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my runs</a> | 
+                            <a hx-get="{{ url_for('runs_blueprint.create_run') }}" hx-target="body" hx-push-url="true">Input new run</a>
                         </div>
                         <div class="'right-links">
                             <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>

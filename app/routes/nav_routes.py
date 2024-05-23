@@ -28,8 +28,9 @@ def favicon():
 @nav_blueprint.route("/")
 def home():
     if is_logged_in():
-        return redirect(url_for("runs_blueprint.get_runs"))
-    return render_template("login.html")
+        return redirect(url_for("runs_blueprint.get_runs"), code=303)
+
+    return redirect(url_for("auth_blueprint.login"), code=303)
 
 
 @nav_blueprint.route("/redis-health-check")

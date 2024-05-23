@@ -68,16 +68,17 @@ h4 {
     width: 110px;
 }
 
-#registration-form {
+.login-or-register {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#registration-form > div {
+.login-or-register > div {
     text-align: center;
 }
 
 .delete-icon {
     height: 25px;
 }
+
