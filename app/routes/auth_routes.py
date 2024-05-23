@@ -56,15 +56,10 @@ class RegisterUserSchema(Schema):
         required=True,
         validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
     )
-    firstname = fields.String(
-        required=True,
+    nick = fields.String(
+        required=False,
         validate=Length(min=3, max=20),
     )
-    lastname = fields.String(
-        required=True,
-        validate=Length(max=30),
-    )
-    email = fields.Email(required=True)
 
 
 @auth_blueprint.route("/login", methods=["GET"])
@@ -102,15 +97,18 @@ def login():
             return render_template(
                 "login.html",
             )
-        hashed_pass = hash_password(login_fields["password"], creds[0].salt)
-        if hashed_pass != creds[0].hashed_pass:
+
+        cred: Credentials = creds[0]
+        hashed_pass = hash_password(login_fields["password"], cred.salt)
+        if hashed_pass != cred.hashed_pass:
             flash("Invalid password, please try again")
             return render_template("login.html")
 
-        user_id = creds[0].user_id
-        firstname = sess.query(Users).filter(Users.id == user_id).all()[0].firstname
+        user_id = cred.user_id
+        user: Users = sess.query(Users).filter(Users.id == user_id).all()[0]
 
-    session["firstname"] = firstname
+    session["nick_or_login"] = user.nick or cred.login
+    print(session["nick_or_login"], user.nick, cred.login)
     accessToken: str = create_and_store_access_token_in_cache(user_id)
 
     res: Response = make_response(
@@ -131,7 +129,7 @@ def logout():
     redis_cache.delete(f"user_id:{user_id}")
 
     flash("You have succesfully logged out :)", "message")
-    return render_template("index.html", logged_in=False)
+    return render_template("index.html")
 
 
 # TODO - be logged out to register
@@ -155,9 +153,7 @@ def register():
 
     login = data.get("login")
     password = data.get("password")
-    firstname = data.get("firstname")
-    lastname = data.get("lastname")
-    email = data.get("email")
+    nick = data.get("nick")
 
     salt = create_salt()
     hashed_pass = hash_password(password, salt)
@@ -169,7 +165,7 @@ def register():
                 flash("Login already exists, please try again")
                 return render_template("register.html")
 
-            user = Users(firstname=firstname, lastname=lastname, email=email)
+            user = Users(nick=nick)
             sess.add(user)
             sess.flush()
 
@@ -179,20 +175,11 @@ def register():
                 )
             )
             sess.commit()
-            return render_template("index.html")
+            return render_template("index.html", logged_in=True)
 
         except Exception as e:
             sess.rollback()
-            err = str(e)
-            current_app.logger.error(err)
 
-            if "unique constraint" in err and "users_email_key" in err:
-                current_app.logger.error(
-                    "Email constraint error when registering: " + err
-                )
-                flash("Provided email has already been registered, please try again")
-                return render_template("index.html")
-            else:
-                current_app.logger.error("Unknown error when registering: " + err)
-                flash("Unknown error, please try again")
-                return render_template("index.html")
+            current_app.logger.error("Unknown error when registering: " + str(e))
+            flash("Unknown error, please try again")
+            return render_template("register.html")

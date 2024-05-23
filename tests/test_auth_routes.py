@@ -37,7 +37,7 @@ def test_login_post(create_session_tok, redis_cache, client: FlaskClient, db_ses
     redis_cache.set.return_value = True
     create_session_tok.return_value = dummy_tok
 
-    new_user = Users(firstname="Alex", lastname="Budi", email="a@gmail.com")
+    new_user = Users(nick="Alex")
     db_session.add(new_user)
     db_session.commit()
 
@@ -63,9 +63,14 @@ def test_login_post(create_session_tok, redis_cache, client: FlaskClient, db_ses
     ]
     redis_cache.set.assert_has_calls(expected_calls)
 
-    html = resp.data.decode()
     assert (
         'You should be redirected automatically to the target URL: <a href="/my_runs">/my_runs</a>'
-        in html
+        in resp.data.decode()
     )
+    assert (
+        resp.headers.get("Location") == "/my_runs"
+    )  # ensure redirection will go to new path
+    assert (
+        resp.headers.get("Set-Cookie") == f"accessToken={dummy_tok}; Path=/"
+    )  # ensure token is set
     assert resp.status_code == 303

@@ -3,33 +3,28 @@
 {% block content %}
     {% set errors = errors | default({}) %}
 
-    <div>
-        <h2>Register</h2>
         <form id="registration-form" hx-post="/register", hx-target="body">
+            <h2>Register</h2>
             <label for="login">Login:</label>
             <input type="text" id="login" name="login">
             <span class="error">{{ errors.get('login', '') }}</span>
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password">
-            <span class="error">{{ errors.get('password', '') }}</span>
+            <div id="password-inputs">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+                <span class="error">{{ errors.get('password', '') }}</span>
+    
+                <label for="password_repeat">Password (repeat):</label>
+                <input type="password" id="password_repeat" name="password_repeat">
+                <span class="error">{{ errors.get('password_repeat', '') }}</span>
+            </div>
 
-            <label for="password_repeat">Password (repeat):</label>
-            <input type="password" id="password_repeat" name="password_repeat">
-            <span class="error">{{ errors.get('password_repeat', '') }}</span><br>
-            Tell us a little more about yourself!<br><br>
-            <label for="firstname">First Name:</label>
-            <input type="text" id="firstname" name="firstname">
-            <span class="error">{{ errors.get('firstname', '') }}</span>
-            <label for="lastname">Last name (optional):</label>
-            <input type="text" id="lastname" name="lastname">
-            <span class="error">{{ errors.get('lastname', '') }}</span>
-            <label for="email">Email:</label>
-            <input type="text" id="email" name="email">
-            <span class="error">{{ errors.get('email', '') }}</span>
+            <label for="nick">Want to enter an optional nick?</label>
+            <input type="text" id="nick" name="nick">
+            <span class="error">{{ errors.get('nick', '') }}</span>
+            
             <br>
             <input type="submit" value="Login" />
         </form> 
-    </div>
 
 {% endblock %}

@@ -1,4 +1,12 @@
-from flask import Blueprint, current_app, redirect, render_template, url_for
+import os
+from flask import (
+    Blueprint,
+    current_app,
+    redirect,
+    render_template,
+    send_from_directory,
+    url_for,
+)
 from func_timeout import FunctionTimedOut, func_timeout
 from sqlalchemy import text
 from app.auth import admin_required, is_logged_in
@@ -6,6 +14,15 @@ from app.cache import redis_cache
 
 
 nav_blueprint = Blueprint("nav_blueprint", __name__)
+
+
+@nav_blueprint.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(current_app.root_path, "static"),
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
+    )
 
 
 @nav_blueprint.route("/")

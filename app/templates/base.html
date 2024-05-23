@@ -16,17 +16,21 @@
                 <h1>
                     Track My Run 🏃🏃🏽‍♀️
                 </h1>
+                <h4>
+                    &#x21B3; A simple web application to manage all of your runs 
+                </h4>
+
                 {% if not logged_in %}
                     <a href="{{ url_for('auth_blueprint.login') }}">Login</a>
                     |
                     <a href="{{ url_for('auth_blueprint.register') }}">Register</a>
                 {%else %}
-                    Welcome, {{ firstname }}!
-                    <br>
+                    Welcome, {{ nick_or_login }}! Ready to track a run?
+                    <br><br>
                     <div class="links-container">
                         <div class="left-links">
-                            <a href="{{ url_for('runs_blueprint.get_runs') }}">Show my runs</a> | 
-                            <a href=" {{ url_for('runs_blueprint.create_run') }} ">Input new run</a>
+                            <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body">Show my runs</a> | 
+                            <a hx-get="{{ url_for('runs_blueprint.create_run') }}" hx-target="body">Input new run</a>
                         </div>
                         <div class="'right-links">
                             <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>
@@ -34,9 +38,6 @@
                     </div>
                 {%endif %}
             </div>
-            <h3>
-                A simple web application to manage all of your runs 
-            </h3>
         </header>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

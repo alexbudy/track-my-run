@@ -129,7 +129,7 @@ def create_run():
 
     initial_data = {
         "logged_in": True,
-        "firstname": session.get("firstname"),
+        "nick_or_login": session.get("nick_or_login"),
         "current_date": current_date,
     }
     if request.method == "GET":
@@ -203,7 +203,7 @@ def get_runs():
         page_size=page_size,
         runs_in_page=len(runs),
         logged_in=True,
-        firstname=session.get("firstname"),
+        nick_or_login=session.get("nick_or_login"),
     )
 
 

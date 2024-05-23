@@ -13,7 +13,8 @@
             
             <div class="form-input-fields">
                 <label for="run_start_time">Start Time <i>(Optional)</i></label>
-                <input type="time" id="run_start_time" name="run_start_time" step="60">
+                <input type="time" id="run_start_time" name="run_start_time" step="60" min="00:00", max="12:00">
+  
                 <span class="error">{{ errors.get('run_start_time', '') }}</span>
             </div>
         </div>
@@ -21,24 +22,24 @@
         <div class="form-input-div">
             <div class="form-input-fields">
                 <label for="distance_mi">Distance (mi)</label>
-                <input type="number" id="distance_mi" name="distance_mi" step=".01" min="0.01" max="10">
+                <input type="number" id="distance_mi" name="distance_mi" step=".01" min="0.01" max="10" value="1">
                 <span class="error">{{ errors.get('distance_mi', '') }}</span>
             </div>
             
             <div class="form-input-fields">
                 <label for="run_time">Runtime Duration</label>
                 <div style="display: flex;">
-                    <input type="number" id="runtime_m" name="runtime_m" min="1" max="60" value="0">m
+                    <input type="number" id="runtime_m" name="runtime_m" min="1" max="60" value="0"> m 
                     <span class="error">{{ errors.get('runtime_m', '') }}</span>
                     : 
-                    <input type="number" id="runtime_s" name="runtime_s" min="0" max="59" value="0">s
+                    <input type="number" id="runtime_s" name="runtime_s" min="0" max="59" value="0"> s 
                     <span class="error">{{ errors.get('runtime_s', '') }}</span>
                 </div>
             </div>
         </div>
 
         <div id="enter-notes-area">
-            <label for="notes">Notes</label>
+            <label for="notes">Optional Notes</label>
             <textarea id="notes-text-area" name="notes" placeholder="Enter a note about this run here..."></textarea>
             <span class="error">{{ errors.get('notes', '') }}</span>
         </div>
