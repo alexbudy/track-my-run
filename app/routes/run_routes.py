@@ -210,7 +210,24 @@ def get_runs():
 @runs_blueprint.route("/runs/<int:run_id>", methods=["GET"])
 @auth_required
 def show_run(run_id):
-    return render_template("runs/show_run.html", run_id=run_id)
+    _, user_id = get_token_and_user_id_from_cookies()
+
+    run: Runs = Runs.find(run_id)
+
+    if not run:
+        return render_template("templates/run_not_found.html")
+
+    if run.user_id != user_id:
+        return render_template(
+            "templates/invalid_permission.html",
+            error_message="You do not have permission to view this run.",
+        )
+
+    days_ago = {0: "today", 1: "yesterday"}.get(
+        int((datetime.now().date() - run.date).days),
+        f"{(datetime.now().date() - run.date).days} days ago",
+    )
+    return render_template("runs/show_run.html", days_ago=days_ago, run=run)
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["GET"])

@@ -11,6 +11,8 @@ from sqlalchemy import (
     Float,
     func,
 )
+from app.database import db
+from typing import Optional
 
 
 convention = {
@@ -24,6 +26,15 @@ convention = {
 Base = declarative_base(
     metadata=MetaData(naming_convention=convention)  # TODO add schema here if needed
 )
+
+
+class BaseMixin(object):
+    @classmethod
+    def find(cls, id_):
+        id_ = int(id_)
+
+        obj = db.session.query(cls).filter(cls.id == id_).first()
+        return obj
 
 
 class Credentials(Base):
@@ -57,7 +68,7 @@ class Users(Base):
         return f"<Users {self.id}, optional nick={self.nick}, is_admin={self.is_admin}>"
 
 
-class Runs(Base):
+class Runs(BaseMixin, Base):
     __tablename__ = "runs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)

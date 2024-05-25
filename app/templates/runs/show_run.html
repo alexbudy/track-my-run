@@ -1,7 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    Details of {{ run_id }} will be shown here.
+    
+    <h3>
+        Here's your run from {{days_ago}}, on {{ run.date }} {% if run.run_start_time %} at {{ run.run_start_time }} {% endif %}
+    </h3>
+    <h5>Nice work!</h5>
+    <div id="show-run-details">
+        <div>Distance: {{ run.distance_mi }} mi</div>
+        <div>Run Time: {{ run.runtime_s // 60}} min, {{ run.runtime_s % 60}} s  </div>
+        <div>Pace: {{ "{:.2f}".format((run.runtime_s/60) / run.distance_mi) }} min/mi  </div>
+        {% if run.notes %}
+            <div>Notes: {{ run.notes }}</div>
+        {% endif %}
+    </div>
+
     <br>
     <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Back</a>
 {% endblock %}

@@ -1,4 +1,4 @@
-h4 {
+h4, h5 {
     padding-left: 25px;
 }
 
@@ -96,5 +96,9 @@ tr:is(:hover, :focus-within) [data-overflow-menu] {
 tr th,
 tr td {
     vertical-align: middle;
+    text-align: center;
+}
+
+#show-run-details {
     text-align: center;
 }
