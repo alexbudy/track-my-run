@@ -2,6 +2,15 @@
 
 {% block content %}
     Edit run {{ run_id }} here
+
+
+    <button id="delete-btn"
+        hx-delete="/runs/{{ run_id }}/delete"
+        hx-push-url="true"
+        hx-confirm="Are you sure you want to delete this run?"
+        hx-target="body">
+    Delete This Run
+    </button>
     <br>
     <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Back</a>
 {% endblock %}

@@ -88,3 +88,8 @@ class Runs(BaseMixin, Base):
             f"run_start_time={self.run_start_time}, distance_mi={self.distance_mi}, "
             f"runtime_s={self.runtime_s})>"
         )
+
+    def delete(self):
+        # for now do soft-deletions
+        self.deleted_at = func.now()
+        db.session.commit()

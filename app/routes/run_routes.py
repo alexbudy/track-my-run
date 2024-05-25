@@ -40,6 +40,8 @@ def get_runs_for_given_date(
         if skip_runs_with_no_start_time:
             filt = and_(filt, Runs.run_start_time.isnot(None))
 
+        filt = and_(filt, Runs.deleted_at.is_(None))
+
         runs: List[Runs] = (
             sess.query(Runs)
             .filter(filt)
@@ -64,7 +66,7 @@ def get_runs_for_given_user(
     with current_app.Session() as sess:
         runs: List[Runs] = (
             sess.query(Runs)
-            .filter(Runs.user_id == user_id)
+            .filter(and_(Runs.deleted_at.is_(None), Runs.user_id == user_id))
             .order_by(Runs.date.desc(), Runs.run_start_time.desc())
             .limit(page_size)
             .offset(offset)
@@ -215,46 +217,55 @@ def show_run(run_id):
     run: Runs = Runs.find(run_id)
 
     if not run:
-        return render_template("templates/run_not_found.html")
+        return render_template("templates/run_not_found.html", logged_in=True)
 
     if run.user_id != user_id:
         return render_template(
             "templates/invalid_permission.html",
             error_message="You do not have permission to view this run.",
+            logged_in=True,
         )
 
     days_ago = {0: "today", 1: "yesterday"}.get(
         int((datetime.now().date() - run.date).days),
         f"{(datetime.now().date() - run.date).days} days ago",
     )
-    return render_template("runs/show_run.html", days_ago=days_ago, run=run)
+    return render_template(
+        "runs/show_run.html", days_ago=days_ago, run=run, logged_in=True
+    )
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["GET"])
 @auth_required
 def edit_run_get(run_id):
-    return render_template("runs/edit_run.html", run_id=run_id)
+    return render_template("runs/edit_run.html", run_id=run_id, logged_in=True)
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
 @auth_required
 def edit_run_put(run_id):
-    return render_template("runs/edit_run_success.html", run_id=run_id)
+    return render_template("runs/edit_run_success.html", run_id=run_id, logged_in=True)
 
 
-@runs_blueprint.route("/delete_run/<int:run_id>", methods=["DELETE"])
+@runs_blueprint.route("/runs/<int:run_id>/delete", methods=["DELETE"])
 @auth_required
 def delete_run(run_id):
     _, user_id = get_token_and_user_id_from_cookies()
 
-    with current_app.Session() as sess:
-        run_to_delete = sess.query(Runs).get(run_id)
-        if not run_to_delete:
-            return abort("Run not found for given id", 404)
-        if run_to_delete.user_id != user_id:
-            return abort("Can't delete this run - owned by another user", 404)
-        sess.delete(run_to_delete)
-        sess.commit()
+    run: Runs = Runs.find(run_id)
 
-        # TODO - handle deletions from other elements
-        return ""
+    if not run:
+        return render_template("templates/run_not_found.html", logged_in=True)
+
+    if run.user_id != user_id:
+        return render_template(
+            "templates/invalid_permission.html",
+            error_message="You do not have permission to delete this run.",
+            logged_in=True,
+        )
+
+    run.delete()
+
+    return render_template(
+        "runs/succesful_deletion.html", run_id=run_id, logged_in=True
+    )
