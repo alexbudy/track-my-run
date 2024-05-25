@@ -1,10 +1,8 @@
-{% set logged_in = logged_in | default(False) %}
-
 {% extends 'base.html' %}
 
 {% block content %}
     {% if logged_in %}
-        {% set errors = errors | default({}) %}
+
         <table>
             <thead>
             <tr>
@@ -21,6 +19,7 @@
                 {% include 'rows.html' %}
             </tbody>
         </table>
+
     {% endif %}
     
 {% endblock %}

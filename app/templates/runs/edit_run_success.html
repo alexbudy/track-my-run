@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h3>Run {{ run_id }} updated succesfully!</h3>
+    <br>
+    <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Back</a>
+{% endblock %}

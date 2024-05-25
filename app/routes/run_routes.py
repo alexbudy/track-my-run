@@ -3,14 +3,11 @@ from flask import (
     Blueprint,
     current_app,
     flash,
-    jsonify,
-    redirect,
     render_template,
     request,
     session,
-    url_for,
 )
-from marshmallow import Schema, fields, post_load, validates
+from marshmallow import Schema, fields, post_load
 from marshmallow.validate import Length, Range
 from datetime import date, datetime, timedelta
 
@@ -18,7 +15,7 @@ from sqlalchemy import and_
 
 from app.auth import auth_required, get_token_and_user_id_from_cookies
 from app.models.models import Runs
-from app.routes import abort, flatten_validation_errors, stringify_validation_errors
+from app.routes import abort, flatten_validation_errors
 
 PAGE_SIZE: int = 20  # default page size for # of runs to return
 MAX_PAGE_SIZE: int = 50
@@ -84,7 +81,7 @@ class RunSchema(Schema):
         required=True,
         validate=lambda x: x >= date(2024, 1, 1) and x <= datetime.now().date(),
     )
-    run_start_time = fields.String(
+    run_start_time = fields.String(  # TODO - validate time field
         required=False, allow_none=True, validate=lambda _: True
     )
     distance_mi = fields.Float(
@@ -110,7 +107,11 @@ class RunSchema(Schema):
         print("Before run", data)
         r = Runs(
             date=data["date"],
-            run_start_time=data["run_start_time"] or None,
+            run_start_time=(
+                datetime.strptime(data["run_start_time"], "%H:%M").time()
+                if data["run_start_time"]
+                else None
+            ),
             distance_mi=data["distance_mi"],
             runtime_s=data["runtime_m"] * 60 + data["runtime_s"],
             notes=data["notes"],
@@ -144,7 +145,6 @@ def create_run():
 
     run: Runs = register_run_schema.load(request.form)
     run.user_id = user_id
-    print(run)
     existing_runs = get_runs_for_given_date(run.date, user_id)
 
     if run.run_start_time:
@@ -205,6 +205,24 @@ def get_runs():
         logged_in=True,
         nick_or_login=session.get("nick_or_login"),
     )
+
+
+@runs_blueprint.route("/runs/<int:run_id>", methods=["GET"])
+@auth_required
+def show_run(run_id):
+    return render_template("runs/show_run.html", run_id=run_id)
+
+
+@runs_blueprint.route("/runs/<int:run_id>/edit", methods=["GET"])
+@auth_required
+def edit_run_get(run_id):
+    return render_template("runs/edit_run.html", run_id=run_id)
+
+
+@runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
+@auth_required
+def edit_run_put(run_id):
+    return render_template("runs/edit_run_success.html", run_id=run_id)
 
 
 @runs_blueprint.route("/delete_run/<int:run_id>", methods=["DELETE"])

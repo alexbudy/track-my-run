@@ -2,23 +2,6 @@ h4 {
     padding-left: 25px;
 }
 
-#errorMessages {
-    background-color: lightpink;
-    margin: 0 auto;
-    text-align: center;
-    width: 25%;
-    opacity: 0;
-    transition: all 0.5s;
-    padding: 5px 0px;
-    box-shadow: 0px 0px 5px 3px lightpink;
-    border-radius: 25px;
-}
-
-#errorMessages.show {
-    opacity: 1;
-    margin-bottom: 10px;
-}
-
 .error {
     padding-bottom: 5px;
 }
@@ -82,3 +65,36 @@ h4 {
     height: 25px;
 }
 
+a {
+    cursor: pointer;
+}
+
+a:hover {
+    color: white; /* Changes text color on hover */
+}
+
+[data-overflow-menu] {
+    visibility: hidden;
+}
+
+tr:is(:hover, :focus-within) [data-overflow-menu] {
+    visibility: visible;
+}
+
+.show-edit-links {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+
+.show-edit-links a {
+    text-decoration: none; 
+    padding: 0 5px;
+}
+
+
+tr th,
+tr td {
+    vertical-align: middle;
+    text-align: center;
+}
