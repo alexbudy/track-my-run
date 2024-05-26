@@ -3,9 +3,11 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    redirect,
     render_template,
     request,
     session,
+    url_for,
 )
 from marshmallow import Schema, fields, post_load
 from marshmallow.validate import Length, Range
@@ -106,19 +108,21 @@ class RunSchema(Schema):
 
     @post_load
     def make_run(self, data, **kwargs):
-        print("Before run", data)
+        run_start_time = data["run_start_time"]
+        if run_start_time:
+            if run_start_time.count(":") >= 2:
+                run_start_time = ":".join(run_start_time.split(":")[0:2])
+
+            run_start_time = datetime.strptime(run_start_time, "%H:%M").time()
+
         r = Runs(
             date=data["date"],
-            run_start_time=(
-                datetime.strptime(data["run_start_time"], "%H:%M").time()
-                if data["run_start_time"]
-                else None
-            ),
+            run_start_time=run_start_time,
             distance_mi=data["distance_mi"],
             runtime_s=data["runtime_m"] * 60 + data["runtime_s"],
             notes=data["notes"],
         )
-        # print(r)
+
         return r
 
 
@@ -132,7 +136,6 @@ def create_run():
 
     initial_data = {
         "logged_in": True,
-        "nick_or_login": session.get("nick_or_login"),
         "current_date": current_date,
     }
     if request.method == "GET":
@@ -161,18 +164,9 @@ def create_run():
                 flash("Start time of given run overlaps with existing run")
                 return render_template("new_run.html", **initial_data)
 
-    with current_app.Session() as sess:
-        try:
-            sess.add(run)
-            sess.commit()
-        except Exception as e:
-            sess.rollback()
-            err = str(e)
-            current_app.logger.error(err)
-
-            return abort("Unknown error")
-
-        return render_template("run_created.html", **initial_data)
+    run.save()
+    flash(f"Created run {run.id} for {run.date}", "message")
+    return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
 
 @runs_blueprint.route("/my_runs", methods=["GET"])
@@ -205,7 +199,6 @@ def get_runs():
         page_size=page_size,
         runs_in_page=len(runs),
         logged_in=True,
-        nick_or_login=session.get("nick_or_login"),
     )
 
 
@@ -217,11 +210,11 @@ def show_run(run_id):
     run: Runs = Runs.find(run_id)
 
     if not run:
-        return render_template("templates/run_not_found.html", logged_in=True)
+        return render_template("runs/run_not_found.html", logged_in=True)
 
     if run.user_id != user_id:
         return render_template(
-            "templates/invalid_permission.html",
+            "runs/invalid_permission.html",
             error_message="You do not have permission to view this run.",
             logged_in=True,
         )
@@ -238,13 +231,49 @@ def show_run(run_id):
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["GET"])
 @auth_required
 def edit_run_get(run_id):
-    return render_template("runs/edit_run.html", run_id=run_id, logged_in=True)
+    _, user_id = get_token_and_user_id_from_cookies()
+
+    run: Runs = Runs.find(run_id)
+
+    if not run:
+        return render_template("runs/run_not_found.html", logged_in=True)
+
+    if run.user_id != user_id:
+        return render_template(
+            "runs/invalid_permission.html",
+            error_message="You do not have permission to view and edit this run.",
+            logged_in=True,
+        )
+
+    return render_template("runs/edit_run.html", run=run, logged_in=True)
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
 @auth_required
 def edit_run_put(run_id):
-    return render_template("runs/edit_run_success.html", run_id=run_id, logged_in=True)
+    _, user_id = get_token_and_user_id_from_cookies()
+
+    run: Runs = Runs.find(run_id)
+
+    if not run:
+        return render_template("runs/run_not_found.html", logged_in=True)
+
+    if run.user_id != user_id:
+        return render_template(
+            "runs/invalid_permission.html",
+            error_message="You do not have permission to view and edit this run.",
+            logged_in=True,
+        )
+
+    errs = register_run_schema.validate(request.form)
+    if errs:
+        return render_template("edit_run.html", errors=flatten_validation_errors(errs))
+
+    new_run_data: Runs = register_run_schema.load(request.form)
+    run.update(new_run_data)
+
+    flash(f"Run {run_id} edited successfully", "message")
+    return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
 
 @runs_blueprint.route("/runs/<int:run_id>/delete", methods=["DELETE"])
@@ -258,14 +287,10 @@ def delete_run(run_id):
         return render_template("templates/run_not_found.html", logged_in=True)
 
     if run.user_id != user_id:
-        return render_template(
-            "templates/invalid_permission.html",
-            error_message="You do not have permission to delete this run.",
-            logged_in=True,
-        )
+        flash(f"You do not have permission to delete this run.", "error")
+        return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
     run.delete()
 
-    return render_template(
-        "runs/succesful_deletion.html", run_id=run_id, logged_in=True
-    )
+    flash(f"Run with id {run_id} was deleted successfully", "error")
+    return redirect(url_for("runs_blueprint.get_runs"), code=303)

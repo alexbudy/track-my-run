@@ -107,8 +107,7 @@ def login():
         user_id = cred.user_id
         user: Users = sess.query(Users).filter(Users.id == user_id).all()[0]
 
-    session["nick_or_login"] = user.nick or cred.login
-    print(session["nick_or_login"], user.nick, cred.login)
+    flash(f"Welcome, {user.nick or cred.login}. Ready to track a run?", "message")
     accessToken: str = create_and_store_access_token_in_cache(user_id)
 
     res: Response = make_response(

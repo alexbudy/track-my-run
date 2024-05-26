@@ -17,7 +17,8 @@
                     Track My Run 🏃🏃🏽‍♀️
                 </h1>
                 <h4>
-                    &#x21B3; A simple web application to manage all of your runs 
+                    &#x21B3;
+                        A simple web application to manage all of your runs 
                 </h4>
 
                 {% if not logged_in %}
@@ -31,8 +32,8 @@
                 {%else %}
                     <div class="links-container">
                         <div class="left-links">
-                            <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my runs</a> | 
-                            <a hx-get="{{ url_for('runs_blueprint.create_run') }}" hx-target="body" hx-push-url="true">Input new run</a>
+                            <button hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my runs</button>&nbsp;
+                            <button hx-get="{{ url_for('runs_blueprint.create_run') }}" hx-target="body" hx-push-url="true">Input new run</button>
                         </div>
                         <div class="'right-links">
                             <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>
@@ -44,8 +45,10 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
+                    <div class="alert-container">
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
                     </div>
                 {% endfor %}
             {% endif %}

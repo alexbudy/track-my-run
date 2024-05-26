@@ -3,7 +3,6 @@ from flask import (
     Blueprint,
     current_app,
     redirect,
-    render_template,
     send_from_directory,
     url_for,
 )

@@ -2,9 +2,35 @@ h4, h5 {
     padding-left: 25px;
 }
 
+header {
+    margin-bottom: 10px;
+}
+
 .error {
     padding-bottom: 5px;
 }
+
+.alert-container {
+    margin-top: -30px;
+    text-align: center;
+}
+
+.alert {
+    padding: 5px 15px;
+    text-align: center;
+    display: inline-block;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.alert-message {
+    background-color: darkslategray;
+}
+
+.alert-error {
+    background-color: rgb(78, 6, 34);
+}
+
 
 .run-row {
     height: 50px;
@@ -99,6 +125,11 @@ tr td {
     text-align: center;
 }
 
-#show-run-details {
-    text-align: center;
+.show-run-details p {
+    padding-top:5px;
+}
+
+#welcome-message {
+    margin-top: -30px;
+    margin-bottom: -30px;
 }

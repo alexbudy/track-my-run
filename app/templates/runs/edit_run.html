@@ -1,16 +1,47 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    Edit run {{ run_id }} here
+
+    <form hx-put="{{ url_for('runs_blueprint.edit_run_put', run_id=run.id) }}" hx-target="body" hx-push-url="true">
+        <fieldset>
+            <legend>Run Values</legend>
+            <div class="table rows">
+                <p>
+                    <label for="date">Date</label>
+                    <input name="date" id="date" type="date" value="{{ run.date }}">
+                </p>
+                <p>
+                    <label for="run_start_time">Run start time</label>
+                    <input type="time" id="run_start_time" name="run_start_time" step="60" min="00:00", max="24:00" value="{{ run.run_start_time }}">
+                </p>
+                <p>
+                    <label for="distance_mi">Distance (mi)</label>
+                    <input type="number" id="distance_mi" name="distance_mi" step=".01" min="0.01" max="10" value="{{ run.distance_mi }}">
+                </p>
+                <p>
+                    <label for="run_time">Runtime Duration</label>
+                        <input type="number" id="runtime_m" name="runtime_m" min="1" max="60" value="{{ run.runtime_s // 60}}"> m 
+                        <input type="number" id="runtime_s" name="runtime_s" min="0" max="59" value="{{ run.runtime_s % 60}}"> s 
+                </p>
+                <p>
+                    <label for="notes">Optional Notes</label>
+                    <textarea id="notes-text-area" name="notes" value="{{ run.notes }}"></textarea>
+                </p>
+            </div>
+            <button >Save</button>
+        </fieldset>
+    </form>
 
 
     <button id="delete-btn"
-        hx-delete="/runs/{{ run_id }}/delete"
+        hx-delete="{{ url_for('runs_blueprint.delete_run', run_id=run.id) }}"
         hx-push-url="true"
         hx-confirm="Are you sure you want to delete this run?"
         hx-target="body">
     Delete This Run
     </button>
     <br>
+    <br>
     <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Back</a>
+
 {% endblock %}

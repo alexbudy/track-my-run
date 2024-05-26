@@ -93,3 +93,16 @@ class Runs(BaseMixin, Base):
         # for now do soft-deletions
         self.deleted_at = func.now()
         db.session.commit()
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self, new_run: "Runs"):
+        self.date = new_run.date
+        self.run_start_time = new_run.run_start_time
+        self.distance_mi = new_run.distance_mi
+        self.runtime_s = new_run.runtime_s
+        self.notes = new_run.notes
+        self.updated_at = func.now()
+        db.session.commit()

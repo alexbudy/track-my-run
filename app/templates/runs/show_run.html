@@ -5,16 +5,41 @@
     <h3>
         Here's your run from {{days_ago}}, on {{ run.date }} {% if run.run_start_time %} at {{ run.run_start_time }} {% endif %}
     </h3>
-    <h5>Nice work!</h5>
-    <div id="show-run-details">
-        <div>Distance: {{ run.distance_mi }} mi</div>
-        <div>Run Time: {{ run.runtime_s // 60}} min, {{ run.runtime_s % 60}} s  </div>
-        <div>Pace: {{ "{:.2f}".format((run.runtime_s/60) / run.distance_mi) }} min/mi  </div>
-        {% if run.notes %}
-            <div>Notes: {{ run.notes }}</div>
-        {% endif %}
-    </div>
+    <fieldset>
+        <legend>Nice work!</legend>
+        <div class="table rows show-run-details">
+            <p>
+                <span>Date: </span> <span>{{ run.date }}</span>
+            </p>
+            <p> 
+                <span>Run Start Time: </span>
+                <span>
+                    {% if run.run_start_time %} {{ run.run_start_time }} {% else %} N/A {% endif %}
+                </span>
+            </p>
+            <p>
+                <span>Distance: </span>
+                <span>
+                    {{ run.distance_mi }}mi
+                </span>
+            </p>
+            <p>
+                <span>Runtime Duration: </span>
+                <span>
+                    {{ run.runtime_s // 60}}m {{"{:02d}".format(run.runtime_s % 60)}}s
+                </span>
+            </p>
+            <p>
+                <span>Optional Notes:</span>
+                <span>
+                    {{ run.notes }}
+                </span>
+            </p>
+        </div>
+    </fieldset>
 
+    <button hx-get="{{ url_for('runs_blueprint.edit_run_get', run_id= run.id) }}" hx-target="body" hx-push-url="true">Edit this run</button>
+    <br>
     <br>
     <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Back</a>
 {% endblock %}
