@@ -9,6 +9,10 @@ jobs:
     if: github.ref == 'refs/heads/main' # enable deploy only from main branch
 
     steps:
+      - name: Get Commit SHA
+        id: get_commit_sha
+        run: echo "::set-output name=commit_sha::${{ github.sha }}"
+
 
       - name: Deploy application via SSH
         uses: appleboy/ssh-action@v1.0.3

@@ -229,7 +229,7 @@ def get_runs():
 
     run_schema = RunSchema()
     runs = [run_schema.dump(run) for run in runs]
-    print(runs[0])
+
     return render_template(
         "index.html",
         runs=runs,

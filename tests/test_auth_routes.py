@@ -56,12 +56,13 @@ def test_login_post(create_session_tok, redis_cache, client: FlaskClient, db_ses
     resp = client.post("/login", data={"login": "some_user", "password": "some_pass"})
 
     # assert that redis stores the created token
-    assert redis_cache.set.call_count == 2
-    expected_calls = [
-        mock.call(dummy_tok, new_user.id, ex=LOGIN_EXPIRY_S),
-        mock.call(f"user_id:{new_user.id}", dummy_tok, ex=LOGIN_EXPIRY_S),
-    ]
+    assert redis_cache.set.call_count == 1
+    expected_calls = [mock.call(dummy_tok, new_user.id, ex=LOGIN_EXPIRY_S)]
     redis_cache.set.assert_has_calls(expected_calls)
+
+    assert redis_cache.rpush.call_count == 1
+    expected_calls = [mock.call(f"user_id:{new_user.id}", dummy_tok)]
+    redis_cache.rpush.assert_has_calls(expected_calls)
 
     assert (
         'You should be redirected automatically to the target URL: <a href="/my_runs">/my_runs</a>'
