@@ -6,11 +6,11 @@
             <thead>
             <tr>
                 <th></th>
-                <th>Date</th>
-                <th>Start Time</th>
-                <th>Dist (mi)</th>
-                <th>Runtime (m:ss)</th>
-                <th>Pace (min/mi)</th>
+                <th class="sortable" hx-get="/my_runs?order_by=date&order={{ order_vals['date'] }}" hx-target="body">Date</th>
+                <th class="sortable" hx-get="/my_runs?order_by=run_start_time&order={{ order_vals['run_start_time'] }}" hx-target="body">Start Time</th>
+                <th class="sortable" hx-get="/my_runs?order_by=distance_mi&order={{ order_vals['distance_mi'] }}" hx-target="body">Dist (mi)</th>
+                <th class="sortable" hx-get="/my_runs?order_by=runtime_s&order={{ order_vals['runtime_s'] }}" hx-target="body">Runtime (m:ss)</th>
+                <th class="sortable" hx-get="/my_runs?order_by=runtime_s&order={{ order_vals['runtime_s'] }}" hx-target="body">Pace (min/mi)</th>
                 <th></th>
             </tr>
             </thead>

@@ -20,7 +20,11 @@ from app.auth import (
 )
 from app.models.models import Credentials, Users
 from app.cache import redis_cache
-from app.routes import create_and_store_access_token_in_cache, flatten_validation_errors
+from app.routes import (
+    DEFAULT_ORDERING,
+    create_and_store_access_token_in_cache,
+    flatten_validation_errors,
+)
 from app.utils.utils import create_salt, hash_password
 
 auth_blueprint = Blueprint("auth_blueprint", __name__)
@@ -174,7 +178,9 @@ def register():
                 )
             )
             sess.commit()
-            return render_template("index.html", logged_in=True)
+            return render_template(
+                "index.html", logged_in=True, order_vals=DEFAULT_ORDERING
+            )
 
         except Exception as e:
             sess.rollback()

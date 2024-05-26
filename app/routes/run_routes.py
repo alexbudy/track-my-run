@@ -3,6 +3,7 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    get_flashed_messages,
     redirect,
     render_template,
     request,
@@ -13,7 +14,7 @@ from marshmallow import Schema, fields, post_dump, post_load
 from marshmallow.validate import Length, Range
 from datetime import date, datetime, timedelta
 
-from sqlalchemy import and_
+from sqlalchemy import and_, asc, desc
 
 from app.auth import (
     auth_required,
@@ -21,7 +22,7 @@ from app.auth import (
     get_token_and_user_id_from_cookies,
 )
 from app.models.models import Runs
-from app.routes import flatten_validation_errors
+from app.routes import DEFAULT_ORDERING, flatten_validation_errors
 
 PAGE_SIZE: int = 20  # default page size for # of runs to return
 MAX_PAGE_SIZE: int = 50
@@ -59,7 +60,11 @@ def get_runs_for_given_date(
 
 
 def get_runs_for_given_user(
-    user_id: int, page_num: int, page_size: int = PAGE_SIZE
+    user_id: int,
+    page_num: int,
+    page_size: int = PAGE_SIZE,
+    order_by: str = "date",
+    order: str = "desc",
 ) -> tuple[List[Runs], int]:
     """
     page_num: starts at 0
@@ -68,12 +73,14 @@ def get_runs_for_given_user(
     Returns paginated runs, and total count of runs
     """
     offset: int = (page_num) * page_size
+    order_col = getattr(Runs, order_by)
+    ordering = desc if order.lower() == "desc" else asc
 
     with current_app.Session() as sess:
         runs: List[Runs] = (
             sess.query(Runs)
             .filter(and_(Runs.deleted_at.is_(None), Runs.user_id == user_id))
-            .order_by(Runs.date.desc(), Runs.run_start_time.desc())
+            .order_by(ordering(order_col))
             .limit(page_size)
             .offset(offset)
             .all()
@@ -215,20 +222,29 @@ def get_runs():
 
     page_num = request.args.get("page", 0, type=int)
     page_size = request.args.get("size", PAGE_SIZE, type=int)
+    order_by = request.args.get("order_by", "date", type=str)
+    order = request.args.get("order", "desc", type=str)
 
     if page_num < 0:
-        flash("Page query param should not be negative", "error")
-        return render_template("index.html")
+        page_num = 0
     if page_size <= 0 or page_size > MAX_PAGE_SIZE:
-        flash(f"Please specify a page_size in the range 1 to {MAX_PAGE_SIZE}")
-        return render_template("index.html")
+        page_size = PAGE_SIZE
+    if order_by not in ["date", "run_start_time", "distance_mi", "runtime_s"]:
+        order_by = "date"
+    if order not in ["asc", "desc"]:
+        order = "desc"
 
     runs: List[Runs]
     total_count: int
-    runs, total_count = get_runs_for_given_user(user_id, page_num, page_size)
+    runs, total_count = get_runs_for_given_user(
+        user_id, page_num, page_size, order_by, order
+    )
 
     run_schema = RunSchema()
     runs = [run_schema.dump(run) for run in runs]
+
+    ordering = DEFAULT_ORDERING.copy()
+    ordering[order_by] = "desc" if order == "asc" else "asc"  # flip the order
 
     return render_template(
         "index.html",
@@ -238,6 +254,7 @@ def get_runs():
         page_size=page_size,
         runs_in_page=len(runs),
         logged_in=True,
+        order_vals=ordering,
     )
 
 
