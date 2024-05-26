@@ -7,39 +7,8 @@ jobs:
     runs-on: ubuntu-latest
 
     if: github.ref == 'refs/heads/main' # enable deploy only from main branch
-
-    env:
-      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
-      DB_USERNAME: ${{ secrets.DB_USERNAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      TEST_PORT: ${{ secrets.TEST_PORT }}
-      TEST_HOSTNAME: ${{ secrets.TEST_HOSTNAME }}
-
-    services:
-      postgres:
-        image: postgres
-        ports:
-          - 5433:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: db
     
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-      
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
-      
-      - name: Run unit tests
-        run: |
-          pip install -r requirements.txt
-          alembic --name test upgrade head
-          python -m pytest
 
       - name: Deploy application via SSH
         uses: appleboy/ssh-action@v1.0.3

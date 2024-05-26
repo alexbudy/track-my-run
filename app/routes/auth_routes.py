@@ -65,6 +65,11 @@ class RegisterUserSchema(Schema):
 @auth_blueprint.route("/login", methods=["GET"])
 @redirect_if_logged_in
 def render_login():
+    if current_app.config["ENV"] == "prod":
+        flash(
+            "If you would like to see a readonly version without creating an account, please use login: readonly, password: readonly1 as logins",
+            "message",
+        )
     return render_template("login.html")
 
 

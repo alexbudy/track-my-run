@@ -26,14 +26,17 @@ class Config:
 class ProdConfig(Config):
     SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{hostname['prod']}:{port['prod']}/{database}"
     DEBUG = False
+    ENV = "prod"
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    ENV = "dev"
 
 
 class TestConfig(Config):
     TESTING = True
     DEBUG = True
+    ENV = "test"
 
     SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{hostname['test']}:{port['test']}/{database}"
