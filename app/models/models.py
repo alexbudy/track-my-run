@@ -55,6 +55,11 @@ class Credentials(Base):
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
 
+    @classmethod
+    def find_cred_on_login(cls, login):
+        cred = db.session.query(Credentials).filter(Credentials.login == login).first()
+        return cred
+
     def __repr__(self):
         return f"<Credentials {self.id}, {self.login}>"
 

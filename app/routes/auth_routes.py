@@ -85,27 +85,21 @@ def login():
 
     login_fields: LoginUserSchema = login_user_schema.load(request.form)
 
-    with current_app.Session() as sess:
-        creds = (
-            sess.query(Credentials)
-            .filter(Credentials.login == login_fields["login"])
-            .all()
+    cred = Credentials.find_cred_on_login(login_fields["login"])
+
+    if not cred:
+        flash("Login not found, please register and try again")
+        return render_template(
+            "login.html",
         )
 
-        if len(creds) == 0:
-            flash("Login not found, please register and try again")
-            return render_template(
-                "login.html",
-            )
+    hashed_pass = hash_password(login_fields["password"], cred.salt)
+    if hashed_pass != cred.hashed_pass:
+        flash("Invalid password, please try again")
+        return render_template("login.html")
 
-        cred: Credentials = creds[0]
-        hashed_pass = hash_password(login_fields["password"], cred.salt)
-        if hashed_pass != cred.hashed_pass:
-            flash("Invalid password, please try again")
-            return render_template("login.html")
-
-        user_id = cred.user_id
-        user: Users = sess.query(Users).filter(Users.id == user_id).all()[0]
+    user_id = cred.user_id
+    user: Users = Users.find(user_id)
 
     flash(f"Welcome, {user.nick or cred.login}. Ready to track a run?", "message")
     accessToken: str = create_and_store_access_token_in_cache(user_id)

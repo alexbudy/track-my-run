@@ -15,7 +15,11 @@ def create_and_store_access_token_in_cache(user_id: int) -> str:
     tok: str = create_session_tok()
 
     redis_cache.set(tok, user_id, ex=LOGIN_EXPIRY_S)
-    redis_cache.set(f"user_id:{user_id}", tok, ex=LOGIN_EXPIRY_S)
+
+    redis_cache.rpush(
+        f"user_id:{user_id}", tok
+    )  # maintain a list of tokens for a logged in user (multi-device) - useful for admin session management
+    redis_cache.expire(f"user_id:{user_id}", LOGIN_EXPIRY_S)
 
     return tok
 
