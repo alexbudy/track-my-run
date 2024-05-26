@@ -77,7 +77,7 @@ class Users(BaseMixin, Base):
     deleted_at = Column(DateTime, nullable=True, default=None)
 
     def __repr__(self):
-        return f"<Users {self.id}, optional nick={self.nick}, is_admin={self.is_admin}>"
+        return f"<Users {self.id}, optional nick={self.nick}, is_admin={self.is_admin}, is_readonly={self.is_readonly}>"
 
 
 class Runs(BaseMixin, Base):

@@ -9,7 +9,7 @@ from flask import (
     session,
     url_for,
 )
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_dump, post_load
 from marshmallow.validate import Length, Range
 from datetime import date, datetime, timedelta
 
@@ -129,6 +129,29 @@ class RunSchema(Schema):
 
         return r
 
+    @post_dump
+    def post_process_run_start_time(self, data, **kwargs):
+        """Sanitize data for display"""
+        run_start_time = data["run_start_time"]
+        if run_start_time:
+            if run_start_time.count(":") >= 2:
+                hr = run_start_time.split(":")[0]
+                mn = run_start_time.split(":")[1]
+                if hr[0] == "0":
+                    hr = hr[1]
+
+                am_pm = "AM"
+                if int(hr) >= 12:
+                    am_pm = "PM"
+                if int(hr) > 12:
+                    hr = int(hr) - 12
+
+                data["run_start_time"] = f"{hr}:{mn} {am_pm}"
+
+        data["distance_mi"] = float("{:.2f}".format(data["distance_mi"]))
+
+        return data
+
 
 register_run_schema = RunSchema()
 
@@ -206,7 +229,7 @@ def get_runs():
 
     run_schema = RunSchema()
     runs = [run_schema.dump(run) for run in runs]
-
+    print(runs[0])
     return render_template(
         "index.html",
         runs=runs,
@@ -239,6 +262,9 @@ def show_run(run_id):
         int((datetime.now().date() - run.date).days),
         f"{(datetime.now().date() - run.date).days} days ago",
     )
+
+    run = RunSchema().dump(run)
+
     return render_template(
         "runs/show_run.html", days_ago=days_ago, run=run, logged_in=True
     )

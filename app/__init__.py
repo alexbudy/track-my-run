@@ -25,7 +25,7 @@ def create_app(config_key="dev"):
         config = DevelopmentConfig
 
     app.config.from_object(config)
-
+    print(config.SQLALCHEMY_DATABASE_URI)
     engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
 
     app.Session = sessionmaker(bind=engine)
