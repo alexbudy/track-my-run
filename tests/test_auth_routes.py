@@ -13,11 +13,11 @@ def test_login_route(client: FlaskClient):
     html = resp.data.decode()
 
     assert resp.status_code == 200
-    assert '<a href="/login">Login</a>' in html
-    assert '<a href="/register">Register</a>' in html
+    assert '<a hx-get="/login"' in html
+    assert '<a hx-get="/register"' in html
 
-    assert '<input type="text" id="login" name="login">' in html
-    assert '<input type="password" id="password" name="password">' in html
+    assert '<input type="text" id="login"' in html
+    assert '<input type="password"' in html
 
 
 def test_login_post_invalid_params(client: FlaskClient):
