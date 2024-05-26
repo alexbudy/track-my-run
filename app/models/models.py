@@ -29,12 +29,18 @@ Base = declarative_base(
 
 
 class BaseMixin(object):
+    """Common methods for given models"""
+
     @classmethod
     def find(cls, id_):
         id_ = int(id_)
 
         obj = db.session.query(cls).filter(cls.id == id_).first()
         return obj
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class Credentials(Base):
@@ -53,13 +59,14 @@ class Credentials(Base):
         return f"<Credentials {self.id}, {self.login}>"
 
 
-class Users(Base):
+class Users(BaseMixin, Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     nick = Column(String(), unique=False, nullable=True)
     email = Column(String(), unique=True, nullable=True)
     is_admin = Column(Integer, nullable=False, default=0)
+    is_readonly = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
@@ -92,10 +99,6 @@ class Runs(BaseMixin, Base):
     def delete(self):
         # for now do soft-deletions
         self.deleted_at = func.now()
-        db.session.commit()
-
-    def save(self):
-        db.session.add(self)
         db.session.commit()
 
     def update(self, new_run: "Runs"):

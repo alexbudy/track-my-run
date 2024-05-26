@@ -15,9 +15,13 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy import and_
 
-from app.auth import auth_required, get_token_and_user_id_from_cookies
+from app.auth import (
+    auth_required,
+    block_if_readonly,
+    get_token_and_user_id_from_cookies,
+)
 from app.models.models import Runs
-from app.routes import abort, flatten_validation_errors
+from app.routes import flatten_validation_errors
 
 PAGE_SIZE: int = 20  # default page size for # of runs to return
 MAX_PAGE_SIZE: int = 50
@@ -129,7 +133,21 @@ class RunSchema(Schema):
 register_run_schema = RunSchema()
 
 
-@runs_blueprint.route("/create_run", methods=["GET", "POST"])
+@runs_blueprint.route("/create_run_get", methods=["GET"])
+@auth_required
+def create_run_get():
+    current_date = datetime.today().strftime("%Y-%m-%d")
+
+    initial_data = {
+        "logged_in": True,
+        "current_date": current_date,
+    }
+
+    return render_template("new_run.html", **initial_data)
+
+
+@runs_blueprint.route("/create_run", methods=["POST"])
+@block_if_readonly
 @auth_required
 def create_run():
     current_date = datetime.today().strftime("%Y-%m-%d")
@@ -138,8 +156,6 @@ def create_run():
         "logged_in": True,
         "current_date": current_date,
     }
-    if request.method == "GET":
-        return render_template("new_run.html", **initial_data)
 
     _, user_id = get_token_and_user_id_from_cookies()
     errs = register_run_schema.validate(request.form)
@@ -249,6 +265,7 @@ def edit_run_get(run_id):
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
+@block_if_readonly
 @auth_required
 def edit_run_put(run_id):
     _, user_id = get_token_and_user_id_from_cookies()
@@ -277,6 +294,7 @@ def edit_run_put(run_id):
 
 
 @runs_blueprint.route("/runs/<int:run_id>/delete", methods=["DELETE"])
+@block_if_readonly
 @auth_required
 def delete_run(run_id):
     _, user_id = get_token_and_user_id_from_cookies()
@@ -284,7 +302,7 @@ def delete_run(run_id):
     run: Runs = Runs.find(run_id)
 
     if not run:
-        return render_template("templates/run_not_found.html", logged_in=True)
+        return render_template("runs/run_not_found.html", logged_in=True)
 
     if run.user_id != user_id:
         flash(f"You do not have permission to delete this run.", "error")

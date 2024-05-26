@@ -1,6 +1,7 @@
 from enum import Enum
 from functools import wraps
 import logging
+from typing import Optional
 from flask import flash, redirect, render_template, request, url_for, current_app
 from app.cache import redis_cache
 from app.models.models import Users
@@ -50,16 +51,31 @@ def redirect_if_logged_in(func):
     return decorated_function
 
 
+def block_if_readonly(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        _, user_id = get_token_and_user_id_from_cookies()
+
+        user: Optional[Users] = Users.find(user_id)
+
+        if not user or user.is_readonly == 1:
+            flash("Readonly user, cannot create or modify objects", "error")
+            return render_template("runs/invalid_permission.html", error_message="")
+
+        return func(*args, **kwargs)
+
+    return decorated_function
+
+
 def admin_required(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
         _, user_id = get_token_and_user_id_from_cookies()
 
-        with current_app.Session() as sess:
-            user = sess.query(Users).filter(Users.id == user_id).all()
+        user: Users = Users.find(user_id)
 
-            if not user or not user[0].is_admin == 1:
-                return "Not admin", 400
+        if not user or not user[0].is_admin == 1:
+            return "Not admin", 400
 
         return func(*args, **kwargs)
 
@@ -91,6 +107,3 @@ def auth_required(func):
         return func(*args, **kwargs)
 
     return decorated_function
-
-
-# TODO create admin_required wrapper

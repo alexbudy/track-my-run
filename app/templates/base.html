@@ -33,7 +33,7 @@
                     <div class="links-container">
                         <div class="left-links">
                             <button hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my runs</button>&nbsp;
-                            <button hx-get="{{ url_for('runs_blueprint.create_run') }}" hx-target="body" hx-push-url="true">Input new run</button>
+                            <button hx-get="{{ url_for('runs_blueprint.create_run_get') }}" hx-target="body" hx-push-url="true">Input new run</button>
                         </div>
                         <div class="'right-links">
                             <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>

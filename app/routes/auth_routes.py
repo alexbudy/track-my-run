@@ -165,6 +165,7 @@ def register():
                 return render_template("register.html")
 
             user = Users(nick=nick)
+
             sess.add(user)
             sess.flush()
 
