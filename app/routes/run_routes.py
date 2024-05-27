@@ -4,7 +4,6 @@ from flask import (
     Blueprint,
     current_app,
     flash,
-    get_flashed_messages,
     redirect,
     render_template,
     request,
@@ -28,6 +27,8 @@ PAGE_SIZE: int = 20  # default page size for # of runs to return
 MAX_PAGE_SIZE: int = 50
 
 runs_blueprint = Blueprint("runs_blueprint", __name__)
+
+READONLY_MESSAGE = "Readonly user, cannot create or modify runs. Please use a different account to create or modify runs."
 
 
 def get_runs_for_given_date(
@@ -215,7 +216,7 @@ def create_run():
         return render_template("runs/new_run.html", **initial_data)
 
     if Users.find(user_id).is_readonly:
-        flash("Readonly user, cannot create or modify objects", "error")
+        flash(READONLY_MESSAGE, "error")
         return render_template("runs/new_run.html", **initial_data)
 
     run: Runs = register_run_schema.load(request.form)
@@ -362,7 +363,7 @@ def edit_run_put(run_id):
         )
 
     if Users.find(user_id).is_readonly == 1:
-        flash("Readonly user, cannot create or modify objects", "error")
+        flash(READONLY_MESSAGE, "error")
         return render_template(
             "runs/edit_run.html", run=RunSchema().dump(run), logged_in=True
         )
@@ -412,7 +413,7 @@ def delete_run(run_id):
     if run.user_id != user_id:
         flash("You do not have permission to delete this run.", "error")
     elif Users.find(user_id).is_readonly == 1:
-        flash("Readonly user, cannot create or modify objects", "error")
+        flash(READONLY_MESSAGE, "error")
     else:
         run.delete()
         flash(f"Run with id {run_id} was deleted successfully", "message")
