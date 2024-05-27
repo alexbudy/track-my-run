@@ -78,7 +78,7 @@ def render_login():
             "Please note that for the best experience, a desktop browser is preferred."
         )
 
-    if os.getenv("SHOW_READONLY_MSG") or current_app.config["ENV"] == "prod":
+    if os.getenv("SHOW_READONLY_MSG") == "true":
         flash_msg.append(
             "If you would like to see a readonly version without creating an account, please use login: readonly, password: readonly1 as logins"
         )
