@@ -4,7 +4,7 @@
 
     <form hx-put="{{ url_for('runs_blueprint.edit_run_put', run_id=run.id) }}" hx-target="body" hx-push-url="true">
         <fieldset>
-            <legend>Run Values</legend>
+            <legend>Run ID: {{ run.id }}</legend>
             <div class="table rows">
                 <p>
                     <label for="date">Date</label>
@@ -41,7 +41,7 @@
     Delete This Run
     </button>
     <br>
-    <br>
-    <a hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Back</a>
+
+    {% include 'fragments/back.html' %}
 
 {% endblock %}

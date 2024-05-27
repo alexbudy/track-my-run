@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form id="new-run-form" hx-post="/create_run" hx-target="body">
+    <form id="new-run-form" hx-post="{{ url_for('runs_blueprint.create_run') }} " hx-target="body" hx-push-url="true">
         <h2>Input new run</h2>
 
         <div class="form-input-div">
@@ -39,7 +39,7 @@
         </div>
 
         <div id="enter-notes-area">
-            <label for="notes">Optional Notes</label>
+            <label for="notes">Notes<i> (Optional)</i></label>
             <textarea id="notes-text-area" name="notes" placeholder="Enter a note about this run here..."></textarea>
             <span class="error">{{ errors.get('notes', '') }}</span>
         </div>
@@ -47,4 +47,6 @@
         <br>
         <input type="submit" value="Create run" />
     </form>
+
+    {% include 'fragments/back.html' %}
 {% endblock %}

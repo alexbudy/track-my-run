@@ -1,6 +1,6 @@
 
 {% for run in runs %}
-    <tr class="run-row">
+    <tr class="run-row {% if run.id == highlight_run_id %}highlighted{% endif %}">
         <td></td>
         <td class="run-date-cell">{{ run.date }}</td>
         <td>{{ run.run_start_time_formatted if run.run_start_time_formatted else "" }}</td>

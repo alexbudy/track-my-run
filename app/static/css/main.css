@@ -7,20 +7,16 @@ header {
 }
 
 .error {
+    padding-top: 5px;
     padding-bottom: 5px;
+    background-color: rgb(168, 69, 84);
 }
 
-.alert-container {
-    margin-top: -30px;
-    text-align: center;
-}
 
 .alert {
     padding: 5px 15px;
     text-align: center;
-    display: inline-block;
     border-radius: 10px;
-    margin-bottom: 10px;
 }
 
 .alert-message {
@@ -87,6 +83,10 @@ header {
     text-align: center;
 }
 
+.login-or-register > input {
+    margin-bottom: 5px;
+}
+
 .delete-icon {
     height: 25px;
 }
@@ -138,12 +138,8 @@ th img {
     white-space: nowrap;
 }
 
-#welcome-message {
-    margin-top: -30px;
-    margin-bottom: -30px;
-}
-
 #pagination-div {
+    margin-top: 10px;
     text-align: center;
 }
 
@@ -155,7 +151,33 @@ th img {
 }
 
 #run-count-div {
-    margin-top: -30px;
     margin-bottom: 5px;
     text-align: center;
+}
+
+#footer-div {
+    margin-top: 50px;
+    text-align: right;
+}
+
+#footer-div img {
+    max-inline-size: 15%;
+    margin-bottom: 3px;
+}
+
+.highlighted {
+    background: linear-gradient(
+    to left,
+    rgba(75, 10, 35, 0) 0%,
+    rgba(75, 10, 35, 1) 10%,
+    rgba(75, 10, 35, 1) 90%,
+    rgba(75, 10, 35, 0) 100%
+  );
+}
+
+#password-inputs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }

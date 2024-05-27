@@ -80,12 +80,12 @@ def render_login():
 
     if os.getenv("SHOW_READONLY_MSG") == "true":
         flash_msg.append(
-            "If you would like to see a readonly version without creating an account, please use login: readonly, password: readonly1 as logins"
+            "If you would like to see a readonly version without creating an account, please use login: readonly, password: readonly1 as credentials"
         )
 
     if flash_msg:
         flash("\n".join(flash_msg))
-    return render_template("login.html")
+    return render_template("auth/login.html")
 
 
 login_user_schema = LoginUserSchema()
@@ -100,7 +100,7 @@ def login():
 
     if errs:
         return render_template(
-            "login.html", logged_in=False, errors=flatten_validation_errors(errs)
+            "auth/login.html", logged_in=False, errors=flatten_validation_errors(errs)
         )
 
     login_fields: LoginUserSchema = login_user_schema.load(request.form)
@@ -110,13 +110,13 @@ def login():
     if not cred:
         flash("Login not found, please register and try again")
         return render_template(
-            "login.html",
+            "auth/login.html",
         )
 
     hashed_pass = hash_password(login_fields["password"], cred.salt)
     if hashed_pass != cred.hashed_pass:
         flash("Invalid password, please try again")
-        return render_template("login.html")
+        return render_template("auth/login.html")
 
     user_id = cred.user_id
 
@@ -147,24 +147,31 @@ def logout():
 @auth_blueprint.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("auth/register.html")
 
     errs = register_user_schema.validate(request.form)
 
+    login = request.form.get("login")
+    password = request.form.get("password")
+    repeat_password = request.form.get("password_repeat")
+    nick = request.form.get("nick")
+
     if errs:
-        return render_template("register.html", errors=flatten_validation_errors(errs))
-
-    data = register_user_schema.load(request.form)
-
-    if data.get("password") != data.get("password_repeat"):
+        errors = flatten_validation_errors(errs)
         return render_template(
-            "register.html",
-            errors={"password_repeat": "Passwords do not match, please try again"},
+            "auth/register.html",
+            errors=errors,
+            login=login if "login" not in errors else "",
+            nick=nick if "nick" not in errors else "",
         )
 
-    login = data.get("login")
-    password = data.get("password")
-    nick = data.get("nick")
+    if password != repeat_password:
+        return render_template(
+            "auth/register.html",
+            errors={"password_repeat": "Passwords do not match, please try again"},
+            login=login,
+            nick=nick,
+        )
 
     salt = create_salt()
     hashed_pass = hash_password(password, salt)
@@ -174,7 +181,7 @@ def register():
             creds = sess.query(Credentials).filter(Credentials.login == login).all()
             if creds:
                 flash("Login already exists, please try again")
-                return render_template("register.html")
+                return render_template("auth/register.html", nick=nick)
 
             user = Users(nick=nick)
 
@@ -187,13 +194,12 @@ def register():
                 )
             )
             sess.commit()
-            return render_template(
-                "index.html", logged_in=True, order_vals=DEFAULT_ORDERING
-            )
+
+            return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
         except Exception as e:
             sess.rollback()
 
             current_app.logger.error("Unknown error when registering: " + str(e))
             flash("Unknown error, please try again")
-            return render_template("register.html")
+            return render_template("auth/register.html")

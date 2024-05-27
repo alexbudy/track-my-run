@@ -5,7 +5,7 @@
     <form class="login-or-register" hx-post="/register", hx-target="body">
         <h2>Register</h2>
         <label for="login">Login:</label>
-        <input type="text" id="login" name="login">
+        <input type="text" id="login" name="login" value="{{ login }}">
         <span class="error">{{ errors.get('login', '') }}</span>
 
         <div id="password-inputs">
@@ -19,11 +19,12 @@
         </div>
 
         <label for="nick">Want to enter an optional nick?</label>
-        <input type="text" id="nick" name="nick">
+        <input type="text" id="nick" name="nick" value="{{ nick }}">
         <span class="error">{{ errors.get('nick', '') }}</span>
         
         <br>
         <input type="submit" value="Register" />
     </form> 
 
+    {% include 'fragments/footer.html' %}
 {% endblock %}

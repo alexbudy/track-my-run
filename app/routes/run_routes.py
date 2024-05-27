@@ -129,7 +129,7 @@ class RunSchema(Schema):
 
         r = Runs(
             date=data["date"],
-            run_start_time=run_start_time,
+            run_start_time=run_start_time or None,
             distance_mi=data["distance_mi"],
             runtime_s=data["runtime_m"] * 60 + data["runtime_s"],
             notes=data["notes"],
@@ -164,7 +164,7 @@ class RunSchema(Schema):
 register_run_schema = RunSchema()
 
 
-@runs_blueprint.route("/create_run_get", methods=["GET"])
+@runs_blueprint.route("/runs/new", methods=["GET"])
 @auth_required
 def create_run_get():
     current_date = datetime.today().strftime("%Y-%m-%d")
@@ -174,10 +174,10 @@ def create_run_get():
         "current_date": current_date,
     }
 
-    return render_template("new_run.html", **initial_data)
+    return render_template("runs/new_run.html", **initial_data)
 
 
-@runs_blueprint.route("/create_run", methods=["POST"])
+@runs_blueprint.route("/runs", methods=["POST"])
 @block_if_readonly
 @auth_required
 def create_run():
@@ -193,7 +193,7 @@ def create_run():
 
     if errs:
         initial_data["errors"] = flatten_validation_errors(errs)
-        return render_template("new_run.html", **initial_data)
+        return render_template("runs/new_run.html", **initial_data)
 
     run: Runs = register_run_schema.load(request.form)
     run.user_id = user_id
@@ -209,10 +209,11 @@ def create_run():
             ex_run_end_dt = ex_run_start_dt + timedelta(seconds=existing_run.runtime_s)
             if ex_run_start_dt <= run_start_dt <= ex_run_end_dt:
                 flash("Start time of given run overlaps with existing run")
-                return render_template("new_run.html", **initial_data)
+                return render_template("runs/new_run.html", **initial_data)
 
     run.save()
     flash(f"Created run {run.id} for {run.date}", "message")
+    session["highlight_run_id"] = run.id
     return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
 
@@ -225,6 +226,13 @@ def get_runs():
     page_size = request.args.get("size", PAGE_SIZE, type=int)
     order_by = request.args.get("order_by", "date", type=str)
     order = request.args.get("order", "desc", type=str)
+
+    highlight_run_id = None
+    if "highlight_run_id" in session:
+        highlight_run_id = (
+            session["highlight_run_id"] if "highlight_run_id" in session else None
+        )
+        del session["highlight_run_id"]
 
     if page_num < 1:
         page_num = 1
@@ -257,7 +265,8 @@ def get_runs():
         runs_in_page=len(runs),
         logged_in=True,
         order_vals=ordering,
-        total_pages=ceil(total_count / page_size),
+        total_pages=ceil(total_count / page_size) or 1,
+        highlight_run_id=highlight_run_id,
     )
 
 
@@ -340,6 +349,7 @@ def edit_run_put(run_id):
     run.update(new_run_data)
 
     flash(f"Run {run_id} edited successfully", "message")
+    session["highlight_run_id"] = run_id
     return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
 
