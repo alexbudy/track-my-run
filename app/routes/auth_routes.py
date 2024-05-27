@@ -144,6 +144,11 @@ def logout():
     return render_template("index.html")
 
 
+@auth_blueprint.route("/logout", methods=["GET"])
+def logout_page():
+    return redirect(url_for("auth_blueprint.render_login"))
+
+
 # TODO - be logged out to register
 @auth_blueprint.route("/register", methods=["GET", "POST"])
 def register():
