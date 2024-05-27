@@ -110,7 +110,6 @@ def login():
     user_id = cred.user_id
     user: Users = Users.find(user_id)
 
-    flash(f"Welcome, {user.nick or cred.login}. Ready to track a run?", "message")
     accessToken: str = create_and_store_access_token_in_cache(user_id)
 
     res: Response = make_response(
