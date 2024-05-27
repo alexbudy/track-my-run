@@ -3,7 +3,7 @@
     <tr class="run-row">
         <td></td>
         <td class="run-date-cell">{{ run.date }}</td>
-        <td>{{ run.run_start_time if run.run_start_time else "" }}</td>
+        <td>{{ run.run_start_time_formatted if run.run_start_time_formatted else "" }}</td>
         <td class="dist-mi">{{ run.distance_mi }}</td>
         <td>{{ run.runtime_s // 60 }}:{{ "{:02d}".format(run.runtime_s % 60) }}</td>
         <td> {{ "{:.2f}".format((run.runtime_s/60) / run.distance_mi) }} </td>
@@ -13,8 +13,6 @@
                     <button hx-get="{{ url_for('runs_blueprint.show_run', run_id= run.id) }}" hx-target="body" hx-push-url="true">Show</button>&nbsp;
                     <button hx-get="{{ url_for('runs_blueprint.edit_run_get', run_id= run.id) }}" hx-target="body" hx-push-url="true">Edit</button>
                 </div>
-
-
             </div>
         </td>
     </tr>

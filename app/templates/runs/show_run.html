@@ -2,11 +2,8 @@
 
 {% block content %}
     
-    <h3>
-        Here's your run from {{days_ago}}, on {{ run.date }} {% if run.run_start_time %} at {{ run.run_start_time }} {% endif %}
-    </h3>
     <fieldset>
-        <legend>Nice work!</legend>
+        <legend>Here's your run from {{days_ago}}. Nice work!</legend>
         <div class="table rows show-run-details">
             <p>
                 <span>Date: </span> <span>{{ run.date }}</span>
@@ -14,7 +11,7 @@
             <p> 
                 <span>Run Start Time: </span>
                 <span>
-                    {% if run.run_start_time %} {{ run.run_start_time }} {% else %} N/A {% endif %}
+                    {% if run.run_start_time_formatted %} {{ run.run_start_time_formatted }} {% else %} N/A {% endif %}
                 </span>
             </p>
             <p>

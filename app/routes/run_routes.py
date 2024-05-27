@@ -1,3 +1,4 @@
+from math import ceil
 from typing import List
 from flask import (
     Blueprint,
@@ -72,7 +73,7 @@ def get_runs_for_given_user(
 
     Returns paginated runs, and total count of runs
     """
-    offset: int = (page_num) * page_size
+    offset: int = (page_num - 1) * page_size
     order_col = getattr(Runs, order_by)
     ordering = desc if order.lower() == "desc" else asc
 
@@ -141,19 +142,19 @@ class RunSchema(Schema):
         """Sanitize data for display"""
         run_start_time = data["run_start_time"]
         if run_start_time:
-            if run_start_time.count(":") >= 2:
-                hr = run_start_time.split(":")[0]
-                mn = run_start_time.split(":")[1]
-                if hr[0] == "0":
-                    hr = hr[1]
+            hr = run_start_time.split(":")[0]
+            mn = run_start_time.split(":")[1]
+            data["run_start_time"] = run_start_time[0:6] + "00"
+            if hr[0] == "0":
+                hr = hr[1]
 
-                am_pm = "AM"
-                if int(hr) >= 12:
-                    am_pm = "PM"
-                if int(hr) > 12:
-                    hr = int(hr) - 12
+            am_pm = "AM"
+            if int(hr) >= 12:
+                am_pm = "PM"
+            if int(hr) > 12:
+                hr = int(hr) - 12
 
-                data["run_start_time"] = f"{hr}:{mn} {am_pm}"
+            data["run_start_time_formatted"] = f"{hr}:{mn} {am_pm}"
 
         data["distance_mi"] = float("{:.2f}".format(data["distance_mi"]))
 
@@ -220,13 +221,13 @@ def create_run():
 def get_runs():
     _, user_id = get_token_and_user_id_from_cookies()
 
-    page_num = request.args.get("page", 0, type=int)
+    page_num = request.args.get("page", 1, type=int)
     page_size = request.args.get("size", PAGE_SIZE, type=int)
     order_by = request.args.get("order_by", "date", type=str)
     order = request.args.get("order", "desc", type=str)
 
-    if page_num < 0:
-        page_num = 0
+    if page_num < 1:
+        page_num = 1
     if page_size <= 0 or page_size > MAX_PAGE_SIZE:
         page_size = PAGE_SIZE
     if order_by not in ["date", "run_start_time", "distance_mi", "runtime_s"]:
@@ -245,16 +246,18 @@ def get_runs():
 
     ordering = DEFAULT_ORDERING.copy()
     ordering[order_by] = "desc" if order == "asc" else "asc"  # flip the order
+    ordering["last_ordered"] = order_by
+    ordering["last_ordered_dir"] = order
 
     return render_template(
         "index.html",
         runs=runs,
-        total_runs=total_count,
         page=page_num,
-        page_size=page_size,
+        total_count=total_count,
         runs_in_page=len(runs),
         logged_in=True,
         order_vals=ordering,
+        total_pages=ceil(total_count / page_size),
     )
 
 
@@ -304,6 +307,8 @@ def edit_run_get(run_id):
             logged_in=True,
         )
 
+    run = RunSchema().dump(run)
+
     return render_template("runs/edit_run.html", run=run, logged_in=True)
 
 
@@ -327,7 +332,9 @@ def edit_run_put(run_id):
 
     errs = register_run_schema.validate(request.form)
     if errs:
-        return render_template("edit_run.html", errors=flatten_validation_errors(errs))
+        return render_template(
+            "edit_run.html", errors=flatten_validation_errors(errs), logged_in=True
+        )
 
     new_run_data: Runs = register_run_schema.load(request.form)
     run.update(new_run_data)

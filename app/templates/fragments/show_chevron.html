@@ -1,0 +1,3 @@
+{% if order_vals["last_ordered_dir"] == 'desc' %} 
+    <img src="{{ url_for('static', filename='icons/chevron-down.png') }}"> {% else %} <img src="{{ url_for('static', filename='icons/chevron-up.png') }}">
+{% endif %}

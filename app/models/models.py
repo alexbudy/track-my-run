@@ -108,7 +108,7 @@ class Runs(BaseMixin, Base):
 
     def update(self, new_run: "Runs"):
         self.date = new_run.date
-        self.run_start_time = new_run.run_start_time
+        self.run_start_time = new_run.run_start_time if new_run.run_start_time else None
         self.distance_mi = new_run.distance_mi
         self.runtime_s = new_run.runtime_s
         self.notes = new_run.notes

@@ -123,6 +123,11 @@ tr th,
 tr td {
     vertical-align: middle;
     text-align: center;
+    white-space: nowrap;
+}
+
+th img {
+    margin-bottom: 3px;
 }
 
 .show-run-details p {
@@ -136,4 +141,21 @@ tr td {
 #welcome-message {
     margin-top: -30px;
     margin-bottom: -30px;
+}
+
+#pagination-div {
+    text-align: center;
+}
+
+.disabled {
+    pointer-events: none;
+    color: gray;
+    text-decoration: none;
+    cursor: not-allowed;
+}
+
+#run-count-div {
+    margin-top: -30px;
+    margin-bottom: 5px;
+    text-align: center;
 }
