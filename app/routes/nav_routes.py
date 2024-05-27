@@ -31,14 +31,6 @@ def home():
     if is_logged_in():
         return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
-    user_agent = request.user_agent.string
-    print(user_agent)
-    if "Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent:
-        flash(
-            "Please note that for the best experience, a desktop browser is preferred",
-            "message",
-        )
-
     return redirect(url_for("auth_blueprint.login"), code=303)
 
 

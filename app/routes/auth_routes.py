@@ -1,3 +1,4 @@
+import os
 from flask import (
     Response,
     current_app,
@@ -69,11 +70,21 @@ class RegisterUserSchema(Schema):
 @auth_blueprint.route("/login", methods=["GET"])
 @redirect_if_logged_in
 def render_login():
-    if current_app.config["ENV"] == "prod":
-        flash(
-            "If you would like to see a readonly version without creating an account, please use login: readonly, password: readonly1 as logins",
-            "message",
+    flash_msg = []
+
+    user_agent = request.user_agent.string
+    if "Mobile" in user_agent or "Android" in user_agent or "iPhone" in user_agent:
+        flash_msg.append(
+            "Please note that for the best experience, a desktop browser is preferred."
         )
+
+    if os.getenv("SHOW_READONLY_MSG") or current_app.config["ENV"] == "prod":
+        flash_msg.append(
+            "If you would like to see a readonly version without creating an account, please use login: readonly, password: readonly1 as logins"
+        )
+
+    if flash_msg:
+        flash("\n".join(flash_msg))
     return render_template("login.html")
 
 
@@ -108,7 +119,6 @@ def login():
         return render_template("login.html")
 
     user_id = cred.user_id
-    user: Users = Users.find(user_id)
 
     accessToken: str = create_and_store_access_token_in_cache(user_id)
 
