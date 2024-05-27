@@ -80,11 +80,12 @@ def render_login():
 
     if os.getenv("SHOW_READONLY_MSG") == "true":
         flash_msg.append(
-            "If you would like to see a readonly version without creating an account, please use login: readonly, password: readonly1 as credentials"
+            "If you would like to see a readonly version with test data without creating an account, please use login: readonly, password: readonly1 as credentials"
         )
 
     if flash_msg:
         flash("\n".join(flash_msg))
+
     return render_template("auth/login.html")
 
 
@@ -116,7 +117,7 @@ def login():
     hashed_pass = hash_password(login_fields["password"], cred.salt)
     if hashed_pass != cred.hashed_pass:
         flash("Invalid password, please try again")
-        return render_template("auth/login.html")
+        return render_template("auth/login.html", login=login_fields["login"])
 
     user_id = cred.user_id
 

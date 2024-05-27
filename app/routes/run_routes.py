@@ -19,10 +19,9 @@ from sqlalchemy import and_, asc, desc
 
 from app.auth import (
     auth_required,
-    block_if_readonly,
     get_token_and_user_id_from_cookies,
 )
-from app.models.models import Runs
+from app.models.models import Runs, Users
 from app.routes import DEFAULT_ORDERING, flatten_validation_errors
 
 PAGE_SIZE: int = 20  # default page size for # of runs to return
@@ -86,7 +85,11 @@ def get_runs_for_given_user(
             .offset(offset)
             .all()
         )
-        total_count: int = sess.query(Runs).filter(Runs.user_id == user_id).count()
+        total_count: int = (
+            sess.query(Runs)
+            .filter(and_(Runs.deleted_at.is_(None), Runs.user_id == user_id))
+            .count()
+        )
 
     return runs, total_count
 
@@ -178,21 +181,41 @@ def create_run_get():
 
 
 @runs_blueprint.route("/runs", methods=["POST"])
-@block_if_readonly
 @auth_required
 def create_run():
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     initial_data = {
         "logged_in": True,
-        "current_date": current_date,
+        "current_date": request.form["date"] or current_date,
     }
 
     _, user_id = get_token_and_user_id_from_cookies()
     errs = register_run_schema.validate(request.form)
 
+    initial_data["run_start_time"] = request.form["run_start_time"]
+    initial_data["distance_mi"] = request.form["distance_mi"]
+    initial_data["runtime_m"] = request.form["runtime_m"]
+    initial_data["runtime_s"] = request.form["runtime_s"]
+    initial_data["notes"] = request.form["notes"]
+    print(initial_data)
     if errs:
         initial_data["errors"] = flatten_validation_errors(errs)
+        if "run_start_time" in initial_data["errors"]:
+            del initial_data["run_start_time"]
+        if "distance_mi" in initial_data["errors"]:
+            del initial_data["distance_mi"]
+        if "runtime_m" in initial_data["errors"]:
+            del initial_data["runtime_m"]
+        if "runtime_s" in initial_data["errors"]:
+            del initial_data["runtime_s"]
+        if "notes" in initial_data["errors"]:
+            del initial_data["notes"]
+
+        return render_template("runs/new_run.html", **initial_data)
+
+    if Users.find(user_id).is_readonly:
+        flash("Readonly user, cannot create or modify objects", "error")
         return render_template("runs/new_run.html", **initial_data)
 
     run: Runs = register_run_schema.load(request.form)
@@ -322,7 +345,6 @@ def edit_run_get(run_id):
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
-@block_if_readonly
 @auth_required
 def edit_run_put(run_id):
     _, user_id = get_token_and_user_id_from_cookies()
@@ -339,13 +361,37 @@ def edit_run_put(run_id):
             logged_in=True,
         )
 
+    if Users.find(user_id).is_readonly == 1:
+        flash("Readonly user, cannot create or modify objects", "error")
+        return render_template(
+            "runs/edit_run.html", run=RunSchema().dump(run), logged_in=True
+        )
+
     errs = register_run_schema.validate(request.form)
     if errs:
         return render_template(
-            "edit_run.html", errors=flatten_validation_errors(errs), logged_in=True
+            "runs/edit_run.html",
+            run=RunSchema().dump(run),
+            errors=flatten_validation_errors(errs),
+            logged_in=True,
         )
 
     new_run_data: Runs = register_run_schema.load(request.form)
+
+    if (
+        new_run_data.date == run.date
+        and new_run_data.run_start_time == run.run_start_time
+        and new_run_data.distance_mi == run.distance_mi
+        and new_run_data.runtime_s == run.runtime_s
+        and new_run_data.notes == run.notes
+    ):
+        flash("No changes were made to the run", "message")
+        return render_template(
+            "runs/edit_run.html",
+            run=RunSchema().dump(run),
+            logged_in=True,
+        )
+
     run.update(new_run_data)
 
     flash(f"Run {run_id} edited successfully", "message")
@@ -354,7 +400,6 @@ def edit_run_put(run_id):
 
 
 @runs_blueprint.route("/runs/<int:run_id>/delete", methods=["DELETE"])
-@block_if_readonly
 @auth_required
 def delete_run(run_id):
     _, user_id = get_token_and_user_id_from_cookies()
@@ -365,10 +410,11 @@ def delete_run(run_id):
         return render_template("runs/run_not_found.html", logged_in=True)
 
     if run.user_id != user_id:
-        flash(f"You do not have permission to delete this run.", "error")
-        return redirect(url_for("runs_blueprint.get_runs"), code=303)
+        flash("You do not have permission to delete this run.", "error")
+    elif Users.find(user_id).is_readonly == 1:
+        flash("Readonly user, cannot create or modify objects", "error")
+    else:
+        run.delete()
+        flash(f"Run with id {run_id} was deleted successfully", "message")
 
-    run.delete()
-
-    flash(f"Run with id {run_id} was deleted successfully", "error")
     return redirect(url_for("runs_blueprint.get_runs"), code=303)

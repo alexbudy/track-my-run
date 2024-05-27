@@ -7,7 +7,6 @@ header {
 }
 
 .error {
-    padding-top: 5px;
     padding-bottom: 5px;
     background-color: rgb(168, 69, 84);
 }
@@ -167,12 +166,12 @@ th img {
 
 .highlighted {
     background: linear-gradient(
-    to left,
-    rgba(75, 10, 35, 0) 0%,
-    rgba(75, 10, 35, 1) 10%,
-    rgba(75, 10, 35, 1) 90%,
-    rgba(75, 10, 35, 0) 100%
-  );
+        to left,
+        rgba(75, 10, 35, 0) 0%,
+        rgba(75, 10, 35, 1) 10%,
+        rgba(75, 10, 35, 1) 90%,
+        rgba(75, 10, 35, 0) 100%
+    );
 }
 
 #password-inputs {

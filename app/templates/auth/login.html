@@ -4,7 +4,7 @@
 
     <form class="login-or-register" hx-post="/login" hx-push-url="true" id="login-form" hx-target="body">
         <label for="login">Login:</label>
-        <input type="text" id="login" name="login">
+        <input type="text" id="login" name="login" value="{{ login }}">
         <span class="error">{{ errors.get('login', '') }}</span>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password">
