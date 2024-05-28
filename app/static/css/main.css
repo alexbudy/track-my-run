@@ -5,6 +5,7 @@ h4, h5 {
 html {
     background-color: cadetblue;
     font-weight: 500;
+    color: aliceblue;
 }
 
 a {
@@ -108,6 +109,11 @@ input:not([type="submit"]) {
     color: black;
 }
 
+textarea {
+    background: ivory !important;
+    color: black;
+}
+
 a:hover {
     color: white; /* Changes text color on hover */
 }
@@ -170,6 +176,7 @@ th img {
 
 #footer-div {
     margin-top: 50px;
+    margin-bottom: 20px;
     position: relative;
     width: 90%;
     margin-left: 5%;

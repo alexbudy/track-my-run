@@ -2,7 +2,7 @@
 
 A Flask based, [HTMX](https://htmx.org/) powered web application used for tracking and managing personal aerobic runs. 
 
-The live version of this site can be found on [www.track-my-run.com](https://www.track-my-run.com){:target="_blank"}
+The live version of this site can be found on [www.track-my-run.com](https://www.track-my-run.com)
 
 ## Table of Contents
 
@@ -96,16 +96,17 @@ PYTHONPATH=$(pwd) python scripts/generate_runs.py 3 --env dev # generate 100 run
 Now that the framework for the application is in place, there can be many potential directions to take the application to work with new technologies and implement interesting features.
 - A friend-based system where you can track/compare your runs with friends, send friend requests, and messages
 - Implementation of [Cooper Aerobics](https://www.cooperaerobics.com/Downloads/About/Aerobics-Points-System.aspx) point based system for tracking aerobic points, with targets, goals, and automated notifications.
-- a global weekly, monthly, and distance based leaderboard
+- A global weekly, monthly, and distance based leaderboard
 - Profile/admin pages
 - Addition of a JSON API to allow for SPA JS frameworks
-- Extensive unit testing
-- improved UI/color schemes/styling
+- Extend unit testing
+- Experiment with UI adn various color schemes
+- ...
 
-The possibilities become endless!
+The possibilities become endless 🚀
 
 ## Contributions
-The primary purpose of this project as it stands is for educational purposes. All contributions, suggestions, etc are welcome!
+The primary purpose of this project as it stands is for self-educational purposes. As such, all contributions, suggestions, etc are welcome!
 
 Feel free to contact the owner (me) at alexbudy@gmail.com.
 
