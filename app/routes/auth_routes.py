@@ -79,9 +79,12 @@ def render_login():
         )
 
     if os.getenv("SHOW_READONLY_MSG") == "true":
-        flash_msg.append(
-            "If you would like to see a readonly version with test data without creating an account, please use login: readonly, password: readonly1 as credentials"
+        msg: str = (
+            "If you would like to see a readonly version with test data without creating an "
+            f"account, please use login: readonly, password: {os.getenv('R_O_PASS')} as credentials"
         )
+
+        flash_msg.append(msg)
 
     if flash_msg:
         flash("\n".join(flash_msg))
