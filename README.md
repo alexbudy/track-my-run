@@ -23,6 +23,7 @@ This application has all the common components of a web-application including:
 - SQLAlchemy ORM for database access
 - Github Actions automated unit test runs on push, and one-click deployment to live site
 - No JavaScript - Jinja templates generate HTMX which allow for custom tags to call the API with the full REST model, and replace target HTML elements 'under-the-hood'
+- Some non-JS UI functionality, such as sortable columns
 
 ## Local Installation
 Installation of the application for local experimentation and development requires some prerequisites:
