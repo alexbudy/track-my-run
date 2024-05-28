@@ -140,7 +140,7 @@ def logout():
     redis_cache.delete(tok)
     redis_cache.delete(f"user_id:{user_id}")
 
-    flash("You have succesfully logged out :)", "message")
+    flash("You have succesfully logged out 🎉", "message")
     return render_template("index.html")
 
 
