@@ -2,6 +2,14 @@ h4, h5 {
     padding-left: 25px;
 }
 
+html {
+    background-color: cadetblue;
+    font-weight: 500;
+}
+
+a {
+    color: #041d31
+}
 header {
     margin-bottom: 10px;
 }
@@ -92,6 +100,12 @@ header {
 
 a {
     cursor: pointer;
+    font-weight:500
+}
+
+input:not([type="submit"]) {
+    background: ivory !important; 
+    color: black;
 }
 
 a:hover {
@@ -144,7 +158,7 @@ th img {
 
 .disabled {
     pointer-events: none;
-    color: gray;
+    color: #454343;
     text-decoration: none;
     cursor: not-allowed;
 }
@@ -156,12 +170,29 @@ th img {
 
 #footer-div {
     margin-top: 50px;
-    text-align: right;
+    position: relative;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+    display: flex;
+    justify-content: space-between;
 }
 
 #footer-div img {
-    max-inline-size: 15%;
     margin-bottom: 3px;
+}
+
+#footer-centered-span {
+    flex: 1;
+    text-align: center;
+    display: inline-block;
+}
+
+#footer-right-span {
+    white-space: nowrap;
+    position: absolute;
+    right: 0;
+    padding-top: 10px;
 }
 
 .highlighted {
@@ -179,4 +210,8 @@ th img {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+}
+
+#github-logo {
+    width: 40px;
 }

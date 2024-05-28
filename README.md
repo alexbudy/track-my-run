@@ -2,7 +2,7 @@
 
 A Flask based, [HTMX](https://htmx.org/) powered web application used for tracking and managing personal aerobic runs. 
 
-The live version of this site can be found on [www.track-my-run.com](https://www.track-my-run.com)
+The live version of this site can be found on [www.track-my-run.com](https://www.track-my-run.com){:target="_blank"}
 
 ## Table of Contents
 
@@ -100,6 +100,7 @@ Now that the framework for the application is in place, there can be many potent
 - Profile/admin pages
 - Addition of a JSON API to allow for SPA JS frameworks
 - Extensive unit testing
+- improved UI/color schemes/styling
 
 The possibilities become endless!
 
