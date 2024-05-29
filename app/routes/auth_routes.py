@@ -11,7 +11,7 @@ from flask import (
     session,
     url_for,
 )
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load
 from marshmallow.validate import Length
 
 from app.auth import (
@@ -47,6 +47,12 @@ class LoginUserSchema(Schema):
         validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
     )
 
+    @post_load
+    def cleanup(self, data, **kwargs):
+        data["login"] = data.get("login").lower().strip()
+
+        return data
+
 
 class RegisterUserSchema(Schema):
     login = fields.String(
@@ -80,7 +86,7 @@ def render_login():
 
     if os.getenv("SHOW_READONLY_MSG") == "true":
         msg: str = (
-            "If you would like to see a readonly version with test data without creating an "
+            "If you would like to see a readonly version with demo data without creating an "
             f"account, please use login: readonly, password: {os.getenv('R_O_PASS')} as credentials"
         )
 
@@ -104,7 +110,10 @@ def login():
 
     if errs:
         return render_template(
-            "auth/login.html", logged_in=False, errors=flatten_validation_errors(errs)
+            "auth/login.html",
+            logged_in=False,
+            errors=flatten_validation_errors(errs),
+            login=request.form.get("login") if "login" not in errs else "",
         )
 
     login_fields: LoginUserSchema = login_user_schema.load(request.form)

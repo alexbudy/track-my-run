@@ -101,7 +101,8 @@ Now that the framework for the application is in place, there can be many potent
 - Profile/admin pages
 - Addition of a JSON API to allow for SPA JS frameworks
 - Extend unit testing
-- Experiment with UI adn various color schemes
+- Experiment with UI and various color schemes
+- Add other activity types - swimming, biking, walking
 - ...
 
 The possibilities become endless 🚀
