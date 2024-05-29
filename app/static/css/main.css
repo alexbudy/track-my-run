@@ -3,9 +3,9 @@ h4, h5 {
 }
 
 html {
-    background-color: cadetblue;
+    background-color: rgb(255, 255, 255);
     font-weight: 400;
-    color: aliceblue;
+    color: rgb(0, 0, 0);
 }
 
 a {
@@ -28,7 +28,8 @@ header {
 }
 
 .alert-message {
-    background-color: darkslategray;
+    background-color: #666968;
+    color: white;
 }
 
 .alert-error {
@@ -115,7 +116,7 @@ textarea {
 }
 
 a:hover {
-    color: white; /* Changes text color on hover */
+    color: rgb(120, 197, 248);
 }
 
 [data-overflow-menu] {
@@ -221,4 +222,8 @@ th img {
 
 #github-logo {
     width: 40px;
+}
+
+.chevron {
+    width: 20px;  
 }
