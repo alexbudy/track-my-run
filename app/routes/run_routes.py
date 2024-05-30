@@ -20,7 +20,7 @@ from app.auth import (
     auth_required,
     get_token_and_user_id_from_cookies,
 )
-from app.models.models import Runs, Users
+from app.models.models import ActivityType, Runs, Users
 from app.routes import DEFAULT_ORDERING, flatten_validation_errors
 
 PAGE_SIZE: int = 20  # default page size for # of runs to return
@@ -176,6 +176,7 @@ def create_run_get():
     initial_data = {
         "logged_in": True,
         "current_date": current_date,
+        "activity_type": ActivityType,
     }
 
     return render_template("runs/new_run.html", **initial_data)
@@ -189,6 +190,7 @@ def create_run():
     initial_data = {
         "logged_in": True,
         "current_date": request.form["date"] or current_date,
+        "activity_type": ActivityType,
     }
 
     _, user_id = get_token_and_user_id_from_cookies()

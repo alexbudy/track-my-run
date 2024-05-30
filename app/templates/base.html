@@ -18,7 +18,7 @@
                 </h1>
                 <h4>
                     &#x21B3;
-                        A web application to manage all of your runs 
+                        A web application to manage all of your aerobic activity
                 </h4>
 
                 {% if not logged_in %}
@@ -47,7 +47,7 @@
                 {% for category, message in messages %}
                     <div class="alert-container">
                         <div class="alert alert-{{ category }}">
-                            {{ message }}
+                            {{ message|safe }}
                         </div>
                     </div>
                 {% endfor %}

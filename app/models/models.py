@@ -11,8 +11,8 @@ from sqlalchemy import (
     Float,
     func,
 )
+from enum import Enum
 from app.database import db
-from typing import Optional
 
 
 convention = {
@@ -80,6 +80,12 @@ class Users(BaseMixin, Base):
         return f"<Users {self.id}, optional nick={self.nick}, is_admin={self.is_admin}, is_readonly={self.is_readonly}>"
 
 
+class ActivityType(Enum):
+    RUN = "run"
+    BIKE = "bike"
+    SWIM = "swim"
+
+
 class Runs(BaseMixin, Base):
     __tablename__ = "runs"
 
@@ -89,6 +95,12 @@ class Runs(BaseMixin, Base):
     run_start_time = Column(Time, nullable=True)
     distance_mi = Column(Float, nullable=False)
     runtime_s = Column(Integer, nullable=False)
+    activity_type = Column(
+        String(),
+        nullable=False,
+        default=ActivityType.RUN.value,
+        server_default=ActivityType.RUN.value,
+    )
     notes = Column(String(), nullable=True)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())

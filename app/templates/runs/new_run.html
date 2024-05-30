@@ -1,47 +1,56 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <h2>Input new activity</h2>
     <form id="new-run-form" hx-post="{{ url_for('runs_blueprint.create_run') }} " hx-target="body">
-        <h2>Input new run</h2>
 
-        <div class="form-input-div">
-            <div class="form-input-fields">
-                <label for="date">Run date <i>(Defaults to today)</i></label>
+        <div class="form-input-row">
+            <div class="form-input-field">
+                <label for="date">Activity date <i>(Defaults to today)</i></label>
                 <input type="date" id="date" name="date" value="{{ current_date }}">
                 <span class="error">{{ errors.get('date', '') }}</span>
             </div>
             
-            <div class="form-input-fields">
-                <label for="run_start_time">Start Time <i>(Optional)</i></label>
-                <input type="time" id="run_start_time" name="run_start_time" step="60" min="00:00", max="24:00" value="{{ run_start_time }}">
-  
+            <div class="form-input-field">
+                <label for="run-start-time">Start Time <i>(Optional)</i></label>
+                <input type="time" id="run-start-time" name="run-start-time" step="60" min="00:00", max="24:00" value="{{ run_start_time }}">
                 <span class="error">{{ errors.get('run_start_time', '') }}</span>
             </div>
         </div>
 
-        <div class="form-input-div">
-            <div class="form-input-fields">
-                <label for="distance_mi">Distance (mi)</label>
-                <input type="number" id="distance_mi" name="distance_mi" step=".01" min="0.01" max="10" value="{{ distance_mi or 1}}">
+        <div class="form-input-row">
+            <div class="form-input-field">
+                <label for="distance-mi">Distance (mi)</label>
+                <input type="number" id="distance-mi" name="distance-mi" step=".01" min="0.01" max="10" value="{{ distance_mi or 1}}">
                 <span class="error">{{ errors.get('distance_mi', '') }}</span>
             </div>
-            
-            <div class="form-input-fields">
-                <label for="run_time">Runtime Duration</label>
-                <div style="display: flex;">
-                    <input type="number" id="runtime_m" name="runtime_m" min="1" max="60" value="{{ runtime_m or 8}}"> m 
+            <div class="form-input-field">
+                <label for="activity-type" id="activity-type-label">Activity Type</label>
+                <select name="activity-type" id="activity-type">
+                    <option value="{{ activity_type.RUN.value }}" selected>Run</option>
+                    <option value="{{ activity_type.BIKE.value }}">Bike</option>
+                    <option value="{{ activity_type.SWIM.value }}">Swim</option>
+                </select>
+                <span class="error">{{ errors.get('activity_type', '') }}</span>
+            </div>
+            <div class="form-input-field">
+                <label for="run-time">Activity Duration</label>
+                <div class="multi-input-field">
+                    <input type="number" id="runtime-m" name="runtime-m" min="1" max="60" value="{{ runtime_m or 8}}"> m 
                     <span class="error">{{ errors.get('runtime_m', '') }}</span>
                     : 
-                    <input type="number" id="runtime_s" name="runtime_s" min="0" max="59" value="{{ runtime_s or 0}}"> s 
+                    <input type="number" id="runtime-s" name="runtime-s" min="0" max="59" value="{{ runtime_s or 0}}"> s 
                     <span class="error">{{ errors.get('runtime_s', '') }}</span>
                 </div>
             </div>
         </div>
 
-        <div id="enter-notes-area">
-            <label for="notes">Notes<i> (Optional)</i></label>
-            <textarea id="notes-text-area" name="notes" placeholder="Enter a note about this run here...">{{ notes }}</textarea>
-            <span class="error">{{ errors.get('notes', '') }}</span>
+        <div class="form-input-row">
+            <div class="form-input-field notes-container">
+                <label for="notes">Notes<i> (Optional)</i></label>
+                <textarea id="notes-text-area" name="notes" placeholder="Enter a note about this run here...">{{ notes }}</textarea>
+                <span class="error">{{ errors.get('notes', '') }}</span>
+            </div>
         </div>
 
         <br>

@@ -76,7 +76,9 @@ def auth_required(func):
             return render_template("index.html")
 
         if logged_in_status_enum == LoggedInStatusEnum.EXPIRED:
-            flash("Session expired or token invalid, please login")
+            flash(
+                f'Session expired or token invalid, please <a hx-get="{url_for("auth_blueprint.login")}" hx-target="body" hx-push-url="true">login</a>'
+            )
             return render_template("index.html")
 
         if current_app.logger.level <= logging.INFO:

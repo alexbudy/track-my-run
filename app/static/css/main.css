@@ -1,11 +1,11 @@
-h4, h5 {
-    padding-left: 25px;
-}
-
 html {
     background-color: rgb(255, 255, 255);
     font-weight: 400;
     color: rgb(0, 0, 0);
+}
+
+h4, h5 {
+    padding-left: 25px;
 }
 
 a {
@@ -25,6 +25,14 @@ header {
     padding: 5px 15px;
     text-align: center;
     border-radius: 10px;
+}
+
+.alert a {
+    color: rgb(120, 197, 248);
+}
+
+.alert a:hover {
+    color: white;
 }
 
 .alert-message {
@@ -58,24 +66,52 @@ header {
 }
 
 #notes-text-area {
-    width: 330px;
+    width: 100%;
+}
+
+#activity-type {
+    width: 100%;
+}
+
+#run-start-time {
+    width: 100%;
 }
 
 #enter-notes-area {
+    display: flex;
     margin-left: 30px;
+    padding-top: 15px;
 }
 
-.form-input-div {
+.form-input-row {
     display: flex;
+    width: 90%;
     justify-content: space-between;
 }
 
-.form-input-fields {
-    margin-right: 30px;
+#form-input-div-notes {
+    display: flex;
 }
 
+.multi-input-field {
+    display: flex;
+}
+
+#activity-type-label {
+    white-space: nowrap;
+}
+
+.notes-container {
+    width: 100%;
+}
+
+
 #new-run-form {
-    width: 410px;
+    width: 500px;
+}
+
+#new-run-form label {
+    white-space: nowrap
 }
 
 .run-date-cell {
@@ -105,7 +141,7 @@ a {
     font-weight:500
 }
 
-input:not([type="submit"]) {
+input:not([type="submit"]), select {
     background: ivory !important; 
     color: black;
 }

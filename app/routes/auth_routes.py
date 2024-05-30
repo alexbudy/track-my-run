@@ -87,7 +87,7 @@ def render_login():
     if os.getenv("SHOW_READONLY_MSG") == "true":
         msg: str = (
             "If you would like to see a readonly version with demo data without creating an "
-            f"account, please use login: readonly, password: {os.getenv('R_O_PASS')} as credentials"
+            f"account, please use login: <i>readonly</i>, password: <i>{os.getenv('R_O_PASS')}</i> as credentials"
         )
 
         flash_msg.append(msg)
