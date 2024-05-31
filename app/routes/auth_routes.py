@@ -94,8 +94,7 @@ def render_login():
 
     if flash_msg:
         flash("\n".join(flash_msg))
-
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", latest_tag=os.getenv("LATEST_TAG"))
 
 
 login_user_schema = LoginUserSchema()

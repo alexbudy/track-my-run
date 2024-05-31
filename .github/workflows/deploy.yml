@@ -22,4 +22,5 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             alembic --name prod upgrade head
+            . shell_scripts/update_tag.sh
             sudo systemctl restart tmr-flask-app
