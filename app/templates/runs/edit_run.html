@@ -6,7 +6,7 @@
 
     <form hx-put="{{ url_for('runs_blueprint.edit_run_put', run_id=run.id) }}" hx-target="body" hx-push-url="true">
         <fieldset>
-            <legend>Eiting Run with ID {{ run.id }}</legend>
+            <legend>Editing Activity with ID {{ run.id }}</legend>
             <div class="table rows">
                 <p>
                     <label for="date">Date</label>
@@ -33,7 +33,7 @@
                     <span class="error">{{ errors.get('distance_mi', '') }}</span>
                 </p>
                 <p>
-                    <label for="run_time">Runtime Duration</label>
+                    <label for="run_time">Activity Duration</label>
                         <input type="number" id="runtime_m" name="runtime_m" min="1" max="60" value="{{ run.runtime_s // 60}}"> m 
                         <input type="number" id="runtime_s" name="runtime_s" min="0" max="59" value="{{ run.runtime_s % 60}}"> s 
                     <span class="error">{{ errors.get('runtime_s', '') }}</span>
@@ -53,9 +53,9 @@
     <button id="delete-btn"
         hx-delete="{{ url_for('runs_blueprint.delete_run', run_id=run.id) }}"
         hx-push-url="true"
-        hx-confirm="Are you sure you want to delete this run?"
+        hx-confirm="Are you sure you want to delete this activity?"
         hx-target="body">
-    Delete This Run
+    Delete this activity
     </button>
     <br>
 

@@ -1,5 +1,5 @@
 html {
-    background-color: rgb(255, 255, 255);
+    background-color: #fffffb;
     font-weight: 400;
     color: rgb(0, 0, 0);
 }
@@ -21,7 +21,8 @@ header {
 
 .error {
     padding-bottom: 5px;
-    background-color: rgb(168, 69, 84);
+    background-color: rgb(188, 81, 97);
+    color: white;
 }
 
 
@@ -45,7 +46,8 @@ header {
 }
 
 .alert-error {
-    background-color: rgb(78, 6, 34);
+    background-color: #9d2b27;
+    color: white;
 }
 
 
@@ -146,12 +148,12 @@ a {
 }
 
 input:not([type="submit"]), select {
-    background: ivory !important; 
+    background: rgb(247, 246, 246) !important; 
     color: black;
 }
 
 textarea {
-    background: ivory !important;
+    background: rgb(247, 246, 246) !important;
     color: black;
 }
 

@@ -24,7 +24,7 @@
                 </span>
             </p>
             <p>
-                <span>Runtime Duration: </span>
+                <span>Activity Duration: </span>
                 <span>
                     {{ run.runtime_s // 60}}m {{"{:02d}".format(run.runtime_s % 60)}}s
                 </span>
@@ -38,7 +38,7 @@
         </div>
     </fieldset>
 
-    <button hx-get="{{ url_for('runs_blueprint.edit_run_get', run_id= run.id) }}" hx-target="body" hx-push-url="true">Edit this run</button>
+    <button hx-get="{{ url_for('runs_blueprint.edit_run_get', run_id= run.id) }}" hx-target="body" hx-push-url="true">Edit this activity</button>
     <br>
 
     {% include 'fragments/back.html' %}

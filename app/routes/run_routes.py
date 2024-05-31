@@ -343,7 +343,7 @@ def edit_run_get(run_id):
     if run.user_id != user_id:
         return render_template(
             "runs/invalid_permission.html",
-            error_message="You do not have permission to view and edit this run.",
+            error_message="You do not have permission to view and edit this activity.",
         )
 
     return render_template(
@@ -364,12 +364,14 @@ def edit_run_put(run_id):
     if run.user_id != user_id:
         return render_template(
             "runs/invalid_permission.html",
-            error_message="You do not have permission to view and edit this run.",
+            error_message="You do not have permission to view and edit this activity.",
         )
 
     if Users.find(user_id).is_readonly == 1:
         flash(READONLY_MESSAGE, "error")
-        return render_template("runs/edit_run.html", run=RunSchema().dump(run))
+        return render_template(
+            "runs/edit_run.html", run=RunSchema().dump(run), activity_type=ActivityType
+        )
 
     errs = register_run_schema.validate(request.form)
     if errs:
@@ -377,6 +379,7 @@ def edit_run_put(run_id):
             "runs/edit_run.html",
             run=RunSchema().dump(run),
             errors=flatten_validation_errors(errs),
+            activity_type=ActivityType,
         )
     new_run_data: Runs = register_run_schema.load(request.form)
     if (
@@ -412,7 +415,7 @@ def delete_run(run_id):
         return render_template("runs/run_not_found.html")
 
     if run.user_id != user_id:
-        flash("You do not have permission to delete this run.", "error")
+        flash("You do not have permission to delete this activity.", "error")
     elif Users.find(user_id).is_readonly == 1:
         flash(READONLY_MESSAGE, "error")
     else:
