@@ -10,7 +10,7 @@ from flask import (
     session,
     url_for,
 )
-from marshmallow import Schema, fields, post_dump, post_load
+from marshmallow import Schema, fields, post_dump, post_load, validate
 from marshmallow.validate import Length, Range
 from datetime import date, datetime, timedelta
 
@@ -116,6 +116,9 @@ class RunSchema(Schema):
         required=True,
         validate=Range(min=0, max=59),
     )
+    activity_type = fields.Str(
+        required=True, validate=validate.OneOf([a.value for a in ActivityType])
+    )
     notes = fields.String(
         required=False,
         validate=Length(max=1000),
@@ -126,20 +129,18 @@ class RunSchema(Schema):
     def make_run(self, data, **kwargs):
         run_start_time = data["run_start_time"]
         if run_start_time:
-            if run_start_time.count(":") >= 2:
-                run_start_time = ":".join(run_start_time.split(":")[0:2])
+            run_start_time_hh_mm = ":".join(run_start_time.split(":")[0:2])
 
-            run_start_time = datetime.strptime(run_start_time, "%H:%M").time()
+            run_start_time = datetime.strptime(run_start_time_hh_mm, "%H:%M").time()
 
-        r = Runs(
+        return Runs(
             date=data["date"],
             run_start_time=run_start_time or None,
             distance_mi=data["distance_mi"],
             runtime_s=data["runtime_m"] * 60 + data["runtime_s"],
+            activity_type=data["activity_type"].lower(),
             notes=data["notes"],
         )
-
-        return r
 
     @post_dump
     def post_process_run_start_time(self, data, **kwargs):
@@ -161,6 +162,7 @@ class RunSchema(Schema):
             data["run_start_time_formatted"] = f"{hr}:{mn} {am_pm}"
 
         data["distance_mi"] = float("{:.2f}".format(data["distance_mi"]))
+        data["activity_type"] = data["activity_type"].capitalize()
 
         return data
 
@@ -192,7 +194,6 @@ def create_run():
         "current_date": request.form["date"] or current_date,
         "activity_type": ActivityType,
     }
-
     _, user_id = get_token_and_user_id_from_cookies()
     errs = register_run_schema.validate(request.form)
 
@@ -201,7 +202,7 @@ def create_run():
     initial_data["runtime_m"] = request.form["runtime_m"]
     initial_data["runtime_s"] = request.form["runtime_s"]
     initial_data["notes"] = request.form["notes"]
-    print(initial_data)
+
     if errs:
         initial_data["errors"] = flatten_validation_errors(errs)
         if "run_start_time" in initial_data["errors"]:
@@ -236,7 +237,6 @@ def create_run():
             if ex_run_start_dt <= run_start_dt <= ex_run_end_dt:
                 flash("Start time of given run overlaps with existing run")
                 return render_template("runs/new_run.html", **initial_data)
-
     run.save()
     flash(f"Created run {run.id} for {run.date}", "message")
     session["highlight_run_id"] = run.id
@@ -264,7 +264,13 @@ def get_runs():
         page_num = 1
     if page_size <= 0 or page_size > MAX_PAGE_SIZE:
         page_size = PAGE_SIZE
-    if order_by not in ["date", "run_start_time", "distance_mi", "runtime_s"]:
+    if order_by not in [
+        "date",
+        "run_start_time",
+        "distance_mi",
+        "runtime_s",
+        "activity_type",
+    ]:
         order_by = "date"
     if order not in ["asc", "desc"]:
         order = "desc"
@@ -304,13 +310,12 @@ def show_run(run_id):
     run: Runs = Runs.find(run_id)
 
     if not run:
-        return render_template("runs/run_not_found.html", logged_in=True)
+        return render_template("runs/run_not_found.html")
 
     if run.user_id != user_id:
         return render_template(
             "runs/invalid_permission.html",
             error_message="You do not have permission to view this run.",
-            logged_in=True,
         )
 
     days_ago = {0: "today", 1: "yesterday"}.get(
@@ -333,18 +338,17 @@ def edit_run_get(run_id):
     run: Runs = Runs.find(run_id)
 
     if not run:
-        return render_template("runs/run_not_found.html", logged_in=True)
+        return render_template("runs/run_not_found.html")
 
     if run.user_id != user_id:
         return render_template(
             "runs/invalid_permission.html",
             error_message="You do not have permission to view and edit this run.",
-            logged_in=True,
         )
 
-    run = RunSchema().dump(run)
-
-    return render_template("runs/edit_run.html", run=run, logged_in=True)
+    return render_template(
+        "runs/edit_run.html", run=RunSchema().dump(run), activity_type=ActivityType
+    )
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
@@ -355,20 +359,17 @@ def edit_run_put(run_id):
     run: Runs = Runs.find(run_id)
 
     if not run:
-        return render_template("runs/run_not_found.html", logged_in=True)
+        return render_template("runs/run_not_found.html")
 
     if run.user_id != user_id:
         return render_template(
             "runs/invalid_permission.html",
             error_message="You do not have permission to view and edit this run.",
-            logged_in=True,
         )
 
     if Users.find(user_id).is_readonly == 1:
         flash(READONLY_MESSAGE, "error")
-        return render_template(
-            "runs/edit_run.html", run=RunSchema().dump(run), logged_in=True
-        )
+        return render_template("runs/edit_run.html", run=RunSchema().dump(run))
 
     errs = register_run_schema.validate(request.form)
     if errs:
@@ -376,23 +377,21 @@ def edit_run_put(run_id):
             "runs/edit_run.html",
             run=RunSchema().dump(run),
             errors=flatten_validation_errors(errs),
-            logged_in=True,
         )
-
     new_run_data: Runs = register_run_schema.load(request.form)
-
     if (
         new_run_data.date == run.date
         and new_run_data.run_start_time == run.run_start_time
         and new_run_data.distance_mi == run.distance_mi
         and new_run_data.runtime_s == run.runtime_s
         and new_run_data.notes == run.notes
+        and new_run_data.activity_type == run.activity_type
     ):
         flash("No changes were made to the run", "message")
         return render_template(
             "runs/edit_run.html",
             run=RunSchema().dump(run),
-            logged_in=True,
+            activity_type=ActivityType,
         )
 
     run.update(new_run_data)
@@ -410,7 +409,7 @@ def delete_run(run_id):
     run: Runs = Runs.find(run_id)
 
     if not run:
-        return render_template("runs/run_not_found.html", logged_in=True)
+        return render_template("runs/run_not_found.html")
 
     if run.user_id != user_id:
         flash("You do not have permission to delete this run.", "error")

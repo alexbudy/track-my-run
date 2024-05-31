@@ -13,7 +13,7 @@
             
             <div class="form-input-field">
                 <label for="run-start-time">Start Time <i>(Optional)</i></label>
-                <input type="time" id="run-start-time" name="run-start-time" step="60" min="00:00", max="24:00" value="{{ run_start_time }}">
+                <input type="time" id="run-start-time" name="run_start_time" step="60" min="00:00", max="24:00" value="{{ run_start_time }}">
                 <span class="error">{{ errors.get('run_start_time', '') }}</span>
             </div>
         </div>
@@ -21,12 +21,12 @@
         <div class="form-input-row">
             <div class="form-input-field">
                 <label for="distance-mi">Distance (mi)</label>
-                <input type="number" id="distance-mi" name="distance-mi" step=".01" min="0.01" max="10" value="{{ distance_mi or 1}}">
+                <input type="number" id="distance-mi" name="distance_mi" step=".01" min="0.01" max="10" value="{{ distance_mi or 1}}">
                 <span class="error">{{ errors.get('distance_mi', '') }}</span>
             </div>
             <div class="form-input-field">
                 <label for="activity-type" id="activity-type-label">Activity Type</label>
-                <select name="activity-type" id="activity-type">
+                <select name="activity_type" id="activity-type">
                     <option value="{{ activity_type.RUN.value }}" selected>Run</option>
                     <option value="{{ activity_type.BIKE.value }}">Bike</option>
                     <option value="{{ activity_type.SWIM.value }}">Swim</option>
@@ -36,10 +36,10 @@
             <div class="form-input-field">
                 <label for="run-time">Activity Duration</label>
                 <div class="multi-input-field">
-                    <input type="number" id="runtime-m" name="runtime-m" min="1" max="60" value="{{ runtime_m or 8}}"> m 
+                    <input type="number" id="runtime-m" name="runtime_m" min="1" max="60" value="{{ runtime_m or 8}}"> m 
                     <span class="error">{{ errors.get('runtime_m', '') }}</span>
                     : 
-                    <input type="number" id="runtime-s" name="runtime-s" min="0" max="59" value="{{ runtime_s or 0}}"> s 
+                    <input type="number" id="runtime-s" name="runtime_s" min="0" max="59" value="{{ runtime_s or 0}}"> s 
                     <span class="error">{{ errors.get('runtime_s', '') }}</span>
                 </div>
             </div>

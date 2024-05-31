@@ -3,13 +3,16 @@
 {% block content %}
     
     <fieldset>
-        <legend>Here's your run from {{days_ago}}, with run ID {{ run.id }}. Nice work!</legend>
+        <legend>Here's your activity from {{days_ago}}, with ID {{ run.id }}. Nice work!</legend>
         <div class="table rows show-run-details">
             <p>
                 <span>Date: </span> <span>{{ run.date }}</span>
             </p>
+            <p>
+                <span>Activity: </span> <span>{{ run.activity_type }}</span>
+            </p>
             <p> 
-                <span>Run Start Time: </span>
+                <span>Activity Start Time: </span>
                 <span>
                     {% if run.run_start_time_formatted %} {{ run.run_start_time_formatted }} {% else %} N/A {% endif %}
                 </span>

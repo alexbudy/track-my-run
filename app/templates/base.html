@@ -12,35 +12,33 @@
 <body hx-boost="true">
     <main>
         <header>
-            <div style="display: inline;">
-                <h1>
-                    Track My Run 🏃🏃🏽‍♀️
-                </h1>
-                <h4>
-                    &#x21B3;
-                        A web application to manage all of your aerobic activity
-                </h4>
+            <h1>
+                Track My Run 🏃🏃🏽‍♀️
+            </h1>
+            <h4>
+                &#x21B3;
+                    A web application to manage all of your aerobic activity
+            </h4>
 
-                {% if not logged_in %}
-                    <div class="links-container">
-                        <div class="left-links">
-                            <a hx-get="{{ url_for('auth_blueprint.login') }}" hx-target="body" hx-push-url="true">Login</a>
-                            |
-                            <a hx-get="{{ url_for('auth_blueprint.register') }}" hx-target="body" hx-push-url="true">Register</a>
-                        </div>
+            {% if not logged_in %}
+                <div class="links-container">
+                    <div class="left-links">
+                        <a hx-get="{{ url_for('auth_blueprint.login') }}" hx-target="body" hx-push-url="true">Login</a>
+                        |
+                        <a hx-get="{{ url_for('auth_blueprint.register') }}" hx-target="body" hx-push-url="true">Register</a>
                     </div>
-                {%else %}
-                    <div class="links-container">
-                        <div class="left-links">
-                            <button hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my runs</button>&nbsp;
-                            <button hx-get="{{ url_for('runs_blueprint.create_run_get') }}" hx-target="body" hx-push-url="true">Input new run</button>
-                        </div>
-                        <div class="'right-links">
-                            <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>
-                        </div>
+                </div>
+            {%else %}
+                <div class="links-container">
+                    <div class="left-links">
+                        <button hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my runs</button>&nbsp;
+                        <button hx-get="{{ url_for('runs_blueprint.create_run_get') }}" hx-target="body" hx-push-url="true">Input new run</button>
                     </div>
-                {%endif %}
-            </div>
+                    <div class="'right-links">
+                        <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>
+                    </div>
+                </div>
+            {%endif %}
         </header>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

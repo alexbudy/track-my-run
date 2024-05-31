@@ -1,3 +1,5 @@
+{% set logged_in = logged_in | default(True) %}
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -10,6 +12,15 @@
                     <label for="date">Date</label>
                     <input name="date" id="date" type="date" value="{{ run.date }}">
                     <span class="error">{{ errors.get('date', '') }}</span>
+                </p>
+                <p>
+                    <label for="activity-type" id="activity-type-label">Activity Type</label>
+                    <select name="activity_type" id="activity-type">
+                        <option value="{{ activity_type.RUN.value }}" selected>Run</option>
+                        <option value="{{ activity_type.BIKE.value }}">Bike</option>
+                        <option value="{{ activity_type.SWIM.value }}">Swim</option>
+                    </select>
+                    <span class="error">{{ errors.get('activity_type', '') }}</span>
                 </p>
                 <p>
                     <label for="run_start_time">Run start time</label>

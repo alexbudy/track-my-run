@@ -4,6 +4,10 @@ html {
     color: rgb(0, 0, 0);
 }
 
+h1 {
+    padding-left: 5px;
+}
+
 h4, h5 {
     padding-left: 25px;
 }
@@ -66,12 +70,12 @@ header {
 }
 
 #notes-text-area {
-    width: 100%;
+    width: 90%;
 }
 
-#activity-type {
+/* #activity-type {
     width: 100%;
-}
+} */
 
 #run-start-time {
     width: 100%;
@@ -206,9 +210,15 @@ th img {
     cursor: not-allowed;
 }
 
-#run-count-div {
+#activity-count-div {
     margin-bottom: 5px;
     text-align: center;
+}
+
+#label-table-pagination-div {
+    flex-direction: column;
+    display: flex;
+    align-items: center;
 }
 
 #footer-div {
@@ -243,10 +253,14 @@ th img {
     background: linear-gradient(
         to left,
         rgba(75, 10, 35, 0) 0%,
-        rgba(75, 10, 35, 1) 10%,
-        rgba(75, 10, 35, 1) 90%,
+        rgb(155, 105, 124) 10%,
+        rgba(155, 105, 124) 90%,
         rgba(75, 10, 35, 0) 100%
     );
+}
+
+.odd-row {
+    background-color: rgb(233, 231, 231);
 }
 
 #password-inputs {

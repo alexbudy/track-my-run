@@ -1,12 +1,13 @@
 
 {% for run in runs %}
-    <tr class="run-row {% if run.id == highlight_run_id %}highlighted{% endif %}">
+    <tr class="run-row {% if run.id == highlight_run_id %}highlighted{% elif loop.index is even %} odd-row {% endif %}">
         <td></td>
         <td class="run-date-cell">{{ run.date }}</td>
         <td>{{ run.run_start_time_formatted if run.run_start_time_formatted else "" }}</td>
         <td class="dist-mi">{{ run.distance_mi }}</td>
         <td>{{ run.runtime_s // 60 }}:{{ "{:02d}".format(run.runtime_s % 60) }}</td>
         <td> {{ "{:.2f}".format((run.runtime_s/60) / run.distance_mi) }} </td>
+        <td>{{ run.activity_type }}</td>
         <td>
             <div data-overflow-menu>
                 <div class="show-edit-links">

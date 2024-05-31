@@ -2,7 +2,8 @@
 
 {% block content %}
     {% if logged_in %}
-        <div id="run-count-div">Showing {{ runs_in_page}} of {{ total_count }} runs.</div>
+    <div id="label-table-pagination-div">
+        <div id="activity-count-div">Showing {{ runs_in_page}} of {{ total_count }} activities.</div>
         <table>
             <thead>
             <tr>
@@ -32,6 +33,11 @@
                         {% include 'fragments/show_chevron.html' %}
                     {% endif %} 
                 </th>
+                <th hx-get="/my_runs?order_by=activity_type&order={{ order_vals['activity_type'] }}" hx-target="body">
+                    Activity{% if order_vals["last_ordered"] == 'activity_type' %} 
+                        {% include 'fragments/show_chevron.html' %}
+                    {% endif %} 
+                </th>
                 <th></th>
             </tr>
             </thead>
@@ -39,8 +45,8 @@
                 {% include 'runs/rows.html' %}
             </tbody>
         </table>
-
         {% include 'fragments/pagination.html' %}
+    </div>
     {% endif %}
     
 {% endblock %}

@@ -110,7 +110,7 @@ class Runs(BaseMixin, Base):
         return (
             f"<Runs(id={self.id}, user_id={self.user_id}, date={self.date}, "
             f"run_start_time={self.run_start_time}, distance_mi={self.distance_mi}, "
-            f"runtime_s={self.runtime_s})>"
+            f"runtime_s={self.runtime_s} activity_type={self.activity_type}, notes={self.notes})>"
         )
 
     def delete(self):
@@ -123,6 +123,7 @@ class Runs(BaseMixin, Base):
         self.run_start_time = new_run.run_start_time if new_run.run_start_time else None
         self.distance_mi = new_run.distance_mi
         self.runtime_s = new_run.runtime_s
+        self.activity_type = new_run.activity_type
         self.notes = new_run.notes
         self.updated_at = func.now()
         db.session.commit()
