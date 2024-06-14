@@ -2,9 +2,7 @@ import os
 from flask import (
     Blueprint,
     current_app,
-    flash,
     redirect,
-    request,
     send_from_directory,
     url_for,
 )

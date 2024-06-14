@@ -3,10 +3,11 @@
     <tr class="run-row {% if run.id == highlight_run_id %}highlighted{% elif loop.index is even %} odd-row {% endif %}">
         <td></td>
         <td class="run-date-cell">{{ run.date }}</td>
-        <td>{{ run.run_start_time_formatted if run.run_start_time_formatted else "" }}</td>
-        <td class="dist-mi">{{ run.distance_mi }}</td>
-        <td>{{ run.runtime_s // 60 }}:{{ "{:02d}".format(run.runtime_s % 60) }}</td>
-        <td> {{ "{:.2f}".format((run.runtime_s/60) / run.distance_mi) }} </td>
+        <td>{{ run.activity_start_time_formatted if run.activity_start_time_formatted else "" }}</td>
+        <td class="dist-mi">{{ run.distance_mi or "N/A" }}</td>
+        <td class="dist-yard"> {{ run.distance_yard or "N/A" }} </td>
+        <td>{{ run.duration_s // 60 }}:{{ "{:02d}".format(run.duration_s % 60) }}</td>
+        <td> {{ "{:.2f}".format((run.duration_s/60) / run.distance_mi) if run.distance_mi else "{:.2f}".format((run.duration_s/60) / (run.distance_yard / 1760)) }} </td>
         <td>{{ run.activity_type }}</td>
         <td>
             <div data-overflow-menu>

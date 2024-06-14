@@ -4,7 +4,7 @@
     {% if logged_in %}
     <div id="label-table-pagination-div">
         <div id="activity-count-div">Showing {{ runs_in_page}} of {{ total_count }} activities.</div>
-        <table>
+        <table id="show-runs-table">
             <thead>
             <tr>
                 <th></th>
@@ -13,8 +13,8 @@
                        {% include 'fragments/show_chevron.html' %}
                     {% endif %}
                 </th>
-                <th hx-get="/my_runs?order_by=run_start_time&order={{ order_vals['run_start_time'] }}" hx-target="body">
-                    Start Time  {% if order_vals["last_ordered"] == 'run_start_time' %} 
+                <th hx-get="/my_runs?order_by=activity_start_time&order={{ order_vals['activity_start_time'] }}" hx-target="body">
+                    Start Time  {% if order_vals["last_ordered"] == 'activity_start_time' %} 
                        {% include 'fragments/show_chevron.html' %}
                     {% endif %}
                 </th>
@@ -23,13 +23,18 @@
                         {% include 'fragments/show_chevron.html' %}
                     {% endif %}
                 </th>
-                <th hx-get="/my_runs?order_by=runtime_s&order={{ order_vals['runtime_s'] }}" hx-target="body">
-                    Runtime (m:ss){% if order_vals["last_ordered"] == 'runtime_s' %} 
+                <th hx-get="/my_runs?order_by=distance_yard&order={{ order_vals['distance_yard'] }}" hx-target="body">
+                    Dist (yards) {% if order_vals["last_ordered"] == 'distance_yard' %} 
                         {% include 'fragments/show_chevron.html' %}
                     {% endif %}
                 </th>
-                <th hx-get="/my_runs?order_by=runtime_s&order={{ order_vals['runtime_s'] }}" hx-target="body">
-                    Pace (min/mi){% if order_vals["last_ordered"] == 'runtime_s' %} 
+                <th hx-get="/my_runs?order_by=duration_s&order={{ order_vals['duration_s'] }}" hx-target="body">
+                    Duration (m:ss){% if order_vals["last_ordered"] == 'duration_s' %} 
+                        {% include 'fragments/show_chevron.html' %}
+                    {% endif %}
+                </th>
+                <th hx-get="/my_runs?order_by=duration_s&order={{ order_vals['duration_s'] }}" hx-target="body">
+                    Pace (min/mi){% if order_vals["last_ordered"] == 'duration_s' %} 
                         {% include 'fragments/show_chevron.html' %}
                     {% endif %} 
                 </th>

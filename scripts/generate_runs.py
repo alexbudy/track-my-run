@@ -8,7 +8,7 @@ import os
 load_dotenv()  # load env variables before importing from app
 os.environ["DEV_HOSTNAME"] = "localhost"
 
-from app.models.models import Runs, Users
+from app.models.models import ActivityType, Runs, Users
 
 from app import create_app
 
@@ -37,7 +37,7 @@ def generate_random_time():
     )
 
 
-def generate_runs(for_user: int, num_runs: int = 100):
+def generate_runs(for_user: int, num_runs: int = 100, dry_run: bool = False):
     print(f"Generating {num_runs} runs for user {for_user} on {flask_config}...")
 
     with app.app_context():
@@ -51,19 +51,15 @@ def generate_runs(for_user: int, num_runs: int = 100):
         for _ in range(num_runs):
             print(f"Generating run #{_} for user {for_user} on {flask_config}...")
 
-            distance_mi = random.uniform(1, 5)
-            runtime_s = distance_mi * (60 * random.randint(7, 9)) + random.randint(
-                0, 60
-            )
+            activity = random.choice(list(ActivityType))
 
             run: Runs = Runs(
                 user_id=for_user,
                 date=today - datetime.timedelta(days=random.randint(0, 60)),
-                run_start_time=(
+                activity_start_time=(
                     None if random.random() < 0.3 else generate_random_time()
                 ),
-                distance_mi=distance_mi,
-                runtime_s=runtime_s,
+                activity_type=activity,
                 notes=(
                     ""
                     if random.random() < 0.3
@@ -71,8 +67,22 @@ def generate_runs(for_user: int, num_runs: int = 100):
                 ),
             )
 
-            print(f"Saving run #{_} for user {for_user} on {flask_config}...")
-            run.save()
+            if activity == ActivityType.SWIM:
+                run.distance_yard = 250 + random.randint(0, 25) * 25
+                run.duration_s = int(
+                    run.distance_yard + run.distance_yard * random.uniform(2, 3)
+                )
+            else:
+                run.distance_mi = random.uniform(1, 5)
+                run.duration_s = run.distance_mi * (
+                    60 * random.randint(7, 9)
+                ) + random.randint(0, 60)
+
+            if not dry_run:
+                print(f"Saving run #{_} for user {for_user} on {flask_config}...")
+                run.save()
+            else:
+                print(run, "Dry run, not saving...")
 
 
 if __name__ == "__main__":
@@ -91,8 +101,13 @@ if __name__ == "__main__":
         default="dev",
         help="Which environment to use (default: dev)",
     )
+    parser.add_argument(
+        "--dry_run",
+        action="store_true",
+        help="Print generated runs without saving them to the database",
+    )
 
     args = parser.parse_args()
 
     init_env(args.env)
-    generate_runs(args.for_user, args.num_runs)
+    generate_runs(args.for_user, args.num_runs, args.dry_run)

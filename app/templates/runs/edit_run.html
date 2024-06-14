@@ -23,9 +23,9 @@
                     <span class="error">{{ errors.get('activity_type', '') }}</span>
                 </p>
                 <p>
-                    <label for="run_start_time">Run start time</label>
-                    <input type="time" id="run_start_time" name="run_start_time" step="60" min="00:00", max="24:00" value="{{ run.run_start_time }}">
-                    <span class="error">{{ errors.get('run_start_time', '') }}</span>
+                    <label for="activity_start_time">Activity start time</label>
+                    <input type="time" id="activity_start_time" name="activity_start_time" step="60" min="00:00", max="24:00" value="{{ run.activity_start_time }}">
+                    <span class="error">{{ errors.get('activity_start_time', '') }}</span>
                 </p>
                 <p>
                     <label for="distance_mi">Distance (mi)</label>
@@ -34,10 +34,10 @@
                 </p>
                 <p>
                     <label for="run_time">Activity Duration</label>
-                        <input type="number" id="runtime_m" name="runtime_m" min="1" max="60" value="{{ run.runtime_s // 60}}"> m 
-                        <input type="number" id="runtime_s" name="runtime_s" min="0" max="59" value="{{ run.runtime_s % 60}}"> s 
-                    <span class="error">{{ errors.get('runtime_s', '') }}</span>
-                    <span class="error">{{ errors.get('runtime_m', '') }}</span>
+                        <input type="number" id="duration_m" name="duration_m" min="1" max="60" value="{{ run.duration_s // 60}}"> m 
+                        <input type="number" id="duration_s" name="duration_s" min="0" max="59" value="{{ run.duration_s % 60}}"> s 
+                    <span class="error">{{ errors.get('duration_s', '') }}</span>
+                    <span class="error">{{ errors.get('duration_m', '') }}</span>
                 </p>
                 <p>
                     <label for="notes">Optional Notes</label>

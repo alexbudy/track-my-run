@@ -1,5 +1,6 @@
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     DateTime,
     Date,
@@ -39,6 +40,7 @@ class BaseMixin(object):
         return obj
 
     def save(self):
+        print("Saving", self)
         db.session.add(self)
         db.session.commit()
 
@@ -81,20 +83,23 @@ class Users(BaseMixin, Base):
 
 
 class ActivityType(Enum):
-    RUN = "run"
     BIKE = "bike"
+    RUN = "run"
     SWIM = "swim"
+    WALK = "walk"
 
 
+# TODO - will need to rename to Activity
 class Runs(BaseMixin, Base):
     __tablename__ = "runs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(Date, nullable=False, default=func.current_date())
-    run_start_time = Column(Time, nullable=True)
-    distance_mi = Column(Float, nullable=False)
-    runtime_s = Column(Integer, nullable=False)
+    activity_start_time = Column(Time, nullable=True)
+    distance_mi = Column(Float, nullable=True)
+    distance_yard = Column(Integer, nullable=True)  # TODO - rename to distance_yards
+    duration_s = Column(Integer, nullable=False)
     activity_type = Column(
         String(),
         nullable=False,
@@ -106,11 +111,18 @@ class Runs(BaseMixin, Base):
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
 
+    __table_args__ = (
+        CheckConstraint(
+            "(activity_type = 'swim' AND distance_yard IS NOT NULL AND distance_mi IS NULL) OR (activity_type != 'swim' AND distance_yard IS NULL AND distance_mi IS NOT NULL)",
+            name="correct_metric_for_activity_type",
+        ),
+    )
+
     def __repr__(self):
         return (
             f"<Runs(id={self.id}, user_id={self.user_id}, date={self.date}, "
-            f"run_start_time={self.run_start_time}, distance_mi={self.distance_mi}, "
-            f"runtime_s={self.runtime_s} activity_type={self.activity_type}, notes={self.notes})>"
+            f"activity_start_time={self.activity_start_time}, distance_mi={self.distance_mi}, distance_yard={self.distance_yard}, "
+            f"duration_s={self.duration_s} activity_type={self.activity_type}, notes={self.notes})>"
         )
 
     def delete(self):
@@ -120,9 +132,11 @@ class Runs(BaseMixin, Base):
 
     def update(self, new_run: "Runs"):
         self.date = new_run.date
-        self.run_start_time = new_run.run_start_time if new_run.run_start_time else None
+        self.activity_start_time = (
+            new_run.activity_start_time if new_run.activity_start_time else None
+        )
         self.distance_mi = new_run.distance_mi
-        self.runtime_s = new_run.runtime_s
+        self.duration_s = new_run.duration_s
         self.activity_type = new_run.activity_type
         self.notes = new_run.notes
         self.updated_at = func.now()

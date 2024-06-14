@@ -50,11 +50,6 @@ header {
     color: white;
 }
 
-
-.run-row {
-    height: 30px;
-}
-
 .notes-cell {
     padding-bottom: 30px;
     text-align: center;
@@ -89,12 +84,6 @@ header {
     padding-top: 15px;
 }
 
-.form-input-row {
-    display: flex;
-    width: 90%;
-    justify-content: space-between;
-}
-
 #form-input-div-notes {
     display: flex;
 }
@@ -118,10 +107,6 @@ header {
 
 #new-run-form label {
     white-space: nowrap
-}
-
-.run-date-cell {
-    width: 110px;
 }
 
 .login-or-register {
@@ -169,28 +154,6 @@ tr:is(:hover, :focus-within) [data-overflow-menu] {
     visibility: visible;
 }
 
-.show-edit-links {
-    display: flex;
-    justify-content: space-evenly;
-}
-
-
-.show-edit-links a {
-    text-decoration: none; 
-    padding: 0 5px;
-}
-
-
-tr th,
-tr td {
-    vertical-align: middle;
-    text-align: center;
-    white-space: nowrap;
-}
-
-th img {
-    margin-bottom: 3px;
-}
 
 .show-run-details p {
     padding-top:5px;
@@ -251,6 +214,30 @@ th img {
     padding-top: 10px;
 }
 
+#password-inputs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#github-logo {
+    width: 40px;
+}
+
+.chevron {
+    width: 20px;  
+}
+
+/*  For runs/rows.html styles */
+.run-row:hover {
+    background-color: #d1e7fd;
+}
+
+.run-row {
+    height: 30px;
+}
+
 .highlighted {
     background: linear-gradient(
         to left,
@@ -265,19 +252,44 @@ th img {
     background-color: rgb(233, 231, 231);
 }
 
-#password-inputs {
+.run-date-cell {
+    width: 110px;
+}
+
+.show-edit-links {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    justify-content: space-evenly;
 }
 
-#github-logo {
-    width: 40px;
+.show-edit-links a {
+    text-decoration: none; 
+    padding: 0 5px;
 }
 
-.chevron {
-    width: 20px;  
+tr th,
+tr td {
+    vertical-align: middle;
+    text-align: center;
+    white-space: nowrap;
+}
+
+th img {
+    margin-bottom: 3px;
+}
+
+/*  For runs/new_run.html styles */
+#mi-or-yd-label {
+    padding-top: 5px;
+}
+
+.form-input-row {
+    display: flex;
+    width: 85%;
+    justify-content: space-between;
+}
+
+.form-input-row-no-top-label {
+    margin-top: 20px;
 }
 
 /*  For fragments/release.html styles */

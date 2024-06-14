@@ -1,6 +1,8 @@
 venv/
 .vscode/
 requests/
+scripts/
+shell_scripts/
 .pytest_cache/
 .github/**
 .gitignore

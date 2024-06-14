@@ -1,4 +1,5 @@
 from math import ceil
+import re
 from typing import List
 from flask import (
     Blueprint,
@@ -10,7 +11,15 @@ from flask import (
     session,
     url_for,
 )
-from marshmallow import Schema, fields, post_dump, post_load, validate
+from marshmallow import (
+    Schema,
+    fields,
+    post_dump,
+    post_load,
+    pre_dump,
+    validate,
+    validates_schema,
+)
 from marshmallow.validate import Length, Range
 from datetime import date, datetime, timedelta
 
@@ -20,8 +29,10 @@ from app.auth import (
     auth_required,
     get_token_and_user_id_from_cookies,
 )
+from app.constants import MAX_DIST, MIN_DIST, REGEX_PATTERN_DURATION
 from app.models.models import ActivityType, Runs, Users
 from app.routes import DEFAULT_ORDERING, flatten_validation_errors
+from app.utils.utils import time_pattern_to_seconds
 
 PAGE_SIZE: int = 20  # default page size for # of runs to return
 MAX_PAGE_SIZE: int = 50
@@ -46,14 +57,14 @@ def get_runs_for_given_date(
         filt = and_(filt, Runs.user_id == user_id)
 
         if skip_runs_with_no_start_time:
-            filt = and_(filt, Runs.run_start_time.isnot(None))
+            filt = and_(filt, Runs.activity_start_time.isnot(None))
 
         filt = and_(filt, Runs.deleted_at.is_(None))
 
         runs: List[Runs] = (
             sess.query(Runs)
             .filter(filt)
-            .order_by(Runs.date.asc(), Runs.run_start_time.asc())
+            .order_by(Runs.date.asc(), Runs.activity_start_time.asc())
             .all()
         )
 
@@ -101,23 +112,24 @@ class RunSchema(Schema):
         required=True,
         validate=lambda x: x >= date(2024, 1, 1) and x <= datetime.now().date(),
     )
-    run_start_time = fields.String(  # TODO - validate time field
+    activity_start_time = fields.String(  # TODO - validate time field
         required=False, allow_none=True, validate=lambda _: True
     )
-    distance_mi = fields.Float(
+    distance_mi_or_yd = fields.Float(
         required=True,
-        validate=lambda x: 0.1 <= x <= 10,
+        validate=lambda x: MIN_DIST[ActivityType.WALK.value]
+        <= x
+        <= MAX_DIST[ActivityType.SWIM.value],
     )
-    runtime_m = fields.Integer(
+    activity_duration = fields.String(
         required=True,
-        validate=Range(min=1, max=60),
+        validate=lambda dur: re.match(REGEX_PATTERN_DURATION, dur),
     )
-    runtime_s = fields.Integer(
-        required=True,
-        validate=Range(min=0, max=59),
-    )
+    distance_mi = fields.Int(dump_only=True)
+    distance_yard = fields.Int(dump_only=True)
+    duration_s = fields.Int(dump_only=True)
     activity_type = fields.Str(
-        required=True, validate=validate.OneOf([a.value for a in ActivityType])
+        required=True, validate=validate.OneOf([a.value.lower() for a in ActivityType])
     )
     notes = fields.String(
         required=False,
@@ -125,31 +137,46 @@ class RunSchema(Schema):
     )
     created_at = fields.DateTime(dump_only=True, format="%Y-%m-%d %H:%M:%S")
 
+    @validates_schema
+    def validate_distance(self, data, **kwargs):
+        print("In validate _distance, provided data", data)
+        # TODO - implement distance validation
+        pass
+
     @post_load
-    def make_run(self, data, **kwargs):
-        run_start_time = data["run_start_time"]
-        if run_start_time:
-            run_start_time_hh_mm = ":".join(run_start_time.split(":")[0:2])
+    def make_run(self, data, **kwargs) -> Runs:
+        activity_start_time = data["activity_start_time"]
+        if activity_start_time:
+            activity_start_time_hh_mm = ":".join(activity_start_time.split(":")[0:2])
 
-            run_start_time = datetime.strptime(run_start_time_hh_mm, "%H:%M").time()
+            activity_start_time = datetime.strptime(
+                activity_start_time_hh_mm, "%H:%M"
+            ).time()
 
-        return Runs(
+        activity = Runs(
             date=data["date"],
-            run_start_time=run_start_time or None,
-            distance_mi=data["distance_mi"],
-            runtime_s=data["runtime_m"] * 60 + data["runtime_s"],
-            activity_type=data["activity_type"].lower(),
+            activity_start_time=activity_start_time or None,
+            duration_s=time_pattern_to_seconds(data["activity_duration"]),
+            activity_type=data["activity_type"],
             notes=data["notes"],
         )
 
+        if data["activity_type"] == ActivityType.SWIM.value:
+            activity.distance_yard = data["distance_mi_or_yd"]
+        else:
+            activity.distance_mi = data["distance_mi_or_yd"]
+
+        return activity
+
     @post_dump
-    def post_process_run_start_time(self, data, **kwargs):
+    def post_process(self, data, **kwargs):
         """Sanitize data for display"""
-        run_start_time = data["run_start_time"]
-        if run_start_time:
-            hr = run_start_time.split(":")[0]
-            mn = run_start_time.split(":")[1]
-            data["run_start_time"] = run_start_time[0:6] + "00"
+        print("Sanitizing data", data)
+        activity_start_time = data.get("activity_start_time")
+        if activity_start_time:
+            hr = activity_start_time.split(":")[0]
+            mn = activity_start_time.split(":")[1]
+            data["activity_start_time"] = activity_start_time[0:6] + "00"
             if hr[0] == "0":
                 hr = hr[1]
 
@@ -159,9 +186,11 @@ class RunSchema(Schema):
             if int(hr) > 12:
                 hr = int(hr) - 12
 
-            data["run_start_time_formatted"] = f"{hr}:{mn} {am_pm}"
+            data["activity_start_time_formatted"] = f"{hr}:{mn} {am_pm}"
 
-        data["distance_mi"] = float("{:.2f}".format(data["distance_mi"]))
+        if data.get("distance_mi"):
+            data["distance_mi"] = float("{:.2f}".format(data["distance_mi"]))
+
         data["activity_type"] = data["activity_type"].capitalize()
 
         return data
@@ -176,8 +205,7 @@ def create_run_get():
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     initial_data = {
-        "logged_in": True,
-        "current_date": current_date,
+        "date": current_date,
         "activity_type": ActivityType,
     }
 
@@ -190,50 +218,53 @@ def create_run():
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     initial_data = {
-        "logged_in": True,
-        "current_date": request.form["date"] or current_date,
         "activity_type": ActivityType,
     }
     _, user_id = get_token_and_user_id_from_cookies()
+    print("Form: ", request.form)
     errs = register_run_schema.validate(request.form)
 
-    initial_data["run_start_time"] = request.form["run_start_time"]
-    initial_data["distance_mi"] = request.form["distance_mi"]
-    initial_data["runtime_m"] = request.form["runtime_m"]
-    initial_data["runtime_s"] = request.form["runtime_s"]
+    initial_data["date"] = request.form["date"] or current_date
+    initial_data["activity_start_time"] = request.form["activity_start_time"]
+    initial_data["distance_mi_or_yd"] = request.form["distance_mi_or_yd"]
+    initial_data["activity_type_selected"] = request.form["activity_type"]
+    initial_data["activity_duration"] = request.form["activity_duration"]
     initial_data["notes"] = request.form["notes"]
+    initial_data["activity_type"] = ActivityType
 
     if errs:
         initial_data["errors"] = flatten_validation_errors(errs)
-        if "run_start_time" in initial_data["errors"]:
-            del initial_data["run_start_time"]
+        if "activity_start_time" in initial_data["errors"]:
+            del initial_data["activity_start_time"]
         if "distance_mi" in initial_data["errors"]:
             del initial_data["distance_mi"]
-        if "runtime_m" in initial_data["errors"]:
-            del initial_data["runtime_m"]
-        if "runtime_s" in initial_data["errors"]:
-            del initial_data["runtime_s"]
+        if "duration_m" in initial_data["errors"]:
+            del initial_data["duration_m"]
+        if "duration_s" in initial_data["errors"]:
+            del initial_data["duration_s"]
         if "notes" in initial_data["errors"]:
             del initial_data["notes"]
-
+        print("Errs, ", errs, initial_data)
         return render_template("runs/new_run.html", **initial_data)
 
     if Users.find(user_id).is_readonly:
         flash(READONLY_MESSAGE, "error")
         return render_template("runs/new_run.html", **initial_data)
 
+    print("req form:", request.form)
     run: Runs = register_run_schema.load(request.form)
+    print(run)
     run.user_id = user_id
     existing_runs = get_runs_for_given_date(run.date, user_id)
 
-    if run.run_start_time:
-        run_start_dt: datetime = datetime.combine(run.date, run.run_start_time)
+    if run.activity_start_time:
+        run_start_dt: datetime = datetime.combine(run.date, run.activity_start_time)
 
         for existing_run in existing_runs:
             ex_run_start_dt: datetime = datetime.combine(
-                existing_run.date, existing_run.run_start_time
+                existing_run.date, existing_run.activity_start_time
             )
-            ex_run_end_dt = ex_run_start_dt + timedelta(seconds=existing_run.runtime_s)
+            ex_run_end_dt = ex_run_start_dt + timedelta(seconds=existing_run.duration_s)
             if ex_run_start_dt <= run_start_dt <= ex_run_end_dt:
                 flash("Start time of given run overlaps with existing run")
                 return render_template("runs/new_run.html", **initial_data)
@@ -266,10 +297,11 @@ def get_runs():
         page_size = PAGE_SIZE
     if order_by not in [
         "date",
-        "run_start_time",
+        "activity_start_time",
         "distance_mi",
-        "runtime_s",
+        "duration_s",
         "activity_type",
+        "distance_yard",
     ]:
         order_by = "date"
     if order not in ["asc", "desc"]:
@@ -283,7 +315,6 @@ def get_runs():
 
     run_schema = RunSchema()
     runs = [run_schema.dump(run) for run in runs]
-
     ordering = DEFAULT_ORDERING.copy()
     ordering[order_by] = "desc" if order == "asc" else "asc"  # flip the order
     ordering["last_ordered"] = order_by
@@ -325,9 +356,7 @@ def show_run(run_id):
 
     run = RunSchema().dump(run)
 
-    return render_template(
-        "runs/show_run.html", days_ago=days_ago, run=run, logged_in=True
-    )
+    return render_template("runs/show_run.html", days_ago=days_ago, run=run)
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["GET"])
@@ -384,9 +413,9 @@ def edit_run_put(run_id):
     new_run_data: Runs = register_run_schema.load(request.form)
     if (
         new_run_data.date == run.date
-        and new_run_data.run_start_time == run.run_start_time
+        and new_run_data.activity_start_time == run.activity_start_time
         and new_run_data.distance_mi == run.distance_mi
-        and new_run_data.runtime_s == run.runtime_s
+        and new_run_data.activitytime_s == run.activitytime_s
         and new_run_data.notes == run.notes
         and new_run_data.activity_type == run.activity_type
     ):

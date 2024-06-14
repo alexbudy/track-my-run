@@ -11,7 +11,7 @@ from flask import (
     session,
     url_for,
 )
-from marshmallow import Schema, fields, post_load
+from marshmallow import Schema, fields, post_load, pre_load
 from marshmallow.validate import Length
 
 from app.auth import (
@@ -69,8 +69,16 @@ class RegisterUserSchema(Schema):
     )
     nick = fields.String(
         required=False,
+        allow_none=True,
         validate=Length(min=3, max=20),
     )
+
+    @pre_load
+    def normalize_empty_string(self, data, **kwargs):
+        data = dict(data)
+        if data["nick"] == "":
+            data["nick"] = None
+        return data
 
 
 @auth_blueprint.route("/login", methods=["GET"])
@@ -167,7 +175,7 @@ def register():
         return render_template("auth/register.html")
 
     errs = register_user_schema.validate(request.form)
-
+    print(request.form, errs)
     login = request.form.get("login")
     password = request.form.get("password")
     repeat_password = request.form.get("password_repeat")

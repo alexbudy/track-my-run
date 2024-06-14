@@ -17,3 +17,11 @@ def hash_password(pw, salt):
 
 def create_session_tok():
     return "sess_" + "".join(secrets.choice(ALPHABET) for _ in range(15))
+
+
+def time_pattern_to_seconds(time_pattern):
+    """Convert the time pattern of hh:mm:ss into seconds for storing in DB"""
+    time_pattern = time_pattern.split(":")
+    return (
+        int(time_pattern[0]) * 3600 + int(time_pattern[1]) * 60 + int(time_pattern[2])
+    )

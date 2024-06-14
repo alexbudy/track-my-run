@@ -11,9 +11,10 @@ LOGIN_EXPIRY_S = 3600  # session expiry
 
 DEFAULT_ORDERING = {
     "date": "desc",
-    "run_start_time": "asc",
+    "activity_start_time": "asc",
     "distance_mi": "desc",
-    "runtime_s": "desc",
+    "distance_yard": "desc",
+    "duration_s": "desc",
 }
 
 
