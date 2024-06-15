@@ -5,6 +5,7 @@ from flask.testing import FlaskClient
 from app.models.models import Credentials, Users
 from app.routes import LOGIN_EXPIRY_S
 from app.utils.utils import create_salt, hash_password
+from tests import client, app, db_session
 
 
 def test_login_route(client: FlaskClient):
