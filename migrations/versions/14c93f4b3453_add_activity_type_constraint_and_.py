@@ -1,7 +1,7 @@
 """add activity type constraint and distance_yard col
 
 Revision ID: 14c93f4b3453
-Revises: 767dd5a5f8ca
+Revises: 89eae62594f6
 Create Date: 2024-06-06 10:50:40.399382
 
 """

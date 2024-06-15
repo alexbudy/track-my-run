@@ -59,6 +59,7 @@ def upgrade() -> None:
         sa.Column("distance_mi", sa.Float(), nullable=True),
         sa.Column("distance_yard", sa.Integer(), nullable=True),
         sa.Column("duration_s", sa.Integer(), nullable=False),
+        sa.Column("pace", sa.Numeric(precision=6, scale=4), nullable=False),
         sa.Column("notes", sa.String(), nullable=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),

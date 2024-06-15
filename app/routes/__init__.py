@@ -15,6 +15,8 @@ DEFAULT_ORDERING = {
     "distance_mi": "desc",
     "distance_yard": "desc",
     "duration_s": "desc",
+    "pace": "desc",
+    "activity_type": "desc",
 }
 
 

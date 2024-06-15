@@ -16,11 +16,10 @@ from marshmallow import (
     fields,
     post_dump,
     post_load,
-    pre_dump,
     validate,
     validates_schema,
 )
-from marshmallow.validate import Length, Range
+from marshmallow.validate import Length
 from datetime import date, datetime, timedelta
 
 from sqlalchemy import and_, asc, desc
@@ -32,7 +31,12 @@ from app.auth import (
 from app.constants import MAX_DIST, MIN_DIST, REGEX_PATTERN_DURATION
 from app.models.models import ActivityType, Runs, Users
 from app.routes import DEFAULT_ORDERING, flatten_validation_errors
-from app.utils.utils import time_pattern_to_seconds
+from app.utils.utils import (
+    calculate_pace,
+    seconds_to_time,
+    time_pattern_to_seconds,
+    time_to_display,
+)
 
 PAGE_SIZE: int = 20  # default page size for # of runs to return
 MAX_PAGE_SIZE: int = 50
@@ -118,19 +122,20 @@ class RunSchema(Schema):
     distance_mi_or_yd = fields.Float(
         required=True,
         validate=lambda x: MIN_DIST[ActivityType.WALK.value]
-        <= x
+        <= float(x)
         <= MAX_DIST[ActivityType.SWIM.value],
     )
     activity_duration = fields.String(
         required=True,
         validate=lambda dur: re.match(REGEX_PATTERN_DURATION, dur),
     )
-    distance_mi = fields.Int(dump_only=True)
+    distance_mi = fields.Decimal(places=2, dump_only=True)
     distance_yard = fields.Int(dump_only=True)
     duration_s = fields.Int(dump_only=True)
     activity_type = fields.Str(
         required=True, validate=validate.OneOf([a.value.lower() for a in ActivityType])
     )
+    pace = fields.Decimal(places=2, dump_only=True)
     notes = fields.String(
         required=False,
         validate=Length(max=1000),
@@ -166,33 +171,22 @@ class RunSchema(Schema):
         else:
             activity.distance_mi = data["distance_mi_or_yd"]
 
+        activity.pace = calculate_pace(
+            activity.duration_s, activity.distance_mi, activity.distance_yard
+        )
+
         return activity
 
     @post_dump
     def post_process(self, data, **kwargs):
-        """Sanitize data for display"""
-        print("Sanitizing data", data)
-        activity_start_time = data.get("activity_start_time")
-        if activity_start_time:
-            hr = activity_start_time.split(":")[0]
-            mn = activity_start_time.split(":")[1]
-            data["activity_start_time"] = activity_start_time[0:6] + "00"
-            if hr[0] == "0":
-                hr = hr[1]
+        """Sanitize data for display. Can add more fields"""
+        # transform to hh:mm AM/PM
+        data["activity_start_time_formatted"] = time_to_display(
+            data.get("activity_start_time")
+        )
 
-            am_pm = "AM"
-            if int(hr) >= 12:
-                am_pm = "PM"
-            if int(hr) > 12:
-                hr = int(hr) - 12
-
-            data["activity_start_time_formatted"] = f"{hr}:{mn} {am_pm}"
-
-        if data.get("distance_mi"):
-            data["distance_mi"] = float("{:.2f}".format(data["distance_mi"]))
-
-        data["activity_type"] = data["activity_type"].capitalize()
-
+        data["duration_hmmss"] = seconds_to_time(data.get("duration_s"))
+        print(data)
         return data
 
 
@@ -251,9 +245,7 @@ def create_run():
         flash(READONLY_MESSAGE, "error")
         return render_template("runs/new_run.html", **initial_data)
 
-    print("req form:", request.form)
     run: Runs = register_run_schema.load(request.form)
-    print(run)
     run.user_id = user_id
     existing_runs = get_runs_for_given_date(run.date, user_id)
 
@@ -295,14 +287,7 @@ def get_runs():
         page_num = 1
     if page_size <= 0 or page_size > MAX_PAGE_SIZE:
         page_size = PAGE_SIZE
-    if order_by not in [
-        "date",
-        "activity_start_time",
-        "distance_mi",
-        "duration_s",
-        "activity_type",
-        "distance_yard",
-    ]:
+    if order_by not in DEFAULT_ORDERING:
         order_by = "date"
     if order not in ["asc", "desc"]:
         order = "desc"
@@ -364,19 +349,21 @@ def show_run(run_id):
 def edit_run_get(run_id):
     _, user_id = get_token_and_user_id_from_cookies()
 
-    run: Runs = Runs.find(run_id)
+    activity: Runs = Runs.find(run_id)
 
-    if not run:
+    if not activity:
         return render_template("runs/run_not_found.html")
 
-    if run.user_id != user_id:
+    if activity.user_id != user_id:
         return render_template(
             "runs/invalid_permission.html",
             error_message="You do not have permission to view and edit this activity.",
         )
 
     return render_template(
-        "runs/edit_run.html", run=RunSchema().dump(run), activity_type=ActivityType
+        "runs/edit_run.html",
+        run=RunSchema().dump(activity),
+        activity_types=ActivityType,
     )
 
 
@@ -398,34 +385,35 @@ def edit_run_put(run_id):
 
     if Users.find(user_id).is_readonly == 1:
         flash(READONLY_MESSAGE, "error")
-        return render_template(
-            "runs/edit_run.html", run=RunSchema().dump(run), activity_type=ActivityType
-        )
+        return render_template("runs/edit_run.html", run=RunSchema().dump(run))
 
+    print(request.form)
     errs = register_run_schema.validate(request.form)
+
     if errs:
         return render_template(
             "runs/edit_run.html",
             run=RunSchema().dump(run),
             errors=flatten_validation_errors(errs),
-            activity_type=ActivityType,
         )
+
+    print("Before loading, ", request.form)
     new_run_data: Runs = register_run_schema.load(request.form)
+    print(new_run_data)
     if (
         new_run_data.date == run.date
         and new_run_data.activity_start_time == run.activity_start_time
         and new_run_data.distance_mi == run.distance_mi
-        and new_run_data.activitytime_s == run.activitytime_s
+        and new_run_data.distance_yard == run.distance_yard
+        and new_run_data.duration_s == run.duration_s
         and new_run_data.notes == run.notes
         and new_run_data.activity_type == run.activity_type
     ):
-        flash("No changes were made to the run", "message")
-        return render_template(
-            "runs/edit_run.html",
-            run=RunSchema().dump(run),
-            activity_type=ActivityType,
-        )
+        print("No changes were made to the activity")
+        flash("No changes were made to the activity", "message")
+        return render_template("runs/edit_run.html", run=RunSchema().dump(run))
 
+    print("ABOUT TO UPDATE")
     run.update(new_run_data)
 
     flash(f"Run {run_id} edited successfully", "message")

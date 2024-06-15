@@ -33,8 +33,8 @@
                         {% include 'fragments/show_chevron.html' %}
                     {% endif %}
                 </th>
-                <th hx-get="/my_runs?order_by=duration_s&order={{ order_vals['duration_s'] }}" hx-target="body">
-                    Pace (min/mi){% if order_vals["last_ordered"] == 'duration_s' %} 
+                <th hx-get="/my_runs?order_by=pace&order={{ order_vals['pace'] }}" hx-target="body">
+                    Pace (min/mi){% if order_vals["last_ordered"] == 'pace' %} 
                         {% include 'fragments/show_chevron.html' %}
                     {% endif %} 
                 </th>

@@ -4,6 +4,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     Date,
+    Numeric,
     Time,
     ForeignKey,
     MetaData,
@@ -14,6 +15,7 @@ from sqlalchemy import (
 )
 from enum import Enum
 from app.database import db
+from app.utils.utils import calculate_pace
 
 
 convention = {
@@ -106,6 +108,9 @@ class Runs(BaseMixin, Base):
         default=ActivityType.RUN.value,
         server_default=ActivityType.RUN.value,
     )
+    pace = Column(
+        Numeric(precision=6, scale=4), nullable=False
+    )  # store as min/mi for now for easy sort
     notes = Column(String(), nullable=True)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
@@ -136,8 +141,12 @@ class Runs(BaseMixin, Base):
             new_run.activity_start_time if new_run.activity_start_time else None
         )
         self.distance_mi = new_run.distance_mi
+        self.distance_yard = new_run.distance_yard
         self.duration_s = new_run.duration_s
         self.activity_type = new_run.activity_type
+        self.pace = calculate_pace(
+            new_run.duration_s, new_run.distance_mi, new_run.distance_yard
+        )
         self.notes = new_run.notes
         self.updated_at = func.now()
         db.session.commit()

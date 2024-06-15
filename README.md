@@ -16,7 +16,7 @@ The live version of this site can be found on [www.track-my-run.com](https://www
 
 The primary purpose of this project is to get hands on experience with development and production-level deployment of a full-fledged modern-day web application, using a common web framework (Flask) and an interesting non-SPA front end JS libary (HTMX).
 
-As such, all feedback is helpful and appreciated
+As such, all feedback is helpful and appreciated.
 
 This application has all the common components of a web-application including:
 - dockerized containers

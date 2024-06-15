@@ -252,9 +252,6 @@ tr:is(:hover, :focus-within) [data-overflow-menu] {
     background-color: rgb(233, 231, 231);
 }
 
-.run-date-cell {
-    width: 110px;
-}
 
 .show-edit-links {
     display: flex;

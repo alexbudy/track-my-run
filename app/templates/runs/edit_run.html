@@ -3,24 +3,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+    {% set activity = run.activity_type.capitalize() %}
     <form hx-put="{{ url_for('runs_blueprint.edit_run_put', run_id=run.id) }}" hx-target="body" hx-push-url="true">
+        <input type="hidden" name="activity_type" value="{{ run.activity_type }}">
         <fieldset>
-            <legend>Editing Activity with ID {{ run.id }}</legend>
+            <legend>Editing {{ activity }} with ID {{ run.id }}</legend>
             <div class="table rows">
+                <p>
+                    <label for="activity-type" id="activity-type-label">Activity Type</label>
+                    <span style="font-weight: bold">{{ activity }}</span>
+                </p>
                 <p>
                     <label for="date">Date</label>
                     <input name="date" id="date" type="date" value="{{ run.date }}">
                     <span class="error">{{ errors.get('date', '') }}</span>
-                </p>
-                <p>
-                    <label for="activity-type" id="activity-type-label">Activity Type</label>
-                    <select name="activity_type" id="activity-type">
-                        <option value="{{ activity_type.RUN.value }}" selected>Run</option>
-                        <option value="{{ activity_type.BIKE.value }}">Bike</option>
-                        <option value="{{ activity_type.SWIM.value }}">Swim</option>
-                    </select>
-                    <span class="error">{{ errors.get('activity_type', '') }}</span>
                 </p>
                 <p>
                     <label for="activity_start_time">Activity start time</label>
@@ -28,16 +24,19 @@
                     <span class="error">{{ errors.get('activity_start_time', '') }}</span>
                 </p>
                 <p>
-                    <label for="distance_mi">Distance (mi)</label>
-                    <input type="number" id="distance_mi" name="distance_mi" step=".01" min="0.01" max="10" value="{{ run.distance_mi }}">
-                    <span class="error">{{ errors.get('distance_mi', '') }}</span>
+                    <label for="distance_mi_or_yd">Distance (mi)</label>
+                    {% if run.distance_mi != None %}
+                        <input type="number" id="distance_mi" name="distance_mi_or_yd" step=".01" min="0.01" max="10" value="{{ run.distance_mi }}">
+                    {% else %}
+                        <input type="number" id="distance_yard" name="distance_mi_or_yd" step="1" min="25" max="5000" value="{{ run.distance_yard }}">
+                    {% endif %}
+
+                    <span class="error">{{ errors.get('distance_mi_or_yd', '') }}</span>
                 </p>
                 <p>
-                    <label for="run_time">Activity Duration</label>
-                        <input type="number" id="duration_m" name="duration_m" min="1" max="60" value="{{ run.duration_s // 60}}"> m 
-                        <input type="number" id="duration_s" name="duration_s" min="0" max="59" value="{{ run.duration_s % 60}}"> s 
-                    <span class="error">{{ errors.get('duration_s', '') }}</span>
-                    <span class="error">{{ errors.get('duration_m', '') }}</span>
+                    <label for="activity_duration">Activity Duration</label>
+                    <input type="text" id="duration_hmmss" name="activity_duration" value="{{ run.duration_hmmss }}"> (h:)mm:ss
+                    <span class="error">{{ errors.get('activity_duration', '') }}</span>
                 </p>
                 <p>
                     <label for="notes">Optional Notes</label>
@@ -58,7 +57,5 @@
     Delete this activity
     </button>
     <br>
-
-    {% include 'fragments/back.html' %}
 
 {% endblock %}

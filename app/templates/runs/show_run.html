@@ -5,13 +5,15 @@
 {% block content %}
     
     <fieldset>
-        <legend>Here's your activity from {{days_ago}}, with ID {{ run.id }}. Nice work!</legend>
+        <legend>Here's your {{ run.activity_type.lower() }} from {{days_ago}}, with ID {{ run.id }}. Nice work!</legend>
         <div class="table rows show-run-details">
             <p>
-                <span>Date: </span> <span>{{ run.date }}</span>
+                <span>Date: </span>
+                <span>{{ run.date }}</span>
             </p>
             <p>
-                <span>Activity: </span> <span>{{ run.activity_type }}</span>
+                <span>Activity: </span>
+                <span>{{ run.activity_type }}</span>
             </p>
             <p> 
                 <span>Activity Start Time: </span>
@@ -32,7 +34,13 @@
             <p>
                 <span>Activity Duration: </span>
                 <span>
-                    {{ run.duration_s // 60}}m {{"{:02d}".format(run.duration_s % 60)}}s
+                    {{ run.duration_hmmss }}
+                </span>
+            </p>
+            <p>
+                <span>Pace: </span>
+                <span>
+                    {{ run.pace }} min/mi
                 </span>
             </p>
             <p>
