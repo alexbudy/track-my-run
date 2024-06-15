@@ -8,6 +8,9 @@ import os
 load_dotenv()  # load env variables before importing from app
 os.environ["DEV_HOSTNAME"] = "localhost"
 
+from app.utils.utils import calculate_pace
+
+
 from app.models.models import ActivityType, Runs, Users
 
 from app import create_app
@@ -18,6 +21,8 @@ app = None
 lorem: str = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 )
+
+"""Usage: PYTHONPATH=$(pwd) python scripts/generate_runs.py 3 --env dev # generate 100 runs for user with id 3 on the dev environment"""
 
 
 def init_env(env: str):
@@ -59,7 +64,7 @@ def generate_runs(for_user: int, num_runs: int = 100, dry_run: bool = False):
                 activity_start_time=(
                     None if random.random() < 0.3 else generate_random_time()
                 ),
-                activity_type=activity,
+                activity_type=activity.value,
                 notes=(
                     ""
                     if random.random() < 0.3
@@ -78,6 +83,11 @@ def generate_runs(for_user: int, num_runs: int = 100, dry_run: bool = False):
                     60 * random.randint(7, 9)
                 ) + random.randint(0, 60)
 
+            run.pace = calculate_pace(
+                run.duration_s, run.distance_mi, run.distance_yard
+            )
+            if run.pace >= 100:
+                continue  # need to skip as it violates the numeric precision
             if not dry_run:
                 print(f"Saving run #{_} for user {for_user} on {flask_config}...")
                 run.save()
