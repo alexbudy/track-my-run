@@ -112,6 +112,7 @@ class Runs(BaseMixin, Base):
         Numeric(precision=6, scale=4), nullable=False
     )  # store as min/mi for now for easy sort
     notes = Column(String(), nullable=True)
+    cooper_points = Column(Numeric(precision=5, scale=2), nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)

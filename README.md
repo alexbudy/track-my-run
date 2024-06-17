@@ -104,7 +104,8 @@ Now that the framework for the application is in place, there can be many potent
 - Addition of a JSON API to allow for SPA JS frameworks
 - Extend unit testing
 - Experiment with UI and various color schemes
-- Add other activity types - swimming, biking, walking
+- Add other activities/sports
+- Incorporate AI for data input
 - ...
 
 The possibilities become endless 🚀
