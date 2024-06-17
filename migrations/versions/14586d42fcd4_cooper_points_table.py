@@ -11,7 +11,9 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
+from migrations.data.bike_points import BIKE_POINTS
 from migrations.data.run_points import RUN_POINTS
+from migrations.data.swim_points import SWIM_POINTS
 from migrations.data.walk_points import WALK_POINTS
 
 
@@ -28,17 +30,14 @@ def upgrade() -> None:
         "cooper_points",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("activity", sa.String(), nullable=False),
-        sa.Column("distance_floor", sa.Numeric(precision=4, scale=1), nullable=False),
+        sa.Column("distance_floor", sa.Numeric(precision=5, scale=1), nullable=False),
         sa.Column("lowest_time", sa.Time(), nullable=False),
         sa.Column("highest_time", sa.Time(), nullable=False),
         sa.Column("points", sa.Numeric(precision=5, scale=2), nullable=False),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_cooper_points")),
     )
     # After creating table, can run the inserts to load static data
-    op.bulk_insert(
-        cooper_table,
-        WALK_POINTS + RUN_POINTS,
-    )
+    op.bulk_insert(cooper_table, WALK_POINTS + RUN_POINTS + BIKE_POINTS + SWIM_POINTS)
     # ### end Alembic commands ###
 
 
