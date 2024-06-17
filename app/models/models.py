@@ -47,7 +47,7 @@ class BaseMixin(object):
         db.session.commit()
 
 
-class Credentials(Base):
+class Credentials(BaseMixin, Base):
     __tablename__ = "credentials"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -151,3 +151,22 @@ class Runs(BaseMixin, Base):
         self.notes = new_run.notes
         self.updated_at = func.now()
         db.session.commit()
+
+
+class CooperPoints(BaseMixin, Base):
+    __tablename__ = "cooper_points"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    activity = Column(String(), nullable=False)
+    distance_floor = Column(
+        Numeric(precision=4, scale=1), nullable=False
+    )  # distance based on activity. Traveled distance floored to nearest in table
+    lowest_time = Column(Time, nullable=False)
+    highest_time = Column(Time, nullable=False)
+    points = Column(Numeric(precision=5, scale=2), nullable=False)
+
+    def __repr__(self):
+        return (
+            f"<CooperPoints(id={self.id}, activity={self.activity}, distance_floor={self.distance_floor}, "
+            f"lowest_time={self.lowest_time}, highest_time={self.highest_time}, points={self.points})>"
+        )
