@@ -160,7 +160,7 @@ class CooperPoints(BaseMixin, Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     activity = Column(String(), nullable=False)
     distance_floor = Column(
-        Numeric(precision=5, scale=1), nullable=False
+        Numeric(precision=6, scale=2), nullable=False
     )  # distance based on activity. Traveled distance floored to nearest in table
     lowest_time = Column(Time, nullable=False)
     highest_time = Column(Time, nullable=False)

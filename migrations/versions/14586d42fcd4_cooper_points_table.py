@@ -30,7 +30,7 @@ def upgrade() -> None:
         "cooper_points",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("activity", sa.String(), nullable=False),
-        sa.Column("distance_floor", sa.Numeric(precision=5, scale=1), nullable=False),
+        sa.Column("distance_floor", sa.Numeric(precision=6, scale=2), nullable=False),
         sa.Column("lowest_time", sa.Time(), nullable=False),
         sa.Column("highest_time", sa.Time(), nullable=False),
         sa.Column("points", sa.Numeric(precision=5, scale=2), nullable=False),

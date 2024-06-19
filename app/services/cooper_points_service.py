@@ -32,7 +32,7 @@ class CooperPointsService:
         distance_floor = dist_intervals[
             distance_floor_idx - 1
         ]  # highest distance <= provided
-
+        print(f"{activity=}, {distance=}, {duration=}, {distance_floor=}")
         cooper_point = CooperPoints.find_row(activity, distance_floor, duration)
         if not cooper_point:
             current_app.logger.error(
