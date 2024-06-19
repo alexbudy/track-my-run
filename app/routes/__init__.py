@@ -17,6 +17,7 @@ DEFAULT_ORDERING = {
     "duration_s": "desc",
     "pace": "desc",
     "activity_type": "desc",
+    "cooper_points": "desc",
 }
 
 

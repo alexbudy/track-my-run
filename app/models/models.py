@@ -150,6 +150,7 @@ class Runs(BaseMixin, Base):
             new_run.duration_s, new_run.distance_mi, new_run.distance_yard
         )
         self.notes = new_run.notes
+        self.cooper_points = new_run.cooper_points
         self.updated_at = func.now()
         db.session.commit()
 

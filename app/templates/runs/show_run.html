@@ -8,21 +8,21 @@
         <legend>Here's your {{ run.activity_type.lower() }} from {{days_ago}}, with ID {{ run.id }}. Nice work!</legend>
         <div class="table rows show-run-details">
             <p>
-                <span>Date: </span>
+                <span class="show-run-label">Date: </span>
                 <span>{{ run.date }}</span>
             </p>
             <p>
-                <span>Activity: </span>
+                <span class="show-run-label">Activity: </span>
                 <span>{{ run.activity_type }}</span>
             </p>
             <p> 
-                <span>Activity Start Time: </span>
+                <span class="show-run-label">Activity Start Time: </span>
                 <span>
                     {% if run.activity_start_time_formatted %} {{ run.activity_start_time_formatted }} {% else %} N/A {% endif %}
                 </span>
             </p>
             <p>
-                <span>Distance: </span>
+                <span class="show-run-label">Distance: </span>
                 <span>
                     {% if run.distance_mi %}
                         {{ run.distance_mi }} mi
@@ -32,19 +32,25 @@
                 </span>
             </p>
             <p>
-                <span>Activity Duration: </span>
+                <span class="show-run-label">Activity Duration: </span>
                 <span>
                     {{ run.duration_hmmss }}
                 </span>
             </p>
             <p>
-                <span>Pace: </span>
+                <span class="show-run-label">Pace: </span>
                 <span>
                     {{ run.pace }} min/mi
                 </span>
             </p>
             <p>
-                <span>Optional Notes:</span>
+                <span class="show-run-label">Points Earned: </span>
+                <span>
+                    {{ run.cooper_points }}
+                </span>
+            </p>
+            <p>
+                <span class="show-run-label">Optional Notes:</span>
                 <span>
                     {{ run.notes }}
                 </span>

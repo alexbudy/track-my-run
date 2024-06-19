@@ -1,0 +1,29 @@
+#cooper-point-div {
+    text-align: center;
+    width: 175px;
+    height: 160px;
+    display: inline-block;
+    vertical-align: top; /* Align elements vertically */
+}
+
+#point-value-label {
+    display: block;
+    font-size: 60px;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    height: 50%;
+    padding-top: 50px;
+    padding-bottom: 65px;
+}
+
+#points-label-span {
+    font-size: 16px;
+    display: inline-block;
+}
+
+#cooper-point-summary {
+    width: 175px;
+    text-align: center;
+    font-size: 14px;
+}

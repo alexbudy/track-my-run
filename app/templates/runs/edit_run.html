@@ -5,7 +5,7 @@
 {% block content %}
     {% set activity = run.activity_type.capitalize() %}
     <form hx-put="{{ url_for('runs_blueprint.edit_run_put', run_id=run.id) }}" hx-target="body" hx-push-url="true">
-        <input type="hidden" name="activity_type" value="{{ run.activity_type }}">
+        <input type="hidden" id="activity-type" name="activity_type" value="{{ run.activity_type }}">
         <fieldset>
             <legend>Editing {{ activity }} with ID {{ run.id }}</legend>
             <div class="table rows">
@@ -26,21 +26,36 @@
                 <p>
                     <label for="distance_mi_or_yd">Distance (mi)</label>
                     {% if run.distance_mi != None %}
-                        <input type="number" id="distance_mi" name="distance_mi_or_yd" step=".01" min="0.01" max="10" value="{{ run.distance_mi }}">
+                        <input type="number" id="distance-mi-or-yd" name="distance_mi_or_yd" step=".01" min="0.01" max="10" value="{{ run.distance_mi }}"
+                            hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
+                            hx-trigger="change"
+                            hx-target="#point-value-label"
+                            hx-include="#duration_hmmss, #activity-type"
+                            hx-push-url="false">
                     {% else %}
-                        <input type="number" id="distance_yard" name="distance_mi_or_yd" step="1" min="25" max="5000" value="{{ run.distance_yard }}">
+                        <input type="number" id="distance-mi-or-yd" name="distance_mi_or_yd" step="1" min="25" max="5000" value="{{ run.distance_yard }}"
+                            hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
+                            hx-trigger="change"
+                            hx-target="#point-value-label"
+                            hx-include="#duration_hmmss, #activity-type"
+                            hx-push-url="false">
                     {% endif %}
 
                     <span class="error">{{ errors.get('distance_mi_or_yd', '') }}</span>
                 </p>
                 <p>
                     <label for="activity_duration">Activity Duration</label>
-                    <input type="text" id="duration_hmmss" name="activity_duration" value="{{ run.duration_hmmss }}"> (h:)mm:ss
+                    <input type="text" id="duration_hmmss" name="activity_duration" value="{{ run.duration_hmmss }}"
+                            hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
+                            hx-trigger="change"
+                            hx-target="#point-value-label"
+                            hx-include="#distance-mi-or-yd, #activity-type"
+                            hx-push-url="false"> (h:)mm:ss
                     <span class="error">{{ errors.get('activity_duration', '') }}</span>
                 </p>
                 <p>
                     <label for="notes">Optional Notes</label>
-                    <textarea id="notes-text-area" name="notes">{{ run.notes }}</textarea>
+                    <textarea id="notes-text-area-edit" name="notes">{{ run.notes }}</textarea>
                     <span class="error">{{ errors.get('notes', '') }}</span>
                 </p>
             </div>
@@ -48,6 +63,12 @@
         </fieldset>
     </form>
 
+    {% set cooper_points = run.cooper_points | default(0) %}
+    {% set show_label = False %}
+    <!-- TODO: move styling to css -->
+    <div style="position: absolute; top: 250px; left: 590px;">
+        {% include 'fragments/cooper_point_div.html' %}
+    </div>
 
     <button id="delete-btn"
         hx-delete="{{ url_for('runs_blueprint.delete_run', run_id=run.id) }}"

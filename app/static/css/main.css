@@ -67,12 +67,12 @@ header {
 }
 
 #notes-text-area {
-    width: 90%;
+    width: 100%;
 }
 
-/* #activity-type {
-    width: 100%;
-} */
+#notes-text-area-edit {
+    width: 90%;
+}
 
 #run-start-time {
     width: 100%;
@@ -161,6 +161,10 @@ tr:is(:hover, :focus-within) [data-overflow-menu] {
 
 .show-run-details span:first-child {
     white-space: nowrap;
+}
+
+.show-run-label {
+    font-weight: bold;
 }
 
 #pagination-div {
@@ -276,7 +280,7 @@ th img {
 
 /*  For runs/new_run.html styles */
 #mi-or-yd-label {
-    padding-top: 5px;
+    padding-top: 6px;
 }
 
 .form-input-row {
@@ -306,4 +310,13 @@ th img {
 
 #release-div a:hover {
     text-decoration: underline;
+}
+
+/* For runs/new_run.html styles */
+.form-and-point-container {
+    display: flex;
+}
+
+#activity-duration {
+    width: 200px;
 }

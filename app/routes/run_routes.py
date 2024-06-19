@@ -31,6 +31,7 @@ from app.auth import (
 from app.constants import MAX_DIST, MIN_DIST, REGEX_PATTERN_DURATION
 from app.models.models import ActivityType, Runs, Users
 from app.routes import DEFAULT_ORDERING, flatten_validation_errors
+from app.services.cooper_points_service import CooperPointsService
 from app.utils.utils import (
     calculate_pace,
     seconds_to_time,
@@ -136,6 +137,7 @@ class RunSchema(Schema):
         required=True, validate=validate.OneOf([a.value.lower() for a in ActivityType])
     )
     pace = fields.Decimal(places=2, dump_only=True)
+    cooper_points = fields.Decimal(places=2, dump_only=True)
     notes = fields.String(
         required=False,
         validate=Length(max=1000),
@@ -201,6 +203,7 @@ def create_run_get():
     initial_data = {
         "date": current_date,
         "activity_type": ActivityType,
+        "cooper_points": 0,
     }
 
     return render_template("runs/new_run.html", **initial_data)
@@ -259,6 +262,9 @@ def create_run():
             if ex_run_start_dt <= run_start_dt <= ex_run_end_dt:
                 flash("Start time of given run overlaps with existing run")
                 return render_template("runs/new_run.html", **initial_data)
+    run.cooper_points = CooperPointsService.get_points(
+        run.activity_type, run.distance_mi or run.distance_yard, run.duration_s
+    )
     run.save()
     flash(f"Created run {run.id} for {run.date}", "message")
     session["highlight_run_id"] = run.id
@@ -391,9 +397,8 @@ def edit_run_put(run_id):
             errors=flatten_validation_errors(errs),
         )
 
-    print("Before loading, ", request.form)
     new_run_data: Runs = register_run_schema.load(request.form)
-    print(new_run_data)
+
     if (
         new_run_data.date == run.date
         and new_run_data.activity_start_time == run.activity_start_time
@@ -407,6 +412,11 @@ def edit_run_put(run_id):
         flash("No changes were made to the activity", "message")
         return render_template("runs/edit_run.html", run=RunSchema().dump(run))
 
+    new_run_data.cooper_points = CooperPointsService.get_points(
+        new_run_data.activity_type,
+        new_run_data.distance_mi or new_run_data.distance_yard,
+        new_run_data.duration_s,
+    )
     run.update(new_run_data)
 
     flash(f"Run {run_id} edited successfully", "message")
@@ -433,3 +443,16 @@ def delete_run(run_id):
         flash(f"Run with id {run_id} was deleted successfully", "message")
 
     return redirect(url_for("runs_blueprint.get_runs"), code=303)
+
+
+@runs_blueprint.route("/runs/cooper-points", methods=["GET"])
+@auth_required
+def get_cooper_points():
+    print(request.args)
+    return str(
+        CooperPointsService.get_points(
+            request.args.get("activity_type"),
+            request.args.get("distance_mi_or_yd"),
+            request.args.get("activity_duration"),
+        )
+    )

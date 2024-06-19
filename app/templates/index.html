@@ -38,6 +38,11 @@
                         {% include 'fragments/show_chevron.html' %}
                     {% endif %} 
                 </th>
+                <th hx-get="/my_runs?order_by=cooper_points&order={{ order_vals['cooper_points'] }}" hx-target="body">
+                    Points{% if order_vals["last_ordered"] == 'cooper_points' %} 
+                        {% include 'fragments/show_chevron.html' %}
+                    {% endif %} 
+                </th>
                 <th hx-get="/my_runs?order_by=activity_type&order={{ order_vals['activity_type'] }}" hx-target="body">
                     Activity{% if order_vals["last_ordered"] == 'activity_type' %} 
                         {% include 'fragments/show_chevron.html' %}

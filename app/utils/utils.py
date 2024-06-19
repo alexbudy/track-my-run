@@ -45,10 +45,13 @@ def standardize_duration(duration: int | str) -> str:
         if duration[1] == ":":
             duration = "0:" + duration
         duration = f"00:{duration}"
-    else:
+    elif duration.count(":") == 2:
         hr, mn, sec = duration.split(":")
         if int(hr) > 10 or (int(hr) == 10 and (int(mn) + int(sec) >= 1)):
             duration = "10:00:01"
+    else:
+        # invalid format passed in, defaults to 00:00:00
+        duration = "00:00:00"
 
     return duration
 

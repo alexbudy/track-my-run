@@ -9,7 +9,7 @@ from app.utils.utils import standardize_duration
 class CooperPointsService:
     @staticmethod
     def get_points(
-        activity: str | ActivityType, distance: int | float, duration: int | str
+        activity: str | ActivityType, distance: int | float | str, duration: int | str
     ) -> float:
         """
         Get the number of cooper points for the given activity and distance
@@ -23,6 +23,11 @@ class CooperPointsService:
         activity: str = activity.lower()
 
         duration: str = standardize_duration(duration)  # capped at 10:00:01
+        if duration == "00:00:00":
+            # can't receive points for no time
+            return 0
+
+        distance = float(distance)
         dist_intervals = DIST_INTERVALS[activity]
         distance_floor_idx = bisect_right(dist_intervals, distance)
 
