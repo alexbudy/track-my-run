@@ -11,6 +11,7 @@ from sqlalchemy import (
     String,
     Integer,
     Float,
+    cast,
     func,
 )
 from enum import Enum
@@ -170,3 +171,20 @@ class CooperPoints(BaseMixin, Base):
             f"<CooperPoints(id={self.id}, activity={self.activity}, distance_floor={self.distance_floor}, "
             f"lowest_time={self.lowest_time}, highest_time={self.highest_time}, points={self.points})>"
         )
+
+    @classmethod
+    def find_row(
+        cls, activity: str, distance_floor: float | int, duration: str
+    ) -> "CooperPoints":
+        row = (
+            db.session.query(CooperPoints)
+            .filter(
+                CooperPoints.activity == activity,
+                CooperPoints.distance_floor == distance_floor,
+                CooperPoints.lowest_time <= duration,
+                duration <= CooperPoints.highest_time,
+            )
+            .order_by(CooperPoints.points.desc())
+            .first()
+        )
+        return row

@@ -22,10 +22,18 @@ def client(app):
         yield client
 
 
+STATIC_TABLES = {
+    "cooper_points"
+}  # tables not to clear before each test - possibly move out of tests folder
+
+
 def _reset_schema(session: Session):
 
     # clear all tables after each test
     for table in Base.metadata.sorted_tables:
+        if table.name in STATIC_TABLES:
+            continue
+
         db.session.execute(text(f"TRUNCATE {table.name} RESTART IDENTITY CASCADE;"))
         db.session.commit()
 

@@ -224,7 +224,6 @@ def create_run():
     initial_data["activity_type_selected"] = request.form["activity_type"]
     initial_data["activity_duration"] = request.form["activity_duration"]
     initial_data["notes"] = request.form["notes"]
-    initial_data["activity_type"] = ActivityType
 
     if errs:
         initial_data["errors"] = flatten_validation_errors(errs)
@@ -360,11 +359,7 @@ def edit_run_get(run_id):
             error_message="You do not have permission to view and edit this activity.",
         )
 
-    return render_template(
-        "runs/edit_run.html",
-        run=RunSchema().dump(activity),
-        activity_types=ActivityType,
-    )
+    return render_template("runs/edit_run.html", run=RunSchema().dump(activity))
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
@@ -387,7 +382,6 @@ def edit_run_put(run_id):
         flash(READONLY_MESSAGE, "error")
         return render_template("runs/edit_run.html", run=RunSchema().dump(run))
 
-    print(request.form)
     errs = register_run_schema.validate(request.form)
 
     if errs:
@@ -413,7 +407,6 @@ def edit_run_put(run_id):
         flash("No changes were made to the activity", "message")
         return render_template("runs/edit_run.html", run=RunSchema().dump(run))
 
-    print("ABOUT TO UPDATE")
     run.update(new_run_data)
 
     flash(f"Run {run_id} edited successfully", "message")
