@@ -17,6 +17,11 @@ app.register_blueprint(runs_blueprint)
 
 
 def create_app(config_key="dev"):
+    # probably better way to do this
+    if "sqlalchemy" in app.extensions:
+        print("SQLAlchemy already initialized")
+        return app
+
     if config_key == "test":
         config = TestConfig
     elif config_key == "prod":
@@ -31,7 +36,5 @@ def create_app(config_key="dev"):
     app.Session = sessionmaker(bind=engine)
 
     db.init_app(app)
-
-    Migrate(app, db)
 
     return app

@@ -12,7 +12,6 @@ from sqlalchemy.orm.session import Session
 @pytest.fixture(scope="session")
 def app():
     app = create_app("test")
-
     yield app
 
 
