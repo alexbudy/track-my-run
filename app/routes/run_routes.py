@@ -198,12 +198,14 @@ register_run_schema = RunSchema()
 @runs_blueprint.route("/runs/new", methods=["GET"])
 @auth_required
 def create_run_get():
+    _, user_id = get_token_and_user_id_from_cookies()
     current_date = datetime.today().strftime("%Y-%m-%d")
 
     initial_data = {
         "date": current_date,
         "activity_type": ActivityType,
         "cooper_points": 0,
+        "weekly_cooper_points": Runs.total_points(user_id),
     }
 
     return render_template("runs/new_run.html", **initial_data)
@@ -365,7 +367,10 @@ def edit_run_get(run_id):
             error_message="You do not have permission to view and edit this activity.",
         )
 
-    return render_template("runs/edit_run.html", run=RunSchema().dump(activity))
+    return render_template(
+        "runs/edit_run.html",
+        run=RunSchema().dump(activity),
+    )
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["PUT"])
@@ -408,7 +413,6 @@ def edit_run_put(run_id):
         and new_run_data.notes == run.notes
         and new_run_data.activity_type == run.activity_type
     ):
-        print("No changes were made to the activity")
         flash("No changes were made to the activity", "message")
         return render_template("runs/edit_run.html", run=RunSchema().dump(run))
 

@@ -22,7 +22,6 @@ from app.auth import (
 from app.models.models import Credentials, Users
 from app.cache import redis_cache
 from app.routes import (
-    DEFAULT_ORDERING,
     create_and_store_access_token_in_cache,
     flatten_validation_errors,
 )

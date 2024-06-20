@@ -20,7 +20,9 @@
             </h1>
             <h4>
                 &#x21B3;
-                    A web application to manage all of your aerobic activity
+                    A web application to manage all of your aerobic activity <br>
+                    &nbsp;&nbsp;&nbsp; and track your
+                    <a href="https://cooperaerobics.com/Downloads/About/Aerobics-Points-System.aspx" target="_blank">Cooper Points</a>
             </h4>
 
             {% if not logged_in %}
@@ -30,6 +32,9 @@
                         |
                         <a hx-get="{{ url_for('auth_blueprint.register') }}" hx-target="body" hx-push-url="true">Register</a>
                     </div>
+                    <div class="right-links">
+                        <a hx-get="{{ url_for('nav_blueprint.what_are_cooper_points') }}" hx-target="body" hx-push-url="true">What are Cooper Points?</a>
+                    </div>
                 </div>
             {%else %}
                 <div class="links-container">
@@ -37,7 +42,8 @@
                         <button hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my activities</button>&nbsp;
                         <button hx-get="{{ url_for('runs_blueprint.create_run_get') }}" hx-target="body" hx-push-url="true">Input new activity</button>
                     </div>
-                    <div class="'right-links">
+                    <div class="right-links">
+                        <a hx-get="{{ url_for('nav_blueprint.what_are_cooper_points') }}" hx-target="body" hx-push-url="true">What are Cooper Points?</a> |
                         <a hx-post="{{ url_for('auth_blueprint.logout') }}" hx-target="body" hx-push-url="true">Logout</a>
                     </div>
                 </div>

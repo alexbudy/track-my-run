@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import (
     CheckConstraint,
@@ -153,6 +154,19 @@ class Runs(BaseMixin, Base):
         self.cooper_points = new_run.cooper_points
         self.updated_at = func.now()
         db.session.commit()
+
+    @classmethod
+    def total_points(cls, user_id: int, days_back: int = 7) -> float:
+        result = (
+            db.session.query(func.sum(Runs.cooper_points))
+            .filter(
+                Runs.user_id == user_id,
+                Runs.date >= date.today() - timedelta(days=days_back),
+                Runs.deleted_at.is_(None),
+            )
+            .scalar()
+        )
+        return round(result, 1)
 
 
 class CooperPoints(BaseMixin, Base):

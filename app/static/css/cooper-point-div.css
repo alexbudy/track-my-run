@@ -3,7 +3,7 @@
     width: 175px;
     height: 160px;
     display: inline-block;
-    vertical-align: top; /* Align elements vertically */
+    vertical-align: top;
 }
 
 #point-value-label {

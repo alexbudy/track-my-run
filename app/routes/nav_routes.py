@@ -3,6 +3,7 @@ from flask import (
     Blueprint,
     current_app,
     redirect,
+    render_template,
     send_from_directory,
     url_for,
 )
@@ -30,6 +31,11 @@ def home():
         return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
     return redirect(url_for("auth_blueprint.login"), code=303)
+
+
+@nav_blueprint.route("/what-are-cooper-points")
+def what_are_cooper_points():
+    return render_template("what_are_cooper_points.html", logged_in=is_logged_in())
 
 
 @nav_blueprint.route("/redis-health-check")
