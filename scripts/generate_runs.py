@@ -8,6 +8,7 @@ import os
 load_dotenv()  # load env variables before importing from app
 os.environ["DEV_HOSTNAME"] = "localhost"
 
+from app.services.cooper_points_service import CooperPointsService
 from app.utils.utils import calculate_pace
 
 
@@ -79,12 +80,16 @@ def generate_runs(for_user: int, num_runs: int = 100, dry_run: bool = False):
                 )
             else:
                 run.distance_mi = random.uniform(1, 5)
-                run.duration_s = run.distance_mi * (
-                    60 * random.randint(7, 9)
-                ) + random.randint(0, 60)
+                run.duration_s = int(
+                    run.distance_mi * (60 * random.randint(7, 9))
+                    + random.randint(0, 60)
+                )
 
             run.pace = calculate_pace(
                 run.duration_s, run.distance_mi, run.distance_yard
+            )
+            run.cooper_points = CooperPointsService.get_points(
+                activity, run.distance_mi or run.distance_yard, run.duration_s
             )
             if run.pace >= 100:
                 continue  # need to skip as it violates the numeric precision
