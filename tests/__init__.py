@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from app import create_app, db
+from app import create_app
+from app.extensions import db
 from app.models.models import Base
 from sqlalchemy import text
 from sqlalchemy.orm.session import Session

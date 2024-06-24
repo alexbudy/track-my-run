@@ -6,6 +6,7 @@ colorama==0.4.6
 cryptography==42.0.5
 Flask==3.0.2
 flask-cors>=4.0.1
+Flask-Mail==0.10.0
 Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
 func_timeout==4.3.5

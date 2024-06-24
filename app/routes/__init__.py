@@ -3,7 +3,7 @@ from typing import Dict, List
 from flask import current_app
 
 from app.utils.utils import create_session_tok
-from app.cache import redis_cache
+from app.extensions import redis_cache
 
 # util functions here
 

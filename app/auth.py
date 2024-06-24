@@ -1,9 +1,8 @@
 from enum import Enum
 from functools import wraps
 import logging
-from typing import Optional
 from flask import flash, redirect, render_template, request, url_for, current_app
-from app.cache import redis_cache
+from app.extensions import redis_cache
 from app.models.models import Users
 
 # TODO - could use cleanup

@@ -10,7 +10,7 @@ from flask import (
 from func_timeout import FunctionTimedOut, func_timeout
 from sqlalchemy import text
 from app.auth import admin_required, is_logged_in
-from app.cache import redis_cache
+from app.extensions import redis_cache
 
 
 nav_blueprint = Blueprint("nav_blueprint", __name__)

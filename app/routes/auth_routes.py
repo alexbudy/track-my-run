@@ -19,12 +19,14 @@ from app.auth import (
     redirect_if_logged_in,
 )
 from app.models.models import Credentials, Users
-from app.cache import redis_cache
+from app.extensions import redis_cache
 from app.routes import (
     create_and_store_access_token_in_cache,
     flatten_validation_errors,
 )
+from app.services.password_recovery_service import PasswordRecoveryService
 from app.utils.utils import create_salt, hash_password
+
 
 auth_blueprint = Blueprint("auth_blueprint", __name__)
 
@@ -173,10 +175,25 @@ def logout_page():
 def password_recovery():
     login = request.form.get("login")
 
+    current_app.logger.info(f"Password recovery called for {login}")
+
     cred = Credentials.find_cred_on_login(login)
     if cred and cred.user.email:
-        print(cred.user.email)
-        # send_password_recovery_email(user.email, login)
+        current_app.logger.info(f"Sending recovery link to {cred.user.email}")
+        PasswordRecoveryService.send_recovery_link(cred.user.email, login)
+        return "ok"
+
+    return "user email not found"
+
+
+@auth_blueprint.route("/reset_password/<token>", methods=["GET"])
+def reset_password(token: str):
+    email = PasswordRecoveryService.verify_token(token)
+
+    current_app.logger.info(f"Reset password called for {email}")
+
+    if not email:
+        return redirect(url_for("auth_blueprint.render_login"))
 
     return "ok"
 

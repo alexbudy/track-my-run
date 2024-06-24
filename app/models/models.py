@@ -15,7 +15,7 @@ from sqlalchemy import (
     func,
 )
 from enum import Enum
-from app.database import db
+from app.extensions import db
 from app.utils.utils import calculate_pace
 
 
@@ -173,6 +173,10 @@ class Runs(BaseMixin, Base):
             )
             .scalar()
         )
+
+        if not result:
+            return 0
+
         return round(result, 1)
 
 
