@@ -16,7 +16,7 @@ from sqlalchemy import (
 )
 from enum import Enum
 from app.extensions import db
-from app.utils.utils import calculate_pace
+from app.utils.utils import calculate_pace, hash_password
 
 
 convention = {
@@ -55,17 +55,29 @@ class Credentials(BaseMixin, Base):
     login = Column(String(), unique=True, nullable=False)
     hashed_pass = Column(String(), nullable=False)
     salt = Column(String(), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
 
-    user = relationship("Users", backref="users")
+    user = relationship("Users", backref="users", uselist=False)
 
     @classmethod
     def find_cred_on_login(cls, login):
         cred = db.session.query(Credentials).filter(Credentials.login == login).first()
         return cred
+
+    @classmethod
+    def update_password(cls, login, password):
+        cred = Credentials.find_cred_on_login(login)
+        hashed_pass: str = hash_password(password, cred.salt)
+
+        if hashed_pass == cred.hashed_pass:
+            raise ValueError("Old password cannot be the same as new password")
+
+        cred.hashed_pass = hashed_pass
+        cred.updated_at = func.now()
+        cred.save()
 
     def __repr__(self):
         return f"<Credentials {self.id}, {self.login}>"
@@ -83,6 +95,8 @@ class Users(BaseMixin, Base):
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
+
+    credentials = relationship("Credentials", backref="credentials", uselist=False)
 
     @classmethod
     def find_user_on_email(cls, email):

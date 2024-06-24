@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from flask import (
     Response,
     current_app,
@@ -195,7 +196,67 @@ def reset_password(token: str):
     if not email:
         return redirect(url_for("auth_blueprint.render_login"))
 
-    return "ok"
+    login = Users.find_user_on_email(email).credentials.login
+
+    return render_template("auth/reset_password.html", login=login, token=token)
+
+
+@auth_blueprint.route("/reset_password", methods=["POST"])
+def reset_password_post():
+    login = request.form.get("login")
+    token = request.form.get("token")
+
+    if not PasswordRecoveryService.verify_token(token):
+        # flash error message will come from verify_token call
+        return redirect(url_for("auth_blueprint.render_login"))
+
+    password = request.form.get("password")
+    repeat_password = request.form.get("password_repeat")
+    current_app.logger.info(f"Reset password called for {login}")
+
+    # to reduce code dupe
+    template_data = {
+        "template_name_or_list": "auth/reset_password.html",
+        "login": login,
+        "token": token,
+    }
+    err: Optional[str] = None
+
+    if password != repeat_password:
+        err = "Passwords do not match, please try again"
+    elif len(password) < MIN_PASS_LEN:
+        err = f"Password must be at least {MIN_PASS_LEN} characters long, please try again"
+    elif len(password) > MAX_PASS_LEN:
+        err = (
+            f"Password must be at most {MAX_PASS_LEN} characters long, please try again"
+        )
+
+    if err:
+        flash(err, "error")
+        return render_template(**template_data)
+
+    try:
+        Credentials.update_password(login, password)
+    except ValueError:
+        err = "New password cannot be the same as the old one, please try again"
+    except Exception as e:
+        current_app.logger.exception(
+            f"Failed to reset password for {login} with error {str(e)}"
+        )
+        err = "An error occurred while resetting your password, please try again"
+
+    if err:
+        flash(err, "error")
+        return render_template(**template_data)
+
+    # add the token to redis so they cannot be used again
+    redis_cache.setex(
+        token, int(os.getenv("TOKEN_EXPIRATION_TIME_S")), "password_reset"
+    )
+
+    flash("Your password has been reset! Please login", "message")
+
+    return redirect(url_for("auth_blueprint.render_login"))
 
 
 # TODO - be logged out to register

@@ -45,6 +45,10 @@ header {
     color: white;
 }
 
+.alert-container {
+    margin-bottom: 5px;
+}
+
 .alert-error {
     background-color: #9d2b27;
     color: white;

@@ -3,7 +3,7 @@ import os
 from flask import current_app, flash, url_for
 from itsdangerous import BadTimeSignature, SignatureExpired, URLSafeTimedSerializer
 from flask_mail import Message
-from app.extensions import mail
+from app.extensions import mail, redis_cache
 
 
 class PasswordRecoveryService:
@@ -29,6 +29,10 @@ class PasswordRecoveryService:
 
     @staticmethod
     def verify_token(token: str) -> str:
+        if redis_cache.exists(token):
+            flash("Link has already been used, please create a new one", "error")
+            return None
+
         s = URLSafeTimedSerializer(os.getenv("TIMED_SERIALIZER_SECRET"))
 
         try:
