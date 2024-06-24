@@ -17,8 +17,13 @@
             <input type="password" id="password_repeat" name="password_repeat">
             <span class="error">{{ errors.get('password_repeat', '') }}</span>
         </div>
+        <br>
+        <i>Optional fields</i>
+        <label for="email">Email (for password recovery and updates):</label>
+        <input type="text" id="email" name="email" value="{{ email }}">
+        <span class="error">{{ errors.get('email', '') }}</span>
 
-        <label for="nick">Want to enter an optional nick?</label>
+        <label for="nick">Nickname</label>
         <input type="text" id="nick" name="nick" value="{{ nick }}">
         <span class="error">{{ errors.get('nick', '') }}</span>
         

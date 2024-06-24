@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import (
     CheckConstraint,
     Column,
@@ -12,7 +12,6 @@ from sqlalchemy import (
     String,
     Integer,
     Float,
-    cast,
     func,
 )
 from enum import Enum
@@ -61,6 +60,8 @@ class Credentials(BaseMixin, Base):
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
 
+    user = relationship("Users", backref="users")
+
     @classmethod
     def find_cred_on_login(cls, login):
         cred = db.session.query(Credentials).filter(Credentials.login == login).first()
@@ -76,14 +77,20 @@ class Users(BaseMixin, Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     nick = Column(String(), unique=False, nullable=True)
     email = Column(String(), unique=True, nullable=True)
+    email_verified_at = Column(DateTime, nullable=True, default=None)
     is_admin = Column(Integer, nullable=False, default=0)
     is_readonly = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, nullable=False, default=func.now())
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
 
+    @classmethod
+    def find_user_on_email(cls, email):
+        user = db.session.query(Users).filter(Users.email == email).first()
+        return user
+
     def __repr__(self):
-        return f"<Users {self.id}, optional nick={self.nick}, is_admin={self.is_admin}, is_readonly={self.is_readonly}>"
+        return f"<Users {self.id}, optional nick={self.nick}, email={self.email}, is_admin={self.is_admin}, is_readonly={self.is_readonly}>"
 
 
 class ActivityType(Enum):

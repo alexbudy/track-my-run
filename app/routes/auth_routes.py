@@ -8,10 +8,9 @@ from flask import (
     render_template,
     request,
     Blueprint,
-    session,
     url_for,
 )
-from marshmallow import Schema, fields, post_load, pre_load
+from marshmallow import Schema, fields, post_load, pre_load, validate
 from marshmallow.validate import Length
 
 from app.auth import (
@@ -65,6 +64,9 @@ class RegisterUserSchema(Schema):
     password_repeat = fields.String(
         required=True,
         validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
+    )
+    email = fields.Email(
+        required=False, validate=validate.Email(error="Invalid email address")
     )
     nick = fields.String(
         required=False,
@@ -167,6 +169,18 @@ def logout_page():
     return redirect(url_for("auth_blueprint.render_login"))
 
 
+@auth_blueprint.route("/password_recovery", methods=["POST"])
+def password_recovery():
+    login = request.form.get("login")
+
+    cred = Credentials.find_cred_on_login(login)
+    if cred and cred.user.email:
+        print(cred.user.email)
+        # send_password_recovery_email(user.email, login)
+
+    return "ok"
+
+
 # TODO - be logged out to register
 @auth_blueprint.route("/register", methods=["GET", "POST"])
 def register():
@@ -174,10 +188,10 @@ def register():
         return render_template("auth/register.html")
 
     errs = register_user_schema.validate(request.form)
-    print(request.form, errs)
     login = request.form.get("login")
     password = request.form.get("password")
     repeat_password = request.form.get("password_repeat")
+    email = request.form.get("email")
     nick = request.form.get("nick")
 
     if errs:
@@ -195,6 +209,7 @@ def register():
             errors={"password_repeat": "Passwords do not match, please try again"},
             login=login,
             nick=nick,
+            email=email,
         )
 
     salt = create_salt()
@@ -207,7 +222,11 @@ def register():
                 flash("Login already exists, please try again")
                 return render_template("auth/register.html", nick=nick)
 
-            user = Users(nick=nick)
+            user = Users(nick=nick, email=email, is_admin=0, is_readonly=0)
+
+            if Users.find_user_on_email(email):
+                flash("Email already exists, please try again")
+                return render_template("auth/register.html", nick=nick, login=login)
 
             sess.add(user)
             sess.flush()
