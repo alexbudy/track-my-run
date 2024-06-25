@@ -178,7 +178,7 @@ class RunSchema(Schema):
         )
 
         data["duration_hmmss"] = seconds_to_time(data.get("duration_s"))
-        print(data)
+
         return data
 
 
