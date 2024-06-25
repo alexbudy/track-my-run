@@ -1,6 +1,7 @@
 from bisect import bisect_right
 
 from flask import current_app
+
 from app.constants import DIST_INTERVALS
 from app.models.models import ActivityType, CooperPoints
 from app.utils.utils import standardize_duration

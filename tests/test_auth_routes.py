@@ -1,11 +1,12 @@
 from unittest import mock
 from unittest.mock import patch
+
 from flask.testing import FlaskClient
 
 from app.models.models import Credentials, Users
 from app.routes import LOGIN_EXPIRY_S
 from app.utils.utils import create_salt, hash_password
-from tests import client, app, db_session
+from tests import app, client, db_session
 
 
 def test_login_route(client: FlaskClient):
@@ -13,8 +14,8 @@ def test_login_route(client: FlaskClient):
     html = resp.data.decode()
 
     assert resp.status_code == 200
-    assert '<a hx-get="/login"' in html
-    assert '<a hx-get="/register"' in html
+    assert '<a\n              hx-get="/login"' in html
+    assert '<a\n              hx-get="/register"' in html
 
     assert '<input type="text" id="login"' in html
     assert '<input type="password"' in html

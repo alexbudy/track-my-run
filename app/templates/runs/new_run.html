@@ -1,124 +1,160 @@
-{% set logged_in = logged_in | default(True) %}
+{% set logged_in = logged_in | default(True) %} {% extends 'base.html' %} {%
+block content %}
+<h2>Input new activity</h2>
+<div class="form-and-point-container">
+  <form
+    id="new-run-form"
+    hx-post="{{ url_for('runs_blueprint.create_run') }} "
+    hx-target="body"
+  >
+    <div class="form-input-row">
+      <div class="form-input-field">
+        <label for="date">Activity date <i>(Defaults to today)</i></label>
+        <input type="date" id="date" name="date" value="{{ date }}" />
+        <span class="error">{{ errors.get('date', '') }}</span>
+      </div>
 
-{% extends 'base.html' %}
-
-{% block content %}
-    <h2>Input new activity</h2>
-    <div class="form-and-point-container">
-        <form id="new-run-form" hx-post="{{ url_for('runs_blueprint.create_run') }} " hx-target="body">
-            <div class="form-input-row">
-                <div class="form-input-field">
-                    <label for="date">Activity date <i>(Defaults to today)</i></label>
-                    <input type="date" id="date" name="date" value="{{ date }}">
-                    <span class="error">{{ errors.get('date', '') }}</span>
-                </div>
-                
-                <div class="form-input-field">
-                    <label for="run-start-time">Start Time <i>(Optional)</i></label>
-                    <input type="time" id="run-start-time" name="activity_start_time" step="60" min="00:00", max="24:00" value="{{ activity_start_time }}">
-                    <span class="error">{{ errors.get('activity_start_time', '') }}</span>
-                </div>
-            </div>
-    
-            <div class="form-input-row form-input-row-no-top-label">
-    
-                <div class="form-input-field">
-                    <span class="multi-input-field">
-                        <label for="distance-mi-or-yd">Distance:&nbsp;</label>
-                        <input hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
-                               hx-trigger="change"
-                               hx-target="#point-value-label"
-                               hx-include="#activity-type, #activity-duration"
-                               type="number" id="distance-mi-or-yd" name="distance_mi_or_yd"
-                               step=".01" min="0.1" max="30" value="{{ distance_mi_or_yd or 0}}">
-                        &nbsp;
-                        <span id="mi-or-yd-label">Miles</span>
-                    </span>
-                    <span class="error">{{ errors.get('distance_mi', '') }}</span>
-                </div>
-    
-                <div class="form-input-field">
-                    <span class="multi-input-field">
-                        <label for="activity-type" id="activity-type-label">Activity Type:&nbsp;</label>
-                        <select name="activity_type" id="activity-type"
-                                hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
-                                hx-trigger="change"
-                                hx-target="#point-value-label"
-                                hx-include="#distance-mi-or-yd, #activity-duration">
-                            <option value="{{ activity_type.RUN.value }}" selected>Run</option>
-                            <option value="{{ activity_type.WALK.value }}">Walk</option>
-                            <option value="{{ activity_type.BIKE.value }}">Bike</option>
-                            <option value="{{ activity_type.SWIM.value }}">Swim</option>
-                        </select>
-                        <span class="error">{{ errors.get('activity_type', '') }}</span>
-                    </span>
-                </div>
-            </div>
-    
-            <div class="form-input-row form-input-row-no-top-label">
-                <div class="form-input-field">
-                    <div class="multi-input-field">
-                        <label for="activity-duration">Activity Duration (h:mm:ss):&nbsp;</label>
-                        <input type="text" id="activity-duration" name="activity_duration"
-                            pattern="[0-1]?[0-9]:[0-5][0-9]:[0-5][0-9]"
-                            title="Please enter a time in the format h:mm:ss"
-                            required
-                            hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
-                            hx-trigger="change"
-                            hx-target="#point-value-label"
-                            hx-include="#distance-mi-or-yd, #activity-type">
-                    </div>
-                </div>
-            </div>
-    
-            <div class="form-input-row">
-                <div class="form-input-field notes-container">
-                    <label for="notes">Notes<i> (Optional)</i></label>
-                    <textarea id="notes-text-area" name="notes" placeholder="Enter a note about this run here...">{{ notes }}</textarea>
-                    <span class="error">{{ errors.get('notes', '') }}</span>
-                </div>
-            </div>
-    
-            <br>
-            <input type="submit" value="Create activity" />
-        </form>
-
-        {% include 'fragments/cooper_point_div.html' %}
+      <div class="form-input-field">
+        <label for="run-start-time">Start Time <i>(Optional)</i></label>
+        <input
+          type="time"
+          id="run-start-time"
+          name="activity_start_time"
+          step="60"
+          min="00:00"
+          ,
+          max="24:00"
+          value="{{ activity_start_time }}"
+        />
+        <span class="error">{{ errors.get('activity_start_time', '') }}</span>
+      </div>
     </div>
 
-    <script>
-        $(document).ready(function() {
-            var swim = "{{ activity_type.SWIM.value }}";
-            var bike = "{{ activity_type.BIKE.value }}";
-            var walk = "{{ activity_type.WALK.value }}";
-            var run = "{{ activity_type.RUN.value }}";
+    <div class="form-input-row form-input-row-no-top-label">
+      <div class="form-input-field">
+        <span class="multi-input-field">
+          <label for="distance-mi-or-yd">Distance:&nbsp;</label>
+          <input
+            hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
+            hx-trigger="change"
+            hx-target="#point-value-label"
+            hx-include="#activity-type, #activity-duration"
+            type="number"
+            id="distance-mi-or-yd"
+            name="distance_mi_or_yd"
+            step=".01"
+            min="0.1"
+            max="30"
+            value="{{ distance_mi_or_yd or 0}}"
+          />
+          &nbsp;
+          <span id="mi-or-yd-label">Miles</span>
+        </span>
+        <span class="error">{{ errors.get('distance_mi', '') }}</span>
+      </div>
 
-            $('#activity-type').on('change', function() {
-                var selectedActivity = $(this).val();
-                if ($("#mi-or-yd-label").text() == "Miles" && selectedActivity == swim) {
-                    $("#mi-or-yd-label").text("Yards");
-                    $("#distance-mi-or-yd").val(0);
-                } else if ($("#mi-or-yd-label").text() == "Yards" && selectedActivity != swim) {
-                    $("#mi-or-yd-label").text("Miles");
-                    $("#distance-mi-or-yd").val(0);
-                }
-                
-                // adjust min, max, and step based on selected activity
-                if (selectedActivity == bike) {
-                    $("#distance-mi-or-yd")[0].min=1
-                    $("#distance-mi-or-yd")[0].max=100
-                    $("#distance-mi-or-yd")[0].step=0.1
-                } else if (selectedActivity == swim) {
-                    $("#distance-mi-or-yd")[0].min=25
-                    $("#distance-mi-or-yd")[0].max=5000
-                    $("#distance-mi-or-yd")[0].step=1
-                } else {
-                    $("#distance-mi-or-yd")[0].min=0.1
-                    $("#distance-mi-or-yd")[0].max=30
-                    $("#distance-mi-or-yd")[0].step=0.01
-                }
-            }) 
-        });
-    </script>
-    
+      <div class="form-input-field">
+        <span class="multi-input-field">
+          <label for="activity-type" id="activity-type-label"
+            >Activity Type:&nbsp;</label
+          >
+          <select
+            name="activity_type"
+            id="activity-type"
+            hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
+            hx-trigger="change"
+            hx-target="#point-value-label"
+            hx-include="#distance-mi-or-yd, #activity-duration"
+          >
+            <option value="{{ activity_type.RUN.value }}" selected>Run</option>
+            <option value="{{ activity_type.WALK.value }}">Walk</option>
+            <option value="{{ activity_type.BIKE.value }}">Bike</option>
+            <option value="{{ activity_type.SWIM.value }}">Swim</option>
+          </select>
+          <span class="error">{{ errors.get('activity_type', '') }}</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="form-input-row form-input-row-no-top-label">
+      <div class="form-input-field">
+        <div class="multi-input-field">
+          <label for="activity-duration"
+            >Activity Duration (h:mm:ss):&nbsp;</label
+          >
+          <input
+            type="text"
+            id="activity-duration"
+            name="activity_duration"
+            pattern="[0-1]?[0-9]:[0-5][0-9]:[0-5][0-9]"
+            title="Please enter a time in the format h:mm:ss"
+            required
+            hx-get="{{ url_for('runs_blueprint.get_cooper_points') }}"
+            hx-trigger="change"
+            hx-target="#point-value-label"
+            hx-include="#distance-mi-or-yd, #activity-type"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-input-row">
+      <div class="form-input-field notes-container">
+        <label for="notes">Notes<i> (Optional)</i></label>
+        <textarea
+          id="notes-text-area"
+          name="notes"
+          placeholder="Enter a note about this run here..."
+        >
+{{ notes }}</textarea
+        >
+        <span class="error">{{ errors.get('notes', '') }}</span>
+      </div>
+    </div>
+
+    <br />
+    <input type="submit" value="Create activity" />
+  </form>
+
+  {% include 'fragments/cooper_point_div.html' %}
+</div>
+
+<script>
+  $(document).ready(function () {
+    var swim = "{{ activity_type.SWIM.value }}";
+    var bike = "{{ activity_type.BIKE.value }}";
+    var walk = "{{ activity_type.WALK.value }}";
+    var run = "{{ activity_type.RUN.value }}";
+
+    $("#activity-type").on("change", function () {
+      var selectedActivity = $(this).val();
+      if ($("#mi-or-yd-label").text() == "Miles" && selectedActivity == swim) {
+        $("#mi-or-yd-label").text("Yards");
+        $("#distance-mi-or-yd").val(0);
+      } else if (
+        $("#mi-or-yd-label").text() == "Yards" &&
+        selectedActivity != swim
+      ) {
+        $("#mi-or-yd-label").text("Miles");
+        $("#distance-mi-or-yd").val(0);
+      }
+
+      // adjust min, max, and step based on selected activity
+      if (selectedActivity == bike) {
+        $("#distance-mi-or-yd")[0].min = 1;
+        $("#distance-mi-or-yd")[0].max = 100;
+        $("#distance-mi-or-yd")[0].step = 0.1;
+      } else if (selectedActivity == swim) {
+        $("#distance-mi-or-yd")[0].min = 25;
+        $("#distance-mi-or-yd")[0].max = 5000;
+        $("#distance-mi-or-yd")[0].step = 1;
+      } else {
+        $("#distance-mi-or-yd")[0].min = 0.1;
+        $("#distance-mi-or-yd")[0].max = 30;
+        $("#distance-mi-or-yd")[0].step = 0.01;
+      }
+    });
+  });
+</script>
+
 {% endblock %}

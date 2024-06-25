@@ -1,13 +1,14 @@
 import os
+
 from flask import Flask
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from app.extensions import db, mail
 from app.routes.auth_routes import auth_blueprint
 from app.routes.nav_routes import nav_blueprint
 from app.routes.run_routes import runs_blueprint
-from app.extensions import db, mail
-from config import TestConfig, DevelopmentConfig, ProdConfig
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-
+from config import DevelopmentConfig, ProdConfig, TestConfig
 
 app = Flask(__name__)
 

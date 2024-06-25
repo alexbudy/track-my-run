@@ -7,9 +7,8 @@ jobs:
     runs-on: ubuntu-latest
 
     if: github.ref == 'refs/heads/main' # enable deploy only from main branch
-    
-    steps:
 
+    steps:
       - name: Deploy application via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:

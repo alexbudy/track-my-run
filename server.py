@@ -1,7 +1,8 @@
-import os
 import logging
-from flask import current_app
+import os
+
 from dotenv import load_dotenv
+from flask import current_app
 
 load_dotenv()  # load env variables before importing from app
 

@@ -1,62 +1,75 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    {% if logged_in %}
-    <div id="label-table-pagination-div">
-        <div id="activity-count-div">Showing {{ runs_in_page}} of {{ total_count }} activities.</div>
-        <table id="show-runs-table">
-            <thead>
-            <tr>
-                <th></th>
-                <th hx-get="/my_runs?order_by=date&order={{ order_vals['date'] }}" hx-target="body">
-                    Date {% if order_vals["last_ordered"] == 'date' %}
-                       {% include 'fragments/show_chevron.html' %}
-                    {% endif %}
-                </th>
-                <th hx-get="/my_runs?order_by=activity_start_time&order={{ order_vals['activity_start_time'] }}" hx-target="body">
-                    Start Time  {% if order_vals["last_ordered"] == 'activity_start_time' %} 
-                       {% include 'fragments/show_chevron.html' %}
-                    {% endif %}
-                </th>
-                <th hx-get="/my_runs?order_by=distance_mi&order={{ order_vals['distance_mi'] }}" hx-target="body">
-                    Dist (mi) {% if order_vals["last_ordered"] == 'distance_mi' %} 
-                        {% include 'fragments/show_chevron.html' %}
-                    {% endif %}
-                </th>
-                <th hx-get="/my_runs?order_by=distance_yard&order={{ order_vals['distance_yard'] }}" hx-target="body">
-                    Dist (yards) {% if order_vals["last_ordered"] == 'distance_yard' %} 
-                        {% include 'fragments/show_chevron.html' %}
-                    {% endif %}
-                </th>
-                <th hx-get="/my_runs?order_by=duration_s&order={{ order_vals['duration_s'] }}" hx-target="body">
-                    Duration (m:ss){% if order_vals["last_ordered"] == 'duration_s' %} 
-                        {% include 'fragments/show_chevron.html' %}
-                    {% endif %}
-                </th>
-                <th hx-get="/my_runs?order_by=pace&order={{ order_vals['pace'] }}" hx-target="body">
-                    Pace (min/mi){% if order_vals["last_ordered"] == 'pace' %} 
-                        {% include 'fragments/show_chevron.html' %}
-                    {% endif %} 
-                </th>
-                <th hx-get="/my_runs?order_by=cooper_points&order={{ order_vals['cooper_points'] }}" hx-target="body">
-                    Points{% if order_vals["last_ordered"] == 'cooper_points' %} 
-                        {% include 'fragments/show_chevron.html' %}
-                    {% endif %} 
-                </th>
-                <th hx-get="/my_runs?order_by=activity_type&order={{ order_vals['activity_type'] }}" hx-target="body">
-                    Activity{% if order_vals["last_ordered"] == 'activity_type' %} 
-                        {% include 'fragments/show_chevron.html' %}
-                    {% endif %} 
-                </th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody class="list">
-                {% include 'runs/rows.html' %}
-            </tbody>
-        </table>
-        {% include 'fragments/pagination.html' %}
-    </div>
-    {% endif %}
-    
-{% endblock %}
+{% extends 'base.html' %} {% block content %} {% if logged_in %}
+<div id="label-table-pagination-div">
+  <div id="activity-count-div">
+    Showing {{ runs_in_page}} of {{ total_count }} activities.
+  </div>
+  <table id="show-runs-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th
+          hx-get="/my_runs?order_by=date&order={{ order_vals['date'] }}"
+          hx-target="body"
+        >
+          Date {% if order_vals["last_ordered"] == 'date' %} {% include
+          'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th
+          hx-get="/my_runs?order_by=activity_start_time&order={{ order_vals['activity_start_time'] }}"
+          hx-target="body"
+        >
+          Start Time {% if order_vals["last_ordered"] == 'activity_start_time'
+          %} {% include 'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th
+          hx-get="/my_runs?order_by=distance_mi&order={{ order_vals['distance_mi'] }}"
+          hx-target="body"
+        >
+          Dist (mi) {% if order_vals["last_ordered"] == 'distance_mi' %} {%
+          include 'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th
+          hx-get="/my_runs?order_by=distance_yard&order={{ order_vals['distance_yard'] }}"
+          hx-target="body"
+        >
+          Dist (yards) {% if order_vals["last_ordered"] == 'distance_yard' %} {%
+          include 'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th
+          hx-get="/my_runs?order_by=duration_s&order={{ order_vals['duration_s'] }}"
+          hx-target="body"
+        >
+          Duration (m:ss){% if order_vals["last_ordered"] == 'duration_s' %} {%
+          include 'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th
+          hx-get="/my_runs?order_by=pace&order={{ order_vals['pace'] }}"
+          hx-target="body"
+        >
+          Pace (min/mi){% if order_vals["last_ordered"] == 'pace' %} {% include
+          'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th
+          hx-get="/my_runs?order_by=cooper_points&order={{ order_vals['cooper_points'] }}"
+          hx-target="body"
+        >
+          Points{% if order_vals["last_ordered"] == 'cooper_points' %} {%
+          include 'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th
+          hx-get="/my_runs?order_by=activity_type&order={{ order_vals['activity_type'] }}"
+          hx-target="body"
+        >
+          Activity{% if order_vals["last_ordered"] == 'activity_type' %} {%
+          include 'fragments/show_chevron.html' %} {% endif %}
+        </th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody class="list">
+      {% include 'runs/rows.html' %}
+    </tbody>
+  </table>
+  {% include 'fragments/pagination.html' %}
+</div>
+{% endif %} {% endblock %}

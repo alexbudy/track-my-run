@@ -1,4 +1,5 @@
 import os
+
 from flask import (
     Blueprint,
     current_app,
@@ -9,9 +10,9 @@ from flask import (
 )
 from func_timeout import FunctionTimedOut, func_timeout
 from sqlalchemy import text
+
 from app.auth import admin_required, is_logged_in
 from app.extensions import redis_cache
-
 
 nav_blueprint = Blueprint("nav_blueprint", __name__)
 

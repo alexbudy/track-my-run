@@ -1,7 +1,15 @@
 <div id="pagination-div">
-    <a href="{{ url_for('runs_blueprint.get_runs', page=page-1) }}" class="{% if page == 1 %}disabled{% endif %}">< Previous</a>
-    
-    Page {{ page }} of {{ total_pages }}
-    
-    <a href="{{ url_for('runs_blueprint.get_runs', page=page+1) }}" class="{% if page == total_pages %}disabled{% endif %}">Next ></a>
+  <a
+    href="{{ url_for('runs_blueprint.get_runs', page=page-1) }}"
+    class="{% if page == 1 %}disabled{% endif %}"
+    >< Previous</a
+  >
+
+  Page {{ page }} of {{ total_pages }}
+
+  <a
+    href="{{ url_for('runs_blueprint.get_runs', page=page+1) }}"
+    class="{% if page == total_pages %}disabled{% endif %}"
+    >Next ></a
+  >
 </div>

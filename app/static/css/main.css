@@ -1,328 +1,326 @@
 html {
-    background-color: #fffffb;
-    font-weight: 400;
-    color: rgb(0, 0, 0);
+  background-color: #fffffb;
+  font-weight: 400;
+  color: rgb(0, 0, 0);
 }
 
 h1 {
-    padding-left: 5px;
+  padding-left: 5px;
 }
 
-h4, h5 {
-    padding-left: 25px;
+h4,
+h5 {
+  padding-left: 25px;
 }
 
 a {
-    color: #041d31
+  color: #041d31;
 }
 header {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .error {
-    padding-bottom: 5px;
-    background-color: rgb(188, 81, 97);
-    color: white;
+  padding-bottom: 5px;
+  background-color: rgb(188, 81, 97);
+  color: white;
 }
 
-
 .alert {
-    padding: 5px 15px;
-    text-align: center;
-    border-radius: 10px;
+  padding: 5px 15px;
+  text-align: center;
+  border-radius: 10px;
 }
 
 .alert a {
-    color: rgb(120, 197, 248);
+  color: rgb(120, 197, 248);
 }
 
 .alert a:hover {
-    color: white;
+  color: white;
 }
 
 .alert-message {
-    background-color: #666968;
-    color: white;
+  background-color: #666968;
+  color: white;
 }
 
 .alert-container {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .alert-error {
-    background-color: #9d2b27;
-    color: white;
+  background-color: #9d2b27;
+  color: white;
 }
 
 .notes-cell {
-    padding-bottom: 30px;
-    text-align: center;
-    border: 1px solid white;
+  padding-bottom: 30px;
+  text-align: center;
+  border: 1px solid white;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .links-container {
-    display: flex;
-    justify-content: space-between;
-    padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 10px;
 }
 
 #notes-text-area {
-    width: 100%;
+  width: 100%;
 }
 
 #notes-text-area-edit {
-    width: 90%;
+  width: 90%;
 }
 
 #run-start-time {
-    width: 100%;
+  width: 100%;
 }
 
 #enter-notes-area {
-    display: flex;
-    margin-left: 30px;
-    padding-top: 15px;
+  display: flex;
+  margin-left: 30px;
+  padding-top: 15px;
 }
 
 #form-input-div-notes {
-    display: flex;
+  display: flex;
 }
 
 .multi-input-field {
-    display: flex;
+  display: flex;
 }
 
 #activity-type-label {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .notes-container {
-    width: 100%;
+  width: 100%;
 }
 
-
 #new-run-form {
-    width: 500px;
+  width: 500px;
 }
 
 #new-run-form label {
-    white-space: nowrap
+  white-space: nowrap;
 }
 
 .login-or-register {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .login-or-register > div {
-    text-align: center;
+  text-align: center;
 }
 
 .login-or-register > input {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .delete-icon {
-    height: 25px;
+  height: 25px;
 }
 
 a {
-    cursor: pointer;
-    font-weight:500;
-    text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
 }
 
-input:not([type="submit"]), select {
-    background: rgb(247, 246, 246) !important; 
-    color: black;
+input:not([type="submit"]),
+select {
+  background: rgb(247, 246, 246) !important;
+  color: black;
 }
 
 textarea {
-    background: rgb(247, 246, 246) !important;
-    color: black;
-    min-width: 300px;
+  background: rgb(247, 246, 246) !important;
+  color: black;
+  min-width: 300px;
 }
 
 a:hover {
-    color: rgb(120, 197, 248);
+  color: rgb(120, 197, 248);
 }
 
 [data-overflow-menu] {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 tr:is(:hover, :focus-within) [data-overflow-menu] {
-    visibility: visible;
+  visibility: visible;
 }
 
-
 .show-run-details p {
-    padding-top:5px;
+  padding-top: 5px;
 }
 
 .show-run-details span:first-child {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .show-run-label {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 #pagination-div {
-    margin-top: 10px;
-    text-align: center;
+  margin-top: 10px;
+  text-align: center;
 }
 
 .disabled {
-    pointer-events: none;
-    color: #454343;
-    text-decoration: none;
-    cursor: not-allowed;
+  pointer-events: none;
+  color: #454343;
+  text-decoration: none;
+  cursor: not-allowed;
 }
 
 #activity-count-div {
-    margin-bottom: 5px;
-    text-align: center;
+  margin-bottom: 5px;
+  text-align: center;
 }
 
 #label-table-pagination-div {
-    flex-direction: column;
-    display: flex;
-    align-items: center;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
 }
 
 #footer-div {
-    margin-top: 50px;
-    margin-bottom: 20px;
-    position: relative;
-    width: 90%;
-    margin-left: 5%;
-    margin-right: 5%;
-    display: flex;
-    justify-content: space-between;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  position: relative;
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+  display: flex;
+  justify-content: space-between;
 }
 
 #footer-div img {
-    margin-bottom: 3px;
+  margin-bottom: 3px;
 }
 
 #footer-centered-span {
-    flex: 1;
-    text-align: center;
-    display: inline-block;
+  flex: 1;
+  text-align: center;
+  display: inline-block;
 }
 
 #footer-right-span {
-    white-space: nowrap;
-    position: absolute;
-    right: 0;
-    padding-top: 10px;
+  white-space: nowrap;
+  position: absolute;
+  right: 0;
+  padding-top: 10px;
 }
 
 #password-inputs {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 #github-logo {
-    width: 40px;
+  width: 40px;
 }
 
 .chevron {
-    width: 20px;  
+  width: 20px;
 }
 
 /*  For runs/rows.html styles */
 .run-row:hover {
-    background-color: #d1e7fd;
+  background-color: #d1e7fd;
 }
 
 .run-row {
-    height: 30px;
+  height: 30px;
 }
 
 .highlighted {
-    background: linear-gradient(
-        to left,
-        rgba(75, 10, 35, 0) 0%,
-        rgb(155, 105, 124) 10%,
-        rgba(155, 105, 124) 90%,
-        rgba(75, 10, 35, 0) 100%
-    );
+  background: linear-gradient(
+    to left,
+    rgba(75, 10, 35, 0) 0%,
+    rgb(155, 105, 124) 10%,
+    rgba(155, 105, 124) 90%,
+    rgba(75, 10, 35, 0) 100%
+  );
 }
 
 .odd-row {
-    background-color: rgb(233, 231, 231);
+  background-color: rgb(233, 231, 231);
 }
 
-
 .show-edit-links {
-    display: flex;
-    justify-content: space-evenly;
+  display: flex;
+  justify-content: space-evenly;
 }
 
 .show-edit-links a {
-    text-decoration: none; 
-    padding: 0 5px;
+  text-decoration: none;
+  padding: 0 5px;
 }
 
 tr th,
 tr td {
-    vertical-align: middle;
-    text-align: center;
-    white-space: nowrap;
+  vertical-align: middle;
+  text-align: center;
+  white-space: nowrap;
 }
 
 th img {
-    margin-bottom: 3px;
+  margin-bottom: 3px;
 }
 
 /*  For runs/new_run.html styles */
 #mi-or-yd-label {
-    padding-top: 6px;
+  padding-top: 6px;
 }
 
 .form-input-row {
-    display: flex;
-    width: 85%;
-    justify-content: space-between;
+  display: flex;
+  width: 85%;
+  justify-content: space-between;
 }
 
 .form-input-row-no-top-label {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 /*  For fragments/release.html styles */
 #release-div {
-    position: fixed;
-    bottom: 10px; 
-    left: 10px; 
-    z-index: 1000; 
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 1000;
 }
 
 #release-div a {
-    color: #000000;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 400;
+  color: #000000;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 #release-div a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* For runs/new_run.html styles */
 .form-and-point-container {
-    display: flex;
+  display: flex;
 }
 
 #activity-duration {
-    width: 200px;
+  width: 200px;
 }

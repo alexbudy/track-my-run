@@ -1,23 +1,24 @@
 from datetime import date, timedelta
-from sqlalchemy.orm import declarative_base, relationship
+from enum import Enum
+
 from sqlalchemy import (
     CheckConstraint,
     Column,
-    DateTime,
     Date,
-    Numeric,
-    Time,
-    ForeignKey,
-    MetaData,
-    String,
-    Integer,
+    DateTime,
     Float,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Numeric,
+    String,
+    Time,
     func,
 )
-from enum import Enum
+from sqlalchemy.orm import declarative_base, relationship
+
 from app.extensions import db
 from app.utils.utils import calculate_pace, hash_password
-
 
 convention = {
     "ix": "ix_%(column_0_label)s",

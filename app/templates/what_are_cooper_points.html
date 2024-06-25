@@ -1,27 +1,41 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <link rel="stylesheet" href="/static/css/what-are-cooper-points.css">
-    <div>
-        <div class="p-with-image">
-            <p>
-                Cooper Points are a concept developed by <a href="https://www.cooperaerobics.com/About/Our-Leaders/Kenneth-H-Cooper,-MD,-MPH.aspx" target="_blank">Dr. Kenneth H. Cooper</a> in 1968.
-                They are a method to measure the intensity of an activity, assigning a number of points based on distance and time expended.
-            </p>
-            <img src="{{ url_for('static', filename='images/cooper.jpg') }}" alt="Dr. Kenneth H. Cooper">
-        </div>
-        <p>
-            The general goal is to track the number of points a person earns over a week, and the general recommendation by Dr. Cooper is to
-            maintain a 30 points / week value to maintain healthy aerobic levels.
-        </p>
-        <p>
-            I built this application to help myself and others track these points with a simple and intuitive interface.
-            Simply enter the distance and time you performed a walk, run, swim, or bike and it will calculate how many points you earned, saving it in the database.
-        </p>
-        <p>
-            The full list of points can be found <a href="https://cooperaerobics.com/Downloads/About/Aerobics-Points-System.aspx" target="_blank">here</a>.
-
-        </p>
-    </div>
+{% extends 'base.html' %} {% block content %}
+<link rel="stylesheet" href="/static/css/what-are-cooper-points.css" />
+<div>
+  <div class="p-with-image">
+    <p>
+      Cooper Points are a concept developed by
+      <a
+        href="https://www.cooperaerobics.com/About/Our-Leaders/Kenneth-H-Cooper,-MD,-MPH.aspx"
+        target="_blank"
+        >Dr. Kenneth H. Cooper</a
+      >
+      in 1968. They are a method to measure the intensity of an activity,
+      assigning a number of points based on distance and time expended.
+    </p>
+    <img
+      src="{{ url_for('static', filename='images/cooper.jpg') }}"
+      alt="Dr. Kenneth H. Cooper"
+    />
+  </div>
+  <p>
+    The general goal is to track the number of points a person earns over a
+    week, and the general recommendation by Dr. Cooper is to maintain a 30
+    points / week value to maintain healthy aerobic levels.
+  </p>
+  <p>
+    I built this application to help myself and others track these points with a
+    simple and intuitive interface. Simply enter the distance and time you
+    performed a walk, run, swim, or bike and it will calculate how many points
+    you earned, saving it in the database.
+  </p>
+  <p>
+    The full list of points can be found
+    <a
+      href="https://cooperaerobics.com/Downloads/About/Aerobics-Points-System.aspx"
+      target="_blank"
+      >here</a
+    >.
+  </p>
+</div>
 
 {% endblock %}
