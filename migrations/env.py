@@ -1,12 +1,12 @@
-from logging.config import fileConfig
 import os
 import re
+from logging.config import fileConfig
+
 from dotenv import load_dotenv
 
 load_dotenv()  # load env variables before importing from app
-from sqlalchemy import create_engine
-
 from alembic import context
+from sqlalchemy import create_engine
 
 from app.models.models import Base
 

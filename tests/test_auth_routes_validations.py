@@ -6,7 +6,6 @@ from app.routes.auth_routes import (
     RegisterUserSchema,
 )
 
-
 schema = RegisterUserSchema()
 
 

@@ -1,14 +1,14 @@
 .p-with-image {
-    overflow: hidden; 
-    margin-bottom: 20px;
+  overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .p-with-image p {
-    float: left;
-    width: calc(100% - 220px);
+  float: left;
+  width: calc(100% - 220px);
 }
 
 .p-with-image img {
-    float: right;
-    margin-top: 10px;
+  float: right;
+  margin-top: 10px;
 }

@@ -1,7 +1,9 @@
+import logging
 from enum import Enum
 from functools import wraps
-import logging
-from flask import flash, redirect, render_template, request, url_for, current_app
+
+from flask import current_app, flash, redirect, render_template, request, url_for
+
 from app.extensions import redis_cache
 from app.models.models import Users
 

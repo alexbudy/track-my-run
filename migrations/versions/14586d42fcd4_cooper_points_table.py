@@ -8,14 +8,13 @@ Create Date: 2024-06-17 13:27:35.788022
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 from migrations.data.bike_points import BIKE_POINTS
 from migrations.data.run_points import RUN_POINTS
 from migrations.data.swim_points import SWIM_POINTS
 from migrations.data.walk_points import WALK_POINTS
-
 
 # revision identifiers, used by Alembic.
 revision: str = "14586d42fcd4"

@@ -1,6 +1,8 @@
-from math import ceil
 import re
+from datetime import date, datetime, timedelta
+from math import ceil
 from typing import List
+
 from flask import (
     Blueprint,
     current_app,
@@ -11,23 +13,11 @@ from flask import (
     session,
     url_for,
 )
-from marshmallow import (
-    Schema,
-    fields,
-    post_dump,
-    post_load,
-    validate,
-    validates_schema,
-)
+from marshmallow import Schema, fields, post_dump, post_load, validate, validates_schema
 from marshmallow.validate import Length
-from datetime import date, datetime, timedelta
-
 from sqlalchemy import and_, asc, desc
 
-from app.auth import (
-    auth_required,
-    get_token_and_user_id_from_cookies,
-)
+from app.auth import auth_required, get_token_and_user_id_from_cookies
 from app.constants import MAX_DIST, MIN_DIST, REGEX_PATTERN_DURATION
 from app.models.models import ActivityType, Runs, Users
 from app.routes import DEFAULT_ORDERING, flatten_validation_errors

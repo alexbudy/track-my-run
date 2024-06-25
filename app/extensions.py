@@ -1,7 +1,8 @@
-from redis import StrictRedis
 import os
-from flask_sqlalchemy import SQLAlchemy
+
 from flask_mail import Mail
+from flask_sqlalchemy import SQLAlchemy
+from redis import StrictRedis
 
 db = SQLAlchemy()
 mail = Mail()

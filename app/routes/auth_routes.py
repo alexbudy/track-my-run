@@ -1,6 +1,8 @@
 import os
 from typing import Optional
+
 from flask import (
+    Blueprint,
     Response,
     current_app,
     flash,
@@ -8,7 +10,6 @@ from flask import (
     redirect,
     render_template,
     request,
-    Blueprint,
     url_for,
 )
 from marshmallow import Schema, fields, post_load, pre_load, validate
@@ -19,15 +20,11 @@ from app.auth import (
     get_token_and_user_id_from_cookies,
     redirect_if_logged_in,
 )
-from app.models.models import Credentials, Users
 from app.extensions import redis_cache
-from app.routes import (
-    create_and_store_access_token_in_cache,
-    flatten_validation_errors,
-)
+from app.models.models import Credentials, Users
+from app.routes import create_and_store_access_token_in_cache, flatten_validation_errors
 from app.services.password_recovery_service import PasswordRecoveryService
 from app.utils.utils import create_salt, hash_password
-
 
 auth_blueprint = Blueprint("auth_blueprint", __name__)
 

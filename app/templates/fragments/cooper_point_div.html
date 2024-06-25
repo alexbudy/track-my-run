@@ -1,23 +1,31 @@
-<link rel="stylesheet" href="/static/css/cooper-point-div.css">
+<link rel="stylesheet" href="/static/css/cooper-point-div.css" />
 <!-- TODO: get weekly_cooper_points from BE -->
-{% set weekly_cooper_points = weekly_cooper_points | default(0) %} 
-{% set show_label = show_label | default(True) %}
+{% set weekly_cooper_points = weekly_cooper_points | default(0) %} {% set
+show_label = show_label | default(True) %}
 
 <div>
-    <div id="cooper-point-div" {% if not show_label %} style="border: none;" {% endif %}>
-        <span id="point-value-label">
-            {{ cooper_points | round(1) }}
-        </span>
-        <span id="points-label-span">
-            Points from this activity
-        </span>
-    </div>
-    
-    {% if show_label %}
-        <div id="cooper-point-summary">
-            This brings you to a total of <b>{{ weekly_cooper_points  + cooper_points }}</b> Cooper points
-            (from <b>{{ weekly_cooper_points }}</b>) over the last week.
-            Your target for the week is <b>30</b> points.
-    </div>
-    {% endif %}
+  <div
+    id="cooper-point-div"
+    {%
+    if
+    not
+    show_label
+    %}
+    style="border: none"
+    {%
+    endif
+    %}
+  >
+    <span id="point-value-label"> {{ cooper_points | round(1) }} </span>
+    <span id="points-label-span"> Points from this activity </span>
+  </div>
+
+  {% if show_label %}
+  <div id="cooper-point-summary">
+    This brings you to a total of
+    <b>{{ weekly_cooper_points + cooper_points }}</b> Cooper points (from
+    <b>{{ weekly_cooper_points }}</b>) over the last week. Your target for the
+    week is <b>30</b> points.
+  </div>
+  {% endif %}
 </div>

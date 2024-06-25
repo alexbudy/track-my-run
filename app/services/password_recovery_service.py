@@ -1,8 +1,9 @@
 import os
 
 from flask import current_app, flash, url_for
-from itsdangerous import BadTimeSignature, SignatureExpired, URLSafeTimedSerializer
 from flask_mail import Message
+from itsdangerous import BadTimeSignature, SignatureExpired, URLSafeTimedSerializer
+
 from app.extensions import mail, redis_cache
 
 

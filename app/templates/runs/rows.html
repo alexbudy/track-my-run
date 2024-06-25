@@ -1,15 +1,19 @@
-
 {% for run in runs %}
-    <tr class="run-row {% if run.id == highlight_run_id %}highlighted{% elif loop.index is even %} odd-row {% endif %}">
-        <td></td>
-        <td>{{ run.date }}</td>
-        <td>{{ run.activity_start_time_formatted if run.activity_start_time_formatted else "" }}</td>
-        <td>{{ run.distance_mi or "N/A" }}</td>
-        <td> {{ run.distance_yard or "N/A"}} </td>
-        <td>{{ run.duration_hmmss }}</td>
-        <td>{{ run.pace }}</td>
-        <td>{{ run.cooper_points }}</td>
-        <td>{{ run.activity_type.capitalize() }}</td>
-        <td>{% include 'fragments/show_edit_links.html' %}</td>
-    </tr>
+<tr
+  class="run-row {% if run.id == highlight_run_id %}highlighted{% elif loop.index is even %} odd-row {% endif %}"
+>
+  <td></td>
+  <td>{{ run.date }}</td>
+  <td>
+    {{ run.activity_start_time_formatted if run.activity_start_time_formatted
+    else "" }}
+  </td>
+  <td>{{ run.distance_mi or "N/A" }}</td>
+  <td>{{ run.distance_yard or "N/A"}}</td>
+  <td>{{ run.duration_hmmss }}</td>
+  <td>{{ run.pace }}</td>
+  <td>{{ run.cooper_points }}</td>
+  <td>{{ run.activity_type.capitalize() }}</td>
+  <td>{% include 'fragments/show_edit_links.html' %}</td>
+</tr>
 {% endfor %}

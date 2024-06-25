@@ -1,66 +1,60 @@
-{% set logged_in = logged_in | default(True) %}
+{% set logged_in = logged_in | default(True) %} {% extends 'base.html' %} {%
+block content %}
 
-{% extends 'base.html' %}
+<fieldset>
+  <legend>
+    Here's your {{ run.activity_type.lower() }} from {{days_ago}}, with ID {{
+    run.id }}. Nice work!
+  </legend>
+  <div class="table rows show-run-details">
+    <p>
+      <span class="show-run-label">Date: </span>
+      <span>{{ run.date }}</span>
+    </p>
+    <p>
+      <span class="show-run-label">Activity: </span>
+      <span>{{ run.activity_type }}</span>
+    </p>
+    <p>
+      <span class="show-run-label">Activity Start Time: </span>
+      <span>
+        {% if run.activity_start_time_formatted %} {{
+        run.activity_start_time_formatted }} {% else %} N/A {% endif %}
+      </span>
+    </p>
+    <p>
+      <span class="show-run-label">Distance: </span>
+      <span>
+        {% if run.distance_mi %} {{ run.distance_mi }} mi {% else %} {{
+        run.distance_yard }} yds {% endif %}
+      </span>
+    </p>
+    <p>
+      <span class="show-run-label">Activity Duration: </span>
+      <span> {{ run.duration_hmmss }} </span>
+    </p>
+    <p>
+      <span class="show-run-label">Pace: </span>
+      <span> {{ run.pace }} min/mi </span>
+    </p>
+    <p>
+      <span class="show-run-label">Points Earned: </span>
+      <span> {{ run.cooper_points }} </span>
+    </p>
+    <p>
+      <span class="show-run-label">Optional Notes:</span>
+      <span> {{ run.notes }} </span>
+    </p>
+  </div>
+</fieldset>
 
-{% block content %}
-    
-    <fieldset>
-        <legend>Here's your {{ run.activity_type.lower() }} from {{days_ago}}, with ID {{ run.id }}. Nice work!</legend>
-        <div class="table rows show-run-details">
-            <p>
-                <span class="show-run-label">Date: </span>
-                <span>{{ run.date }}</span>
-            </p>
-            <p>
-                <span class="show-run-label">Activity: </span>
-                <span>{{ run.activity_type }}</span>
-            </p>
-            <p> 
-                <span class="show-run-label">Activity Start Time: </span>
-                <span>
-                    {% if run.activity_start_time_formatted %} {{ run.activity_start_time_formatted }} {% else %} N/A {% endif %}
-                </span>
-            </p>
-            <p>
-                <span class="show-run-label">Distance: </span>
-                <span>
-                    {% if run.distance_mi %}
-                        {{ run.distance_mi }} mi
-                    {% else %}
-                        {{ run.distance_yard }} yds
-                    {% endif %}
-                </span>
-            </p>
-            <p>
-                <span class="show-run-label">Activity Duration: </span>
-                <span>
-                    {{ run.duration_hmmss }}
-                </span>
-            </p>
-            <p>
-                <span class="show-run-label">Pace: </span>
-                <span>
-                    {{ run.pace }} min/mi
-                </span>
-            </p>
-            <p>
-                <span class="show-run-label">Points Earned: </span>
-                <span>
-                    {{ run.cooper_points }}
-                </span>
-            </p>
-            <p>
-                <span class="show-run-label">Optional Notes:</span>
-                <span>
-                    {{ run.notes }}
-                </span>
-            </p>
-        </div>
-    </fieldset>
+<button
+  hx-get="{{ url_for('runs_blueprint.edit_run_get', run_id= run.id) }}"
+  hx-target="body"
+  hx-push-url="true"
+>
+  Edit this activity
+</button>
+<br />
 
-    <button hx-get="{{ url_for('runs_blueprint.edit_run_get', run_id= run.id) }}" hx-target="body" hx-push-url="true">Edit this activity</button>
-    <br>
-
-    {% include 'fragments/back.html' %}
-
-{% endblock %}
+{% include 'fragments/back.html' %} {% endblock %}

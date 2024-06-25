@@ -1,4 +1,5 @@
 from itertools import product
+
 import pytest
 
 from app.utils.utils import (

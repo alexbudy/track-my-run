@@ -1,2 +1,4 @@
-{% set chevron_file = url_for('static', filename='icons/chevron-down.svg') if order_vals["last_ordered_dir"] == 'desc' else url_for('static', filename='icons/chevron-up.svg') %}
-<img class="chevron" src="{{ chevron_file }}">
+{% set chevron_file = url_for('static', filename='icons/chevron-down.svg') if
+order_vals["last_ordered_dir"] == 'desc' else url_for('static',
+filename='icons/chevron-up.svg') %}
+<img class="chevron" src="{{ chevron_file }}" />

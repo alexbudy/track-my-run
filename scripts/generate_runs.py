@@ -1,20 +1,18 @@
 print("Loading env variables...")
-import datetime
-import random
-from dotenv import load_dotenv
 import argparse
+import datetime
 import os
+import random
+
+from dotenv import load_dotenv
 
 load_dotenv()  # load env variables before importing from app
 os.environ["DEV_HOSTNAME"] = "localhost"
 
+from app import create_app
+from app.models.models import ActivityType, Runs, Users
 from app.services.cooper_points_service import CooperPointsService
 from app.utils.utils import calculate_pace
-
-
-from app.models.models import ActivityType, Runs, Users
-
-from app import create_app
 
 flask_config = None
 app = None

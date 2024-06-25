@@ -1,27 +1,37 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
 
-{% block content %}
+<form
+  class="login-or-register"
+  hx-post="/login"
+  hx-push-url="true"
+  id="login-form"
+  hx-target="body"
+>
+  <label for="login">Login:</label>
+  <input type="text" id="login" name="login" value="{{ login }}" />
+  <span class="error">{{ errors.get('login', '') }}</span>
+  <label for="password">Password:</label>
+  <input type="password" id="password" name="password" />
+  <span class="error">{{ errors.get('password', '') }}</span>
+  <a
+    href="#"
+    hx-post="{{ url_for('auth_blueprint.password_recovery')}}"
+    hx-swap="none"
+    hx-push-url="false"
+    onclick="showAlert()"
+    >Forgot your password?
+  </a>
+  <br />
+  <input type="submit" value="Login" />
+</form>
 
-    <form class="login-or-register" hx-post="/login" hx-push-url="true" id="login-form" hx-target="body">
-        <label for="login">Login:</label>
-        <input type="text" id="login" name="login" value="{{ login }}">
-        <span class="error">{{ errors.get('login', '') }}</span>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password">
-        <span class="error">{{ errors.get('password', '') }}</span>
-        <a href="#" hx-post="{{ url_for('auth_blueprint.password_recovery')}}"
-            hx-swap="none" hx-push-url="false" onclick="showAlert()">Forgot your password?
-        </a>
-        <br>
-        <input type="submit" value="Login" />
-    </form>
+<script>
+  function showAlert() {
+    alert(
+      "If the associated user is found and has an email, a recovery link will be sent to you.",
+    );
+  }
+</script>
 
-    <script>
-        function showAlert() {
-            alert("If the associated user is found and has an email, a recovery link will be sent to you.");
-        }
-    </script>
-    
-    {% include 'fragments/footer.html' %}
-    {% include 'fragments/release.html' %}
-{% endblock %}
+{% include 'fragments/footer.html' %} {% include 'fragments/release.html' %} {%
+endblock %}
