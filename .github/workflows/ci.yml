@@ -47,3 +47,18 @@ jobs:
       - name: Run Unit Tests
         run: |
           python -m pytest
+      
+      - name: Deploy application via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ubuntu/stage/track-my-run
+            git pull
+            source venv/bin/activate
+            pip install -r requirements.txt
+            alembic --name stage upgrade head
+            . shell_scripts/update_tag.sh
+            sudo systemctl restart tmr-flask-app-stage

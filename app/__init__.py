@@ -4,7 +4,7 @@ from app.routes.auth_routes import auth_blueprint
 from app.routes.nav_routes import nav_blueprint
 from app.routes.run_routes import runs_blueprint
 from app.extensions import db, mail
-from config import TestConfig, DevelopmentConfig, ProdConfig
+from config import TestConfig, DevelopmentConfig, ProdConfig, StageConfig
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
@@ -26,6 +26,8 @@ def create_app(config_key="dev"):
         config = TestConfig
     elif config_key == "prod":
         config = ProdConfig
+    elif config_key == "stage":
+        config = StageConfig
     else:
         config = DevelopmentConfig
 

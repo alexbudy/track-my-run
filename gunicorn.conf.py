@@ -4,8 +4,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 LOG_DIR = os.getenv("LOG_DIR")
+FLASK_CONFIG = os.getenv("FLASK_CONFIG")
 
-bind = "0.0.0.0:8000"
+port = 8000  # prod port
+if FLASK_CONFIG == "stage":
+    port = 8001
+
+bind = f"0.0.0.0:{port}"
 workers = mp.cpu_count() * 2 + 1
 
 # Logging values
