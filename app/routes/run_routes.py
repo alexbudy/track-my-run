@@ -452,7 +452,6 @@ def delete_run(run_id):
 @runs_blueprint.route("/runs/cooper-points", methods=["GET"])
 @auth_required
 def get_cooper_points():
-    print(request.args)
     return str(
         CooperPointsService.get_points(
             request.args.get("activity_type"),

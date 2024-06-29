@@ -69,7 +69,9 @@ class RegisterUserSchema(Schema):
         validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
     )
     email = fields.Email(
-        required=False, validate=validate.Email(error="Invalid email address")
+        required=False,
+        allow_none=True,
+        validate=validate.Email(error="Invalid email address"),
     )
     nick = fields.String(
         required=False,
