@@ -88,7 +88,7 @@ class Users(BaseMixin, Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     nick = Column(String(), unique=False, nullable=True)
-    email = Column(String(), unique=True, nullable=True)
+    email = Column(String(), unique=False, nullable=True)
     email_verified_at = Column(DateTime, nullable=True, default=None)
     is_admin = Column(Integer, nullable=False, default=0)
     is_readonly = Column(Integer, nullable=False, default=0)

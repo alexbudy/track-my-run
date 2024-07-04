@@ -17,9 +17,11 @@ def test_register_user_schema():
         "password": "some_pass",
         "password_repeat": "some_pass",
         "nick": "some_nick",
+        "email": "some_email@gmail.com",
     }
     assert schema.validate(data) == {}
     data["nick"] = ""
+    data["email"] = ""
     assert schema.validate(data) == {}
 
 
@@ -29,12 +31,15 @@ def test_register_user_schema_errors():
         "password": "p1",
         "password_repeat": "p1",
         "nick": "n1",
+        "email": "e1",
     }
+    print(schema.validate(data))
     assert schema.validate(data) == {
         "login": [f"Length must be between {MIN_LOGIN_LEN} and {MAX_LOGIN_LEN}."],
         "password": [f"Length must be between {MIN_PASS_LEN} and {MAX_PASS_LEN}."],
         "password_repeat": [
             f"Length must be between {MIN_PASS_LEN} and {MAX_PASS_LEN}."
         ],
+        "email": ["Invalid email address"],
         "nick": ["Length must be between 3 and 20."],
     }

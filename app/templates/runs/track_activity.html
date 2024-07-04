@@ -1,0 +1,69 @@
+{% set logged_in = logged_in | default(True) %}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <link rel="stylesheet" href="/static/css/runs/track-activity.css">
+    
+    <h2>Track a new activity</h2>
+    <div id="track-activity-div">
+        Let's track a new run, bike or swim. No application needed 🙂
+        <br><br>
+        Poll every 
+        <select id="time-interval">
+            <option value="1" selected>1 second</option>
+            <option value="3">3 seconds</option>
+            <option value="5">5 seconds</option>
+        </select>
+        <br><br>
+        <div id="track-activity">
+            <button id="start-btn" class="track-btn" onclick="getLocationSharing()">Start activity</button>
+            <br>
+            <div id="track-activity-timer"></div>
+            <br>
+            <button id="stop-btn" disabled="true" class="track-btn" onclick="stopLocationSharing()">End activity</button>
+        </div>
+
+    </div>
+
+    <script>
+        var intervalId;
+        var timeInterval;
+        var elapsedTime;
+
+        function getLocationSharing() {
+            timeInterval = parseInt($("#time-interval").val())
+
+            $("#start-btn").prop("disabled", true)
+            $("#stop-btn").prop("disabled", false)
+
+            intervalId = setInterval(showPosition, timeInterval * 1000)
+
+            elapsedTime = 0;
+        }
+
+        function stopLocationSharing() {
+            $("#start-btn").prop("disabled", false)
+            $("#stop-btn").prop("disabled", true)
+
+            clearInterval(intervalId)
+
+        }
+
+        function resetTimesAndIntervals() {
+            timeInterval = 0;
+            elapsedTime = 0;
+        }
+
+        function showPosition() {
+            $('#track-activity-timer').html('Time elapsed: ' + elapsedTime)
+            console.log(elapsedTime)
+            elapsedTime += timeInterval;
+        }
+
+        function showError(error) {
+            console.log(error)
+        }
+    </script>
+    
+{% endblock %}

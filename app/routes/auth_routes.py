@@ -11,7 +11,7 @@ from flask import (
     Blueprint,
     url_for,
 )
-from marshmallow import Schema, fields, post_load, pre_load, validate
+from marshmallow import Schema, ValidationError, fields, post_load, pre_load, validate
 from marshmallow.validate import Length
 
 from app.auth import (
@@ -55,6 +55,15 @@ class LoginUserSchema(Schema):
         return data
 
 
+def validate_email(value: Optional[str]):
+    if value in (None, ""):
+        return True
+    try:
+        validate.Email(error="Invalid email address")(value)
+    except ValidationError:
+        raise ValidationError("Invalid email address")
+
+
 class RegisterUserSchema(Schema):
     login = fields.String(
         required=True,
@@ -68,10 +77,10 @@ class RegisterUserSchema(Schema):
         required=True,
         validate=Length(min=MIN_PASS_LEN, max=MAX_PASS_LEN),
     )
-    email = fields.Email(
+    email = fields.String(
         required=False,
         allow_none=True,
-        validate=validate.Email(error="Invalid email address"),
+        validate=validate_email,
     )
     nick = fields.String(
         required=False,
@@ -81,6 +90,7 @@ class RegisterUserSchema(Schema):
 
     @pre_load
     def normalize_empty_string(self, data, **kwargs):
+        print(data, "pre load", type(data))
         data = dict(data)
         if data["nick"] == "":
             data["nick"] = None
@@ -166,7 +176,10 @@ def logout():
     redis_cache.delete(f"user_id:{user_id}")
 
     flash("You have succesfully logged out 🎉", "message")
-    return render_template("index.html")
+
+    res: Response = make_response(render_template("index.html"))
+    res.set_cookie("accessToken", "", expires=0)
+    return res
 
 
 @auth_blueprint.route("/logout", methods=["GET"])
@@ -281,6 +294,9 @@ def register():
             errors=errors,
             login=login if "login" not in errors else "",
             nick=nick if "nick" not in errors else "",
+            email=email if "email" not in errors else "",
+            password=password if "password" not in errors else "",
+            password_repeat=repeat_password if "password_repeat" not in errors else "",
         )
 
     if password != repeat_password:
@@ -304,9 +320,15 @@ def register():
 
             user = Users(nick=nick, email=email, is_admin=0, is_readonly=0)
 
-            if Users.find_user_on_email(email):
+            if email and Users.find_user_on_email(email):
                 flash("Email already exists, please try again")
-                return render_template("auth/register.html", nick=nick, login=login)
+                return render_template(
+                    "auth/register.html",
+                    nick=nick,
+                    login=login,
+                    password=password,
+                    password_repeat=repeat_password,
+                )
 
             sess.add(user)
             sess.flush()
@@ -318,6 +340,7 @@ def register():
             )
             sess.commit()
 
+            flash("Registration successful!")
             return redirect(url_for("runs_blueprint.get_runs"), code=303)
 
         except Exception as e:

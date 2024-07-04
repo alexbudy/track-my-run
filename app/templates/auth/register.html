@@ -10,11 +10,11 @@
 
         <div id="password-inputs">
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password">
+            <input type="password" id="password" name="password" value="{{ password }}">
             <span class="error">{{ errors.get('password', '') }}</span>
 
             <label for="password_repeat">Password (repeat):</label>
-            <input type="password" id="password_repeat" name="password_repeat">
+            <input type="password" id="password_repeat" name="password_repeat" value="{{ password_repeat }}">
             <span class="error">{{ errors.get('password_repeat', '') }}</span>
         </div>
         <br>
