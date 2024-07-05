@@ -33,7 +33,7 @@ def test_register_user_schema_errors():
         "nick": "n1",
         "email": "e1",
     }
-    print(schema.validate(data))
+
     assert schema.validate(data) == {
         "login": [f"Length must be between {MIN_LOGIN_LEN} and {MAX_LOGIN_LEN}."],
         "password": [f"Length must be between {MIN_PASS_LEN} and {MAX_PASS_LEN}."],

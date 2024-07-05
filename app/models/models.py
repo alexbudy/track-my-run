@@ -96,7 +96,9 @@ class Users(BaseMixin, Base):
     updated_at = Column(DateTime, nullable=False, default=func.now())
     deleted_at = Column(DateTime, nullable=True, default=None)
 
-    credentials = relationship("Credentials", backref="credentials", uselist=False)
+    credentials = relationship(
+        "Credentials", backref="credentials", uselist=False, viewonly=True
+    )
 
     @classmethod
     def find_user_on_email(cls, email):

@@ -5,7 +5,7 @@
 {% block content %}
     <h2>Input new activity</h2>
     <div class="form-and-point-container">
-        <form id="new-run-form" hx-post="{{ url_for('runs_blueprint.create_run') }} " hx-target="body">
+        <form id="new-run-form" hx-post="{{ url_for('runs_blueprint_refactored.new_run') }} " hx-target="body">
             <div class="form-input-row">
                 <div class="form-input-field">
                     <label for="date">Activity date <i>(Defaults to today)</i></label>

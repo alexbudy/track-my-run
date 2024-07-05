@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 import string
 import secrets
 import hashlib
@@ -79,6 +79,15 @@ def time_to_display(time):
 
     # remove zero-padding the hour, platform specific
     return datetime.strptime(time, "%H:%M:%S").strftime("%-I:%M %p")
+
+
+def current_date_to_display():
+    current_date = datetime.today().strftime("%Y-%m-%d")
+    return current_date
+
+
+def calc_days_ago(date: date) -> int:
+    return (datetime.now().date() - date).days
 
 
 def calculate_pace(

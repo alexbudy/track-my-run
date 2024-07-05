@@ -3,6 +3,7 @@ from flask import Flask
 from app.routes.auth_routes import auth_blueprint
 from app.routes.nav_routes import nav_blueprint
 from app.routes.run_routes import runs_blueprint
+from app.routes.runs.routes import runs_blueprint_refactored
 from app.extensions import db, mail
 from config import TestConfig, DevelopmentConfig, ProdConfig, StageConfig
 from sqlalchemy.orm import sessionmaker
@@ -14,6 +15,8 @@ app = Flask(__name__)
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(nav_blueprint)
 app.register_blueprint(runs_blueprint)
+
+app.register_blueprint(runs_blueprint_refactored, url_prefix="/runs")
 
 
 def create_app(config_key="dev"):

@@ -242,6 +242,7 @@ tr:is(:hover, :focus-within) [data-overflow-menu] {
 /*  For runs/rows.html styles */
 .run-row:hover {
     background-color: #d1e7fd;
+    cursor: pointer;
 }
 
 .run-row {

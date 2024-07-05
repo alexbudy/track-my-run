@@ -39,7 +39,7 @@
                 <div class="links-container">
                     <div class="left-links">
                         <button hx-get="{{ url_for('runs_blueprint.get_runs') }}" hx-target="body" hx-push-url="true">Show my activities</button>&nbsp;
-                        <button hx-get="{{ url_for('runs_blueprint.create_run_get') }}" hx-target="body" hx-push-url="true">Input new activity</button>
+                        <button hx-get="{{ url_for('runs_blueprint_refactored.new_run') }}" hx-target="body" hx-push-url="true">Input new activity</button>
                     </div>
                     <div class="right-links">
                         <a hx-get="{{ url_for('nav_blueprint.what_are_cooper_points') }}" hx-target="body" hx-push-url="true">What are Cooper Points?</a> |

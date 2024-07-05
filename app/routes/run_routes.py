@@ -195,22 +195,6 @@ class RunSchema(Schema):
 register_run_schema = RunSchema()
 
 
-@runs_blueprint.route("/runs/new", methods=["GET"])
-@auth_required
-def create_run_get():
-    _, user_id = get_token_and_user_id_from_cookies()
-    current_date = datetime.today().strftime("%Y-%m-%d")
-
-    initial_data = {
-        "date": current_date,
-        "activity_type": ActivityType,
-        "cooper_points": 0,
-        "weekly_cooper_points": Runs.total_points(user_id),
-    }
-
-    return render_template("runs/new_run.html", **initial_data)
-
-
 @runs_blueprint.route("/runs", methods=["POST"])
 @auth_required
 def create_run():
@@ -323,32 +307,6 @@ def get_runs():
         total_pages=ceil(total_count / page_size) or 1,
         highlight_run_id=highlight_run_id,
     )
-
-
-@runs_blueprint.route("/runs/<int:run_id>", methods=["GET"])
-@auth_required
-def show_run(run_id):
-    _, user_id = get_token_and_user_id_from_cookies()
-
-    run: Runs = Runs.find(run_id)
-
-    if not run:
-        return render_template("runs/run_not_found.html")
-
-    if run.user_id != user_id:
-        return render_template(
-            "runs/invalid_permission.html",
-            error_message="You do not have permission to view this run.",
-        )
-
-    days_ago = {0: "today", 1: "yesterday"}.get(
-        int((datetime.now().date() - run.date).days),
-        f"{(datetime.now().date() - run.date).days} days ago",
-    )
-
-    run = RunSchema().dump(run)
-
-    return render_template("runs/show_run.html", days_ago=days_ago, run=run)
 
 
 @runs_blueprint.route("/runs/<int:run_id>/edit", methods=["GET"])

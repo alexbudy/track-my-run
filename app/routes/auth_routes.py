@@ -90,7 +90,6 @@ class RegisterUserSchema(Schema):
 
     @pre_load
     def normalize_empty_string(self, data, **kwargs):
-        print(data, "pre load", type(data))
         data = dict(data)
         if data["nick"] == "":
             data["nick"] = None

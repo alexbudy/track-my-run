@@ -1,4 +1,4 @@
 <div data-overflow-menu class="show-edit-links">
-    <button hx-get="{{ url_for('runs_blueprint.show_run', run_id= run.id) }}" hx-target="body" hx-push-url="true">Show</button>&nbsp;
+    <button hx-get="{{ url_for('runs_blueprint_refactored.show_run', run_id= run.id) }}" hx-target="body" hx-push-url="true">Show</button>&nbsp;
     <button hx-get="{{ url_for('runs_blueprint.edit_run_get', run_id= run.id) }}" hx-target="body" hx-push-url="true">Edit</button>
 </div>
