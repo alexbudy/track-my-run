@@ -27,6 +27,11 @@ def is_logged_in() -> bool:
     return logged_in_status() == LoggedInStatusEnum.LOGGED_IN
 
 
+def get_user_id() -> int:
+    _, user_id = get_token_and_user_id_from_cookies()
+    return user_id
+
+
 def get_token_and_user_id_from_cookies() -> tuple[str, int]:
     token = request.cookies.get("accessToken", "")
     if not token or not redis_cache.exists(token):

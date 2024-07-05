@@ -1,15 +1,13 @@
 from flask import render_template
-from app.auth import auth_required, get_token_and_user_id_from_cookies
-from app.models.models import ActivityType, Runs
+from app.auth import auth_required, get_user_id
 from app.routes.run_routes import RunSchema
 from app.routes.runs.utils import (
     INVALID_PERMISSION_ERR,
     RUN_NOT_FOUND_ERR,
     common_initial_data,
     get_run_and_validate_permission,
-    get_user_id,
 )
-from app.utils.utils import calc_days_ago, current_date_to_display
+from app.utils.utils import calc_days_ago
 
 
 @auth_required
@@ -30,7 +28,7 @@ def show_run(run_id):
     if error == INVALID_PERMISSION_ERR:
         return render_template(
             "runs/invalid_permission.html",
-            error_message="You do not have permission to view this activity.",
+            error_message=INVALID_PERMISSION_ERR,
         )
 
     days_ago = calc_days_ago(run.date)
